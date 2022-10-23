@@ -5,6 +5,6 @@ import (
 )
 
 func StartEntropyNode() {
-	config.SetupConfig()
+	// config.SetupConfig()
 	config.ReadConfig()
 }

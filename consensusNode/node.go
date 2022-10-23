@@ -1,6 +1,13 @@
-package ConsensusNode
+package consensusNode
 
-import "fmt"
+import (
+	"fmt"
+	"randomnessBeacon/config"
+	"randomnessBeacon/consensus"
+	"randomnessBeacon/message"
+)
+
+const MaxMsgNum = 100
 
 // [signal]:  a channel connects [node] with [consensus] and [service], deliver the exit message
 // [srvChan]: a channel connects [node] with [service], deliver service message(request)
@@ -10,31 +17,31 @@ type Node struct {
 	NodeID int64
 	signal chan interface{}
 	// srvChan         chan interface{}
-	// conChan         <-chan *message.RequestRecord
-	// directReplyChan <-chan *message.Reply
+	conChan         <-chan *message.RequestRecord
+	directReplyChan <-chan *message.Reply
 	// waitQueue       []*message.Request
-	// consensus       *consensus.StateEngine
+	consensus *consensus.StateEngine
 	// service         *service.Service
 }
 
 // initialize a new node
 func NewNode(id int64) *Node {
 	// srvChan := make(chan interface{}, MaxMsgNum)
-	// conChan := make(chan *message.RequestRecord, MaxMsgNum)
-	// rChan := make(chan *message.Reply, MaxMsgNum)
+	conChan := make(chan *message.RequestRecord, MaxMsgNum)
+	rChan := make(chan *message.Reply, MaxMsgNum)
 
-	// c := consensus.InitConsensus(id, conChan, rChan)
+	c := consensus.InitConsensus(id, conChan, rChan)
 	// sr := service.InitService(message.PortByID(id), srvChan)
 
 	n := &Node{
-		NodeID: id,
-		// consensus:       c,
+		NodeID:    id,
+		consensus: c,
 		// service:         sr,
 		// srvChan:         srvChan,
 		// waitQueue:       make([]*message.Request, 0),
-		// signal:          make(chan interface{}),
-		// conChan:         conChan,
-		// directReplyChan: rChan,
+		signal:          make(chan interface{}),
+		conChan:         conChan,
+		directReplyChan: rChan,
 	}
 
 	return n
@@ -42,9 +49,9 @@ func NewNode(id int64) *Node {
 
 // run a node
 func (n *Node) Run() {
-	// fmt.Printf("===>Consensus node[%d] start primary[%t]......\n", n.NodeID, n.NodeID == n.consensus.PrimaryID)
 	fmt.Printf("===>Consensus node[%d] start......\n", n.NodeID)
 
+	go config.WatchConfig()
 	// go n.consensus.StartConsensus(n.signal)
 	// go n.service.WaitRequest(n.signal, n.consensus)
 	// go n.Dispatch()
