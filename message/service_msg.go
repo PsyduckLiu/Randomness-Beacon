@@ -15,11 +15,11 @@ const (
 	MTCommit
 	MTViewChange
 	MTNewView
-	MTPublicKey
+	MTIdentity
 )
 
 // to be modified
-const MaxFaultyNode = 3
+const MaxFaultyNode = 2
 const TotalNodeNum = 3*MaxFaultyNode + 1
 
 // Hash message v, SHA256
@@ -51,7 +51,7 @@ func (mt MType) String() string {
 		return "ViewChange"
 	case MTNewView:
 		return "NewView"
-	case MTPublicKey:
+	case MTIdentity:
 		return "PublicKey"
 	}
 	return "Unknown"

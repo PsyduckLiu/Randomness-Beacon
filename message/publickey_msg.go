@@ -9,23 +9,17 @@ import (
 )
 
 // create new public key message of backups
-func CreateKeyMsg(t MType, id int64, sk *ecdsa.PrivateKey) *ConMessage {
-	publicKey := sk.PublicKey
-	marshalledKey, err := x509.MarshalPKIXPublicKey(&publicKey)
-	if err != nil {
-		panic(err)
-	}
-
-	// sign message.Payload(marshalledKey)
-	sig := signature.GenerateSig(marshalledKey, sk)
-	keyMsg := &ConMessage{
+func CreateIdentityMsg(t MType, id int64, localAddr string, sk *ecdsa.PrivateKey) *ConMessage {
+	// sign message.Payload
+	sig := signature.GenerateSig([]byte(localAddr), sk)
+	identityMsg := &ConMessage{
 		Typ:     t,
 		Sig:     sig,
 		From:    id,
-		Payload: marshalledKey,
+		Payload: []byte(localAddr),
 	}
 
-	return keyMsg
+	return identityMsg
 }
 
 // create new public key message of the client

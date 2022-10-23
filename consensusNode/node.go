@@ -2,7 +2,6 @@ package consensusNode
 
 import (
 	"fmt"
-	"randomnessBeacon/config"
 	"randomnessBeacon/consensus"
 	"randomnessBeacon/message"
 )
@@ -51,7 +50,7 @@ func NewNode(id int64) *Node {
 func (n *Node) Run() {
 	fmt.Printf("===>Consensus node[%d] start......\n", n.NodeID)
 
-	go config.WatchConfig()
+	// go config.WatchConfig()
 	// go n.consensus.StartConsensus(n.signal)
 	// go n.service.WaitRequest(n.signal, n.consensus)
 	// go n.Dispatch()

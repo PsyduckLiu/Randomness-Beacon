@@ -92,13 +92,13 @@ func NewSimpleP2pLib(id int64, msgChan chan<- *message.ConMessage) P2pNetwork {
 	return sp
 }
 
+// connect to all known nodes
 func (sp *SimpleP2p) dialTcp(id int64) {
 	nodeConfig := config.GetConsensusNode()
 
 	for i := 0; i < len(nodeConfig); i++ {
-		// _, ok := sp.PeerPublicKeys[int64(i)]
-
 		if int64(i) != id && nodeConfig[i].Ip != "0" {
+			// resolve TCP address and dial TCP conn
 			addr, err := net.ResolveTCPAddr("tcp4", nodeConfig[i].Ip)
 			if err != nil {
 				panic(err)
@@ -117,6 +117,7 @@ func (sp *SimpleP2p) dialTcp(id int64) {
 			normalPublicKey := pub.(*ecdsa.PublicKey)
 			curve := normalPublicKey.Curve
 
+			// unmarshal public key
 			x, y := elliptic.Unmarshal(curve, nodeConfig[i].Pk)
 			newPublicKey := &ecdsa.PublicKey{
 				Curve: curve,
@@ -124,10 +125,18 @@ func (sp *SimpleP2p) dialTcp(id int64) {
 				Y:     y,
 			}
 
+			// store remote ip-conn-id-pk relation
 			sp.Peers[conn.RemoteAddr().String()] = conn
 			sp.Ip2Id[conn.RemoteAddr().String()] = int64(i)
 			sp.PeerPublicKeys[int64(i)] = newPublicKey
-			fmt.Printf("===>[Node%d=>%d]Connected=[%s=>%s]\n", id, i, conn.LocalAddr().String(), conn.RemoteAddr().String())
+			fmt.Printf("===>[Node%d<=>%d]Connected=[%s<=>%s]\n", id, i, conn.LocalAddr().String(), conn.RemoteAddr().String())
+
+			// new identity message
+			// send identity message to origin nodes
+			kMsg := message.CreateIdentityMsg(message.MTIdentity, sp.NodeId, conn.LocalAddr().String(), sp.PrivateKey)
+			if err := sp.SendUniqueNode(conn, kMsg); err != nil {
+				panic(err)
+			}
 
 			go sp.waitData(conn)
 		}
@@ -140,10 +149,12 @@ func (sp *SimpleP2p) monitor(id int64) {
 
 	for {
 		conn, err := sp.SrvHub.AcceptTCP()
+
+		// remove a node
 		if err != nil {
 			fmt.Printf("===>P2p network accept err:%s\n", err)
 			if err == io.EOF {
-				fmt.Printf("===>[Node%d] Remove peer node%s\n", id, conn.RemoteAddr().String())
+				fmt.Printf("===>[Node%d] Remove peer node[%d]%s\n", sp.NodeId, sp.Ip2Id[conn.RemoteAddr().String()], conn.RemoteAddr().String())
 				config.RemoveConsensusNode(sp.Ip2Id[conn.RemoteAddr().String()])
 				delete(sp.Peers, conn.RemoteAddr().String())
 				delete(sp.PeerPublicKeys, sp.Ip2Id[conn.RemoteAddr().String()])
@@ -152,36 +163,9 @@ func (sp *SimpleP2p) monitor(id int64) {
 			continue
 		}
 
-		nodeConfig := config.GetConsensusNode()
-		fmt.Println(conn.RemoteAddr().String())
-		for i := 0; i < len(nodeConfig); i++ {
-			fmt.Println(nodeConfig[i].Ip)
-
-			if nodeConfig[i].Ip == conn.RemoteAddr().String() {
-				// get specified curve
-				marshalledCurve := config.GetCurve()
-				pub, err := x509.ParsePKIXPublicKey(marshalledCurve)
-				if err != nil {
-					panic(fmt.Errorf("===>[ERROR]Key message parse err:%s", err))
-				}
-				normalPublicKey := pub.(*ecdsa.PublicKey)
-				curve := normalPublicKey.Curve
-
-				x, y := elliptic.Unmarshal(curve, nodeConfig[i].Pk)
-				newPublicKey := &ecdsa.PublicKey{
-					Curve: curve,
-					X:     x,
-					Y:     y,
-				}
-
-				sp.Peers[conn.RemoteAddr().String()] = conn
-				sp.Ip2Id[conn.RemoteAddr().String()] = int64(i)
-				sp.PeerPublicKeys[int64(i)] = newPublicKey
-				fmt.Printf("===>[Node%d=>%d]Connected=[%s=>%s]\n", id, i, conn.LocalAddr().String(), conn.RemoteAddr().String())
-
-				go sp.waitData(conn)
-			}
-		}
+		// add a new node
+		sp.Peers[conn.RemoteAddr().String()] = conn
+		go sp.waitData(conn)
 	}
 }
 
@@ -190,12 +174,14 @@ func (sp *SimpleP2p) waitData(conn *net.TCPConn) {
 	buf := make([]byte, 2048)
 	for {
 		n, err := conn.Read(buf)
+
+		// remove a node
 		if err != nil {
 			fmt.Printf("===>P2p network capture data err:%s\n", err)
 			if err == io.EOF {
-				fmt.Printf("===>Remove peer node%s\n", conn.RemoteAddr().String())
+				fmt.Printf("===>[Node%d] Remove peer node[%d]%s\n", sp.NodeId, sp.Ip2Id[conn.RemoteAddr().String()], conn.RemoteAddr().String())
+				config.RemoveConsensusNode(sp.Ip2Id[conn.RemoteAddr().String()])
 				delete(sp.Peers, conn.RemoteAddr().String())
-				fmt.Printf("===>Remove peer node%s's public key%s\n", conn.RemoteAddr().String(), sp.PeerPublicKeys[sp.Ip2Id[conn.RemoteAddr().String()]])
 				delete(sp.PeerPublicKeys, sp.Ip2Id[conn.RemoteAddr().String()])
 				delete(sp.Ip2Id, conn.RemoteAddr().String())
 				return
@@ -203,7 +189,7 @@ func (sp *SimpleP2p) waitData(conn *net.TCPConn) {
 			continue
 		}
 
-		// fmt.Printf("===>Receive [%s->%s]\n", conn.RemoteAddr().String(), conn.LocalAddr().String())
+		// handle a consensus message
 		conMsg := &message.ConMessage{}
 		if err := json.Unmarshal(buf[:n], conMsg); err != nil {
 			fmt.Println(string(buf[:n]))
@@ -212,20 +198,35 @@ func (sp *SimpleP2p) waitData(conn *net.TCPConn) {
 		time.Sleep(100 * time.Millisecond)
 
 		switch conMsg.Typ {
-		// handle new public key message from backups
-		case message.MTPublicKey:
-			pub, err := x509.ParsePKIXPublicKey(conMsg.Payload)
+		// handle new identity message from backups
+		case message.MTIdentity:
+			nodeConfig := config.GetConsensusNode()
+
+			// get specified curve
+			marshalledCurve := config.GetCurve()
+			pub, err := x509.ParsePKIXPublicKey(marshalledCurve)
 			if err != nil {
-				fmt.Printf("===>[ERROR]Key message parse err:%s\n", err)
-				continue
+				panic(fmt.Errorf("===>[ERROR]Key message parse err:%s", err))
 			}
-			newPublicKey := pub.(*ecdsa.PublicKey)
+			normalPublicKey := pub.(*ecdsa.PublicKey)
+			curve := normalPublicKey.Curve
+
+			// unmarshal public key
+			x, y := elliptic.Unmarshal(curve, nodeConfig[conMsg.From].Pk)
+			newPublicKey := &ecdsa.PublicKey{
+				Curve: curve,
+				X:     x,
+				Y:     y,
+			}
+
+			// verify signature
 			verify := signature.VerifySig(conMsg.Payload, conMsg.Sig, newPublicKey)
 			if !verify {
 				fmt.Printf("===>[ERROR]Verify new public key Signature failed, From Node[%d], IP[%s]\n", conMsg.From, conn.RemoteAddr().String())
 				break
 			}
 
+			// add a new node
 			if sp.PeerPublicKeys[conMsg.From] != newPublicKey {
 				sp.mutex.Lock()
 				sp.Ip2Id[conn.RemoteAddr().String()] = conMsg.From
@@ -234,6 +235,7 @@ func (sp *SimpleP2p) waitData(conn *net.TCPConn) {
 
 				fmt.Printf("===>Get new public key from Node[%d], IP[%s]\n", conMsg.From, conn.RemoteAddr().String())
 				fmt.Printf("===>Node[%d]'s new public key is[%v]\n", conMsg.From, newPublicKey)
+				fmt.Printf("===>[Node%d<=>%d]Connected=[%s<=>%s]\n", sp.NodeId, conMsg.From, conn.LocalAddr().String(), conn.RemoteAddr().String())
 			}
 
 		// handle consensus message from backups
