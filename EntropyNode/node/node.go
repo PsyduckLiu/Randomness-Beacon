@@ -5,11 +5,9 @@ import (
 	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/x509"
-	"encoding/hex"
 	"entropyNode/config"
 	"entropyNode/signature"
 	"fmt"
-	"math/big"
 	"strconv"
 )
 
@@ -40,17 +38,17 @@ func StartEntropyNode(id int) {
 	previousOutput := config.GetPreviousInput()
 	vrfResult := calVRF(previousOutput, privateKey)
 	vrfResultBinary := BytesToBinaryString(vrfResult)
-	fmt.Printf("VRF result is:%v\n", hex.EncodeToString(vrfResult))
 	fmt.Printf("VRF result is:%v\n", BytesToBinaryString(vrfResult))
+	fmt.Printf("VRF result last bit is:%v\n", vrfResultBinary[len(vrfResultBinary)-1:])
 
-	selectBigInt, _ := rand.Int(rand.Reader, big.NewInt(2))
-	selectInt, err := strconv.Atoi(selectBigInt.String())
-	fmt.Println(selectInt)
-	if err == nil {
+	// match VRF result with difficulty
+	difficulty := config.GetDifficulty()
+	vrfResultTail, err := strconv.Atoi(vrfResultBinary[len(vrfResultBinary)-1:])
+	if err != nil {
 		panic(err)
 	}
-	if int(vrfResultBinary[len(vrfResultBinary)-1]) == selectInt {
-		fmt.Println("yes")
+	if vrfResultTail == difficulty {
+		fmt.Println("yes!!!!!!!!!!")
 	}
 }
 

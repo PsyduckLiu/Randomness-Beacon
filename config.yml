@@ -25,5 +25,6 @@ ftype: 0
 previousoutput: "0x12324"
 running: false
 tctype: 0
-version: v0.3
+version: v0.5
 vrftype: 0
+difficulty: 0

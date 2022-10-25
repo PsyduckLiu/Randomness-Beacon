@@ -7,6 +7,11 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"fmt"
+	"log"
+	"math/big"
+	"os"
+	"strconv"
+	"syscall"
 
 	"github.com/spf13/viper"
 )
@@ -19,6 +24,7 @@ type Configurations struct {
 	VRFType        int
 	TCType         int
 	FType          int
+	Difficulty     int
 	ConsensusNodes NodesConfig
 }
 
@@ -67,15 +73,41 @@ func SetupConfig() {
 		message := []byte("asdkjhdk")
 		randomNum := signature.Digest(message)
 		viper.Set("PreviousOutput", randomNum)
-		// TODO: VRF type,Time Commitment Type,F Function Type
+
+		// generate random difficulty
+		selectBigInt, _ := rand.Int(rand.Reader, big.NewInt(2))
+		selectInt, err := strconv.Atoi(selectBigInt.String())
+		if err != nil {
+			panic(err)
+		}
+		viper.Set("Difficulty", selectInt)
 
 		viper.Set("Running", true)
+
+		// TODO: VRF type,Time Commitment Type,F Function Type
 
 		// write new settings
 		if err := viper.WriteConfig(); err != nil {
 			panic(fmt.Errorf("setup conf failed, err:%s", err))
 		}
 	}
+}
+
+// get difficulty from config
+func GetDifficulty() int {
+	var configuration = new(Configurations)
+
+	// set config file
+	viper.SetConfigFile("../config.yml")
+
+	if err := viper.ReadInConfig(); err != nil {
+		panic(fmt.Errorf("fatal error config file: %w", err))
+	}
+	if err := viper.Unmarshal(configuration); err != nil {
+		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
+	}
+
+	return configuration.Difficulty
 }
 
 // get curve from config
@@ -154,6 +186,15 @@ func NewConsensusNode(id int64, ip string, pk []byte) {
 }
 
 func RemoveConsensusNode(id int64) {
+	// lock file
+	f, err := os.Open("../config.yml")
+	if err != nil {
+		panic(err)
+	}
+	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
+		log.Println("add share lock in no block failed", err)
+	}
+
 	// set config file
 	viper.SetConfigFile("../config.yml")
 
@@ -204,6 +245,11 @@ func RemoveConsensusNode(id int64) {
 	// write new settings
 	if err := viper.WriteConfig(); err != nil {
 		panic(fmt.Errorf("setup conf failed, err:%s", err))
+	}
+
+	// unlock file
+	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {
+		log.Println("unlock share lock failed", err)
 	}
 }
 
@@ -274,6 +320,7 @@ func ReadConfig() {
 	fmt.Printf("Node[5]'s pk is %s\n", configuration.ConsensusNodes.Node5.Pk)
 	fmt.Printf("Node[6]'s ip is %s\n", configuration.ConsensusNodes.Node6.Ip)
 	fmt.Printf("Node[6]'s pk is %s\n", configuration.ConsensusNodes.Node6.Pk)
+	fmt.Printf("Difficulty:%d\n", configuration.Difficulty)
 	fmt.Printf("VRFType:%d\n", configuration.VRFType)
 	fmt.Printf("TCType:%d\n", configuration.TCType)
 	fmt.Printf("FType:%d\n", configuration.FType)

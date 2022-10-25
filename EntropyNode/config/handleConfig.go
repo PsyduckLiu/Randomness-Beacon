@@ -14,6 +14,7 @@ type Configurations struct {
 	VRFType        int
 	TCType         int
 	FType          int
+	Difficulty     int
 	ConsensusNodes NodesConfig
 }
 
@@ -32,6 +33,23 @@ type NodeConfig struct {
 	Ip string
 }
 
+// get difficulty from config
+func GetDifficulty() int {
+	var configuration = new(Configurations)
+
+	// set config file
+	viper.SetConfigFile("../config.yml")
+
+	if err := viper.ReadInConfig(); err != nil {
+		panic(fmt.Errorf("fatal error config file: %w", err))
+	}
+	if err := viper.Unmarshal(configuration); err != nil {
+		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
+	}
+
+	return configuration.Difficulty
+}
+
 // get curve from config
 func GetCurve() []byte {
 	var configuration = new(Configurations)
@@ -47,6 +65,23 @@ func GetCurve() []byte {
 	}
 
 	return configuration.EllipticCurve
+}
+
+// get previous input from config
+func GetPreviousInput() []byte {
+	var configuration = new(Configurations)
+
+	// set config file
+	viper.SetConfigFile("../config.yml")
+
+	if err := viper.ReadInConfig(); err != nil {
+		panic(fmt.Errorf("fatal error config file: %w", err))
+	}
+	if err := viper.Unmarshal(configuration); err != nil {
+		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
+	}
+
+	return configuration.PreviousOutput
 }
 
 // get consensus nodes from config
@@ -80,23 +115,6 @@ func GetConsensusNode() [7]NodeConfig {
 	nodeConfig[6].Pk = configuration.ConsensusNodes.Node6.Pk
 
 	return nodeConfig
-}
-
-// get previous input from config
-func GetPreviousInput() []byte {
-	var configuration = new(Configurations)
-
-	// set config file
-	viper.SetConfigFile("../config.yml")
-
-	if err := viper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
-	}
-	if err := viper.Unmarshal(configuration); err != nil {
-		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
-	}
-
-	return configuration.PreviousOutput
 }
 
 // get messages from config file
@@ -133,6 +151,7 @@ func ReadConfig() {
 	fmt.Printf("Node[5]'s pk is %s\n", configuration.ConsensusNodes.Node5.Pk)
 	fmt.Printf("Node[6]'s ip is %s\n", configuration.ConsensusNodes.Node6.Ip)
 	fmt.Printf("Node[6]'s pk is %s\n", configuration.ConsensusNodes.Node6.Pk)
+	fmt.Printf("Difficulty:%d\n", configuration.Difficulty)
 	fmt.Printf("VRFType:%d\n", configuration.VRFType)
 	fmt.Printf("TCType:%d\n", configuration.TCType)
 	fmt.Printf("FType:%d\n", configuration.FType)
