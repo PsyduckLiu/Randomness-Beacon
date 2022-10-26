@@ -48,7 +48,7 @@ func (s Stage) String() string {
 }
 
 // timer
-const StateTimerOut = 10 * time.Second
+const StateTimerOut = 5 * time.Second
 const MaxStateMsgNO = 100
 
 type RequestTimer struct {
@@ -156,11 +156,12 @@ func InitConsensus(id int64, cChan chan<- *message.RequestRecord) *StateEngine {
 // receive and handle consensus message
 func (s *StateEngine) StartConsensus(sig chan interface{}) {
 	s.nodeStatus = Serving
-	s.WaitTC(sig)
+	s.StartTimer(sig)
 
 	for {
 		select {
 		case <-s.Timer.C:
+			// s.Timer.tack()
 			fmt.Printf("======>[Node%d]Stop Receive messages", s.NodeID)
 			for i := 0; i < len(s.TimeCommitment); i++ {
 				fmt.Println(s.TimeCommitment[i])
@@ -189,11 +190,14 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 	}
 }
 
+func (s *StateEngine) StartTimer(sig chan interface{}) {
+	// start timer
+	fmt.Println(s.Timer.IsOk)
+	s.Timer.tick()
+}
+
 // wait for request from client in UDP channel
 func (s *StateEngine) WaitTC(sig chan interface{}) {
-	// start timer
-	// s.Timer.tick()
-
 	defer func() {
 		if r := recover(); r != nil {
 			sig <- r

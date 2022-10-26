@@ -53,6 +53,7 @@ func (n *Node) Run() {
 
 	// go config.WatchConfig()
 	go n.consensus.StartConsensus(n.signal)
+	go n.consensus.WaitTC(n.signal)
 	// go n.service.WaitRequest(n.signal, n.consensus)
 	// go n.Dispatch()
 
