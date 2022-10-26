@@ -85,8 +85,8 @@ func GetPreviousInput() []byte {
 }
 
 // get consensus nodes from config
-func GetConsensusNode() [7]NodeConfig {
-	var nodeConfig [7]NodeConfig
+func GetConsensusNode() []NodeConfig {
+	var nodeConfig []NodeConfig
 	var configuration = new(Configurations)
 
 	// set config file
@@ -99,20 +99,39 @@ func GetConsensusNode() [7]NodeConfig {
 		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
 	}
 
-	nodeConfig[0].Ip = configuration.ConsensusNodes.Node0.Ip
-	nodeConfig[0].Pk = configuration.ConsensusNodes.Node0.Pk
-	nodeConfig[1].Ip = configuration.ConsensusNodes.Node1.Ip
-	nodeConfig[1].Pk = configuration.ConsensusNodes.Node1.Pk
-	nodeConfig[2].Ip = configuration.ConsensusNodes.Node2.Ip
-	nodeConfig[2].Pk = configuration.ConsensusNodes.Node2.Pk
-	nodeConfig[3].Ip = configuration.ConsensusNodes.Node3.Ip
-	nodeConfig[3].Pk = configuration.ConsensusNodes.Node3.Pk
-	nodeConfig[4].Ip = configuration.ConsensusNodes.Node4.Ip
-	nodeConfig[4].Pk = configuration.ConsensusNodes.Node4.Pk
-	nodeConfig[5].Ip = configuration.ConsensusNodes.Node5.Ip
-	nodeConfig[5].Pk = configuration.ConsensusNodes.Node5.Pk
-	nodeConfig[6].Ip = configuration.ConsensusNodes.Node6.Ip
-	nodeConfig[6].Pk = configuration.ConsensusNodes.Node6.Pk
+	for i := 0; i < 7; i++ {
+		var node NodeConfig
+		switch i {
+		case 0:
+			node.Ip = configuration.ConsensusNodes.Node0.Ip
+			node.Pk = configuration.ConsensusNodes.Node0.Pk
+			nodeConfig = append(nodeConfig, node)
+		case 1:
+			node.Ip = configuration.ConsensusNodes.Node1.Ip
+			node.Pk = configuration.ConsensusNodes.Node1.Pk
+			nodeConfig = append(nodeConfig, node)
+		case 2:
+			node.Ip = configuration.ConsensusNodes.Node2.Ip
+			node.Pk = configuration.ConsensusNodes.Node2.Pk
+			nodeConfig = append(nodeConfig, node)
+		case 3:
+			node.Ip = configuration.ConsensusNodes.Node3.Ip
+			node.Pk = configuration.ConsensusNodes.Node3.Pk
+			nodeConfig = append(nodeConfig, node)
+		case 4:
+			node.Ip = configuration.ConsensusNodes.Node4.Ip
+			node.Pk = configuration.ConsensusNodes.Node4.Pk
+			nodeConfig = append(nodeConfig, node)
+		case 5:
+			node.Ip = configuration.ConsensusNodes.Node5.Ip
+			node.Pk = configuration.ConsensusNodes.Node5.Pk
+			nodeConfig = append(nodeConfig, node)
+		case 6:
+			node.Ip = configuration.ConsensusNodes.Node6.Ip
+			node.Pk = configuration.ConsensusNodes.Node6.Pk
+			nodeConfig = append(nodeConfig, node)
+		}
+	}
 
 	return nodeConfig
 }

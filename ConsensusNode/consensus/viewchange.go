@@ -139,6 +139,6 @@ func (s *StateEngine) didChangeView(nv *message.NewView, msg *message.ConMessage
 
 func (s *StateEngine) cleanLogandRequest() {
 	s.msgLogs = make(map[int64]*NormalLog)
-	s.cliRecord = make(map[string]*ClientRecord)
-	fmt.Printf("cleaning msgLogs[%d] and cliRecord [%d] when view changed\n", len(s.msgLogs), len(s.cliRecord))
+	// s.cliRecord = make(map[string]*ClientRecord)
+	// fmt.Printf("cleaning msgLogs[%d] and cliRecord [%d] when view changed\n", len(s.msgLogs), len(s.cliRecord))
 }

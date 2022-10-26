@@ -1,7 +1,6 @@
 package message
 
 import (
-	"crypto/sha256"
 	"fmt"
 )
 
@@ -9,10 +8,9 @@ type MType int16
 
 // number different kinds of message types
 const (
-	MTRequest MType = iota
-	MTPrePrepare
-	MTPrepare
-	MTCommit
+	MTCollect MType = iota
+	MTSubmit
+	MTApprove
 	MTViewChange
 	MTNewView
 	MTIdentity
@@ -22,39 +20,32 @@ const (
 const MaxFaultyNode = 2
 const TotalNodeNum = 3*MaxFaultyNode + 1
 
-// Hash message v, SHA256
-func Digest(v interface{}) []byte {
-	h := sha256.New()
-	h.Write([]byte(fmt.Sprintf("%v", v)))
-	digest := h.Sum(nil)
-
-	return digest
-}
-
-// Get Port(30000 + id)
-func PortByID(id int64) int {
-	return 30000 + int(id)
-}
-
 // MType.String()
 func (mt MType) String() string {
 	switch mt {
-	case MTRequest:
-		return "Request"
-	case MTPrePrepare:
-		return "PrePrepare"
-	case MTPrepare:
-		return "Prepare"
-	case MTCommit:
-		return "Commit"
+	case MTCollect:
+		return "Collect"
+	case MTSubmit:
+		return "Submit"
+	case MTApprove:
+		return "Approve"
 	case MTViewChange:
 		return "ViewChange"
 	case MTNewView:
 		return "NewView"
 	case MTIdentity:
-		return "PublicKey"
+		return "Identity"
 	}
 	return "Unknown"
+}
+
+// message type for entropy node
+type EntropyMessage struct {
+	PublicKey      []byte `json:"pk"`
+	VRFResult      []byte `json:"vrfresult"`
+	TimeStamp      int64  `json:"timestamp"`
+	ClientID       int64  `json:"clientID"`
+	TimeCommitment string `json:"timecommitment"`
 }
 
 // message type from client

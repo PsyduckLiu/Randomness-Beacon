@@ -4,6 +4,7 @@ import (
 	"consensusNode/config"
 	"consensusNode/message"
 	"consensusNode/signature"
+	"consensusNode/util"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -16,15 +17,9 @@ import (
 	"time"
 )
 
-// var nodeList = []int64{0, 1, 2, 3}
-
-var nodeList = []int64{0, 1, 2, 3, 4, 5, 6}
-
 type P2pNetwork interface {
 	GetPeerPublickey(peerId int64) *ecdsa.PublicKey
-	GetClientPublickey(clientId string) *ecdsa.PublicKey
 	GetMySecretkey() *ecdsa.PrivateKey
-	NewClientPublickey(clientId string, pk *ecdsa.PublicKey)
 	BroadCast(v interface{}) error
 }
 
@@ -32,15 +27,14 @@ type P2pNetwork interface {
 // [Peers]: map TCP connect to an int number
 // [MsgChan]: a channel connects [p2p] with [state(consensus)], deliver consensus message, corresponding to [ch] in [state(consensus)]
 type SimpleP2p struct {
-	NodeId           int64
-	SrvHub           *net.TCPListener
-	Peers            map[string]*net.TCPConn
-	Ip2Id            map[string]int64
-	PrivateKey       *ecdsa.PrivateKey
-	PeerPublicKeys   map[int64]*ecdsa.PublicKey
-	ClientPublicKeys map[string]*ecdsa.PublicKey
-	MsgChan          chan<- *message.ConMessage
-	mutex            sync.Mutex
+	NodeId         int64
+	SrvHub         *net.TCPListener
+	Peers          map[string]*net.TCPConn
+	Ip2Id          map[string]int64
+	PrivateKey     *ecdsa.PrivateKey
+	PeerPublicKeys map[int64]*ecdsa.PublicKey
+	MsgChan        chan<- *message.ConMessage
+	mutex          sync.Mutex
 }
 
 // new simple P2P liarary
@@ -54,6 +48,7 @@ func NewSimpleP2pLib(id int64, msgChan chan<- *message.ConMessage) P2pNetwork {
 	normalPublicKey := pub.(*ecdsa.PublicKey)
 	curve := normalPublicKey.Curve
 	fmt.Printf("Curve is %v\n", curve.Params())
+
 	// generate private key
 	privateKey, err := ecdsa.GenerateKey(curve, rand.Reader)
 	if err != nil {
@@ -62,7 +57,7 @@ func NewSimpleP2pLib(id int64, msgChan chan<- *message.ConMessage) P2pNetwork {
 	fmt.Printf("===>My own key is: %v\n", privateKey)
 
 	// listen port 30000+id
-	port := message.PortByID(id)
+	port := util.PortByID(id)
 	s, err := net.ListenTCP("tcp4", &net.TCPAddr{
 		Port: port,
 	})
@@ -81,9 +76,8 @@ func NewSimpleP2pLib(id int64, msgChan chan<- *message.ConMessage) P2pNetwork {
 		Ip2Id:          make(map[string]int64),
 		PrivateKey:     privateKey,
 		PeerPublicKeys: make(map[int64]*ecdsa.PublicKey),
-		// ClientPublicKeys: make(map[string]*ecdsa.PublicKey),
-		MsgChan: msgChan,
-		mutex:   sync.Mutex{},
+		MsgChan:        msgChan,
+		mutex:          sync.Mutex{},
 	}
 
 	go sp.monitor(id)
@@ -292,17 +286,7 @@ func (sp *SimpleP2p) GetPeerPublickey(peerId int64) *ecdsa.PublicKey {
 	return sp.PeerPublicKeys[peerId]
 }
 
-// Get Client Publickey
-func (sp *SimpleP2p) GetClientPublickey(clientId string) *ecdsa.PublicKey {
-	return sp.ClientPublicKeys[clientId]
-}
-
 // Get My Secret key
 func (sp *SimpleP2p) GetMySecretkey() *ecdsa.PrivateKey {
 	return sp.PrivateKey
-}
-
-// New Client Public key
-func (sp *SimpleP2p) NewClientPublickey(clientId string, pk *ecdsa.PublicKey) {
-	sp.ClientPublicKeys[clientId] = pk
 }

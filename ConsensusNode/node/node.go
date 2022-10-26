@@ -3,6 +3,7 @@ package node
 import (
 	"consensusNode/consensus"
 	"consensusNode/message"
+	"consensusNode/service"
 	"fmt"
 )
 
@@ -20,27 +21,27 @@ type Node struct {
 	directReplyChan <-chan *message.Reply
 	// waitQueue       []*message.Request
 	consensus *consensus.StateEngine
-	// service         *service.Service
+	service   *service.Service
 }
 
 // initialize a new node
 func NewNode(id int64) *Node {
 	// srvChan := make(chan interface{}, MaxMsgNum)
 	conChan := make(chan *message.RequestRecord, MaxMsgNum)
-	rChan := make(chan *message.Reply, MaxMsgNum)
+	// rChan := make(chan *message.Reply, MaxMsgNum)
 
-	c := consensus.InitConsensus(id, conChan, rChan)
-	// sr := service.InitService(message.PortByID(id), srvChan)
+	c := consensus.InitConsensus(id, conChan)
+	// sr := service.InitService(util.PortByID(id), srvChan)
 
 	n := &Node{
 		NodeID:    id,
 		consensus: c,
-		// service:         sr,
-		// srvChan:         srvChan,
+		// service:   sr,
+		// srvChan: srvChan,
 		// waitQueue:       make([]*message.Request, 0),
-		signal:          make(chan interface{}),
-		conChan:         conChan,
-		directReplyChan: rChan,
+		signal:  make(chan interface{}),
+		conChan: conChan,
+		// directReplyChan: rChan,
 	}
 
 	return n
@@ -51,7 +52,7 @@ func (n *Node) Run() {
 	fmt.Printf("===>Consensus node[%d] start......\n", n.NodeID)
 
 	// go config.WatchConfig()
-	// go n.consensus.StartConsensus(n.signal)
+	go n.consensus.StartConsensus(n.signal)
 	// go n.service.WaitRequest(n.signal, n.consensus)
 	// go n.Dispatch()
 
