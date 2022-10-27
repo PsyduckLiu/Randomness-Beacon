@@ -151,7 +151,7 @@ func (sp *SimpleP2p) monitor(id int64) {
 			fmt.Printf("===>P2p network accept err:%s\n", err)
 			if err == io.EOF {
 				fmt.Printf("===>[Node%d] Remove peer node[%d]%s\n", sp.NodeId, sp.Ip2Id[conn.RemoteAddr().String()], conn.RemoteAddr().String())
-				config.RemoveConsensusNode(sp.Ip2Id[conn.RemoteAddr().String()])
+				// config.RemoveConsensusNode(sp.Ip2Id[conn.RemoteAddr().String()])
 				delete(sp.Peers, conn.RemoteAddr().String())
 				delete(sp.PeerPublicKeys, sp.Ip2Id[conn.RemoteAddr().String()])
 				delete(sp.Ip2Id, conn.RemoteAddr().String())
@@ -176,7 +176,7 @@ func (sp *SimpleP2p) waitData(conn *net.TCPConn) {
 			fmt.Printf("===>P2p network capture data err:%s\n", err)
 			if err == io.EOF {
 				fmt.Printf("===>[Node%d] Remove peer node[%d]%s\n", sp.NodeId, sp.Ip2Id[conn.RemoteAddr().String()], conn.RemoteAddr().String())
-				config.RemoveConsensusNode(sp.Ip2Id[conn.RemoteAddr().String()])
+				// config.RemoveConsensusNode(sp.Ip2Id[conn.RemoteAddr().String()])
 				delete(sp.Peers, conn.RemoteAddr().String())
 				delete(sp.PeerPublicKeys, sp.Ip2Id[conn.RemoteAddr().String()])
 				delete(sp.Ip2Id, conn.RemoteAddr().String())

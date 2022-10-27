@@ -51,7 +51,7 @@ func (s Stage) String() string {
 }
 
 // timer
-const StateTimerOut = 30 * time.Second
+const StateTimerOut = 11 * time.Second
 const MaxStateMsgNO = 100
 
 type RequestTimer struct {
@@ -138,18 +138,19 @@ func InitConsensus(id int64, cChan chan<- *message.RequestRecord) *StateEngine {
 	ch := make(chan *message.ConMessage, MaxStateMsgNO)
 	p2p := p2pnetwork.NewSimpleP2pLib(id, ch)
 	se := &StateEngine{
-		NodeID:      id,
-		CurViewID:   0,
-		CurSequence: 0,
-		MiniSeq:     0,
-		MaxSeq:      64,
-		Timer:       newRequestTimer(),
-		P2pWire:     p2p,
-		MsgChan:     ch,
-		nodeChan:    cChan,
-		msgLogs:     make(map[int64]*NormalLog),
-		sCache:      NewVCCache(),
-		SrvHub:      new(net.TCPListener),
+		NodeID:         id,
+		CurViewID:      0,
+		CurSequence:    0,
+		MiniSeq:        0,
+		MaxSeq:         64,
+		Timer:          newRequestTimer(),
+		P2pWire:        p2p,
+		MsgChan:        ch,
+		nodeChan:       cChan,
+		msgLogs:        make(map[int64]*NormalLog),
+		sCache:         NewVCCache(),
+		SrvHub:         new(net.TCPListener),
+		TimeCommitment: make([]string, 0),
 	}
 	se.PrimaryID = se.CurViewID % message.TotalNodeNum
 
@@ -161,10 +162,10 @@ func InitConsensus(id int64, cChan chan<- *message.RequestRecord) *StateEngine {
 }
 
 func (s *StateEngine) WriteRandomOutput() {
-	time.Sleep(20 * time.Second)
+	time.Sleep(25 * time.Second)
 	fmt.Println("start wirte config")
 	// generate random init input
-	message := []byte("asdkjhdk")
+	message := []byte("hello world")
 	randomNum := signature.Digest(message)
 
 	config.WriteOutput(randomNum)
@@ -177,7 +178,10 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 	for {
 		select {
 		case <-s.Timer.C:
-			s.SrvHub.Close()
+			// err := s.SrvHub.Close()
+			// if err != nil {
+			// 	fmt.Println("time out", err)
+			// }
 			s.Timer.tack()
 			fmt.Println(time.Now().Unix())
 			fmt.Printf("======>[Node%d]Stop Receive messages\n", s.NodeID)
@@ -216,7 +220,11 @@ func (s *StateEngine) WaitTC(sig chan interface{}) {
 
 	buf := make([]byte, 2048)
 	for {
-		conn, _ := s.SrvHub.AcceptTCP()
+		conn, err := s.SrvHub.AcceptTCP()
+		if err != nil {
+			// fmt.Printf("===>[ERROR]TCP:%s\n", err)
+			continue
+		}
 		n, err := conn.Read(buf)
 		if err != nil {
 			fmt.Printf("===>[ERROR]Service received err:%s\n", err)
@@ -286,13 +294,16 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 	viper.SetConfigFile("../config.yml")
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
+		time.Sleep(1 * time.Second)
 		if err := viper.ReadInConfig(); err != nil {
 			panic(fmt.Errorf("fatal error config file: %w", err))
 		}
 
-		if previousOutput != viper.GetString("previousoutput") {
+		newOutput := string(config.GetPreviousInput())
+		if previousOutput != newOutput {
 			fmt.Println("output change")
-			fmt.Println(viper.GetString("previousoutput"))
+			fmt.Println(newOutput)
+
 			locAddr := net.TCPAddr{
 				Port: util.EntropyPortByID(id),
 			}
@@ -301,15 +312,12 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 				panic(err)
 			}
 			s.SrvHub = srvHub
+			s.SrvHub.SetDeadline(time.Now().Add(20 * time.Second))
 
 			go s.WaitTC(sig)
-			previousOutput = viper.GetString("previousoutput")
-
-			fmt.Println("new", viper.GetString("previousoutput"))
+			previousOutput = newOutput
 			s.Timer.tick()
+			fmt.Println("new", newOutput)
 		}
-		// else {
-		// 	fmt.Println("old", previousOutput)
-		// }
 	})
 }

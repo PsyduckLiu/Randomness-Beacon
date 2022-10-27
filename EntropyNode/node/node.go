@@ -42,25 +42,6 @@ func StartEntropyNode(id int) {
 	fmt.Printf("===>My own key is: %v\n", privateKey)
 
 	go WatchConfig(privateKey, id)
-	// // calculate VRF result
-	// previousOutput := config.GetPreviousInput()
-	// vrfResult := calVRF(previousOutput, privateKey)
-	// vrfResultBinary := util.BytesToBinaryString(vrfResult)
-	// fmt.Printf("VRF result is:%v\n", util.BytesToBinaryString(vrfResult))
-	// fmt.Printf("VRF result last bit is:%v\n", vrfResultBinary[len(vrfResultBinary)-1:])
-
-	// // match VRF result with difficulty
-	// difficulty := config.GetDifficulty()
-	// vrfResultTail, err := strconv.Atoi(vrfResultBinary[len(vrfResultBinary)-1:])
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// if vrfResultTail == difficulty {
-	// 	fmt.Println("yes!!!!!!!!!!")
-	// 	timeCommitment := commitment.GenerateTimeCommitment()
-	// 	sendTCMsg(privateKey, vrfResult, int64(id), timeCommitment.String())
-	// 	fmt.Printf("Time commitment(now random number) is:%v\n", timeCommitment)
-	// }
 }
 
 func WatchConfig(privateKey *ecdsa.PrivateKey, id int) {
@@ -71,15 +52,19 @@ func WatchConfig(privateKey *ecdsa.PrivateKey, id int) {
 	viper.SetConfigFile("../config.yml")
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
+		time.Sleep(1 * time.Second)
 		if err := viper.ReadInConfig(); err != nil {
 			panic(fmt.Errorf("fatal error config file: %w", err))
 		}
 
-		if previousOutput != viper.GetString("previousoutput") {
-			previousOutput = viper.GetString("previousoutput")
+		newOutput := string(config.GetPreviousInput())
+		if previousOutput != newOutput {
+			fmt.Println("output change")
+			fmt.Println("newoutput:", newOutput)
+
 			// calculate VRF result
-			// previousOutput := config.GetPreviousInput()
-			vrfResult := calVRF([]byte(previousOutput), privateKey)
+			previousOutput = newOutput
+			vrfResult := calVRF([]byte(newOutput), privateKey)
 			vrfResultBinary := util.BytesToBinaryString(vrfResult)
 			fmt.Printf("VRF result is:%v\n", util.BytesToBinaryString(vrfResult))
 			fmt.Printf("VRF result last bit is:%v\n", vrfResultBinary[len(vrfResultBinary)-1:])
@@ -121,7 +106,8 @@ func sendTCMsg(sk *ecdsa.PrivateKey, vrfResult []byte, id int64, tc string) {
 	for i := 0; i < len(nodeConfig); i++ {
 		conn, err := net.DialTCP("tcp", nil, &net.TCPAddr{Port: util.EntropyPortByID(i)})
 		if err != nil {
-			panic(err)
+			fmt.Printf("dial tcp err:%s\n", err)
+			continue
 		}
 
 		cMsg := message.CreateConMsg(message.MTCollect, tcMsg, sk, id)

@@ -56,15 +56,6 @@ func SetupConfig() {
 
 	// first time setup
 	if !viper.GetBool("Running") {
-		// lock file
-		f, err := os.Open("../config.yml")
-		if err != nil {
-			panic(err)
-		}
-		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
-			log.Println("add share lock in no block failed", err)
-		}
-
 		fmt.Println("First time Setup")
 
 		// generate elliptic curve
@@ -100,16 +91,21 @@ func SetupConfig() {
 			panic(fmt.Errorf("setup conf failed, err:%s", err))
 		}
 
-		// unlock file
-		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {
-			log.Println("unlock share lock failed", err)
-		}
 		fmt.Println("Finish time Setup")
 	}
 }
 
 // write new previousputput
 func WriteOutput(output []byte) {
+	// lock file
+	f, err := os.Open("../config.yml")
+	if err != nil {
+		panic(err)
+	}
+	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
+		log.Println("add share lock in no block failed", err)
+	}
+
 	// set config file
 	viper.SetConfigFile("../config.yml")
 
@@ -123,6 +119,11 @@ func WriteOutput(output []byte) {
 	// write new settings
 	if err := viper.WriteConfig(); err != nil {
 		panic(fmt.Errorf("setup conf failed, err:%s", err))
+	}
+
+	// unlock file
+	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {
+		log.Println("unlock share lock failed", err)
 	}
 }
 
@@ -179,6 +180,15 @@ func GetPreviousInput() []byte {
 
 // write new id-ip-pk into config
 func NewConsensusNode(id int64, ip string, pk []byte) {
+	// lock file
+	f, err := os.Open("../config.yml")
+	if err != nil {
+		panic(err)
+	}
+	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
+		log.Println("add share lock in no block failed", err)
+	}
+
 	// set config file
 	viper.SetConfigFile("../config.yml")
 
@@ -215,6 +225,11 @@ func NewConsensusNode(id int64, ip string, pk []byte) {
 	// write new settings
 	if err := viper.WriteConfig(); err != nil {
 		panic(fmt.Errorf("setup conf failed, err:%s", err))
+	}
+
+	// unlock file
+	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {
+		log.Println("unlock share lock failed", err)
 	}
 }
 

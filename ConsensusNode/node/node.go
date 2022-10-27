@@ -59,5 +59,5 @@ func (n *Node) Run() {
 	// go n.Dispatch()
 
 	s := <-n.signal
-	fmt.Printf("===>[EXIT]Node[%d] exit because of:%s", n.NodeID, s)
+	fmt.Printf("===>[EXIT]Node[%d] exit because of:%s\n", n.NodeID, s)
 }

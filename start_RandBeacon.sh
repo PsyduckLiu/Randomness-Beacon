@@ -11,7 +11,7 @@ PID=$(sudo netstat -nlp | grep "$port" | awk '{print $7}' | awk -F '[ / ]' '{pri
 echo ${PID} >> result/running.pid
 done
 
-sleep 2
+sleep 5
 
 cd ../EntropyNode
 for i in $(seq 0 9)

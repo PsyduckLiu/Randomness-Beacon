@@ -9,3 +9,4 @@ cat result/running.pid | xargs -IX kill -9 X
 
 cd ..
 cat configInit.yml > config.yml
+kill -9 `ps -ef |grep main|awk '{print $2}'`
