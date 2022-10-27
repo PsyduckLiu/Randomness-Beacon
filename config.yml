@@ -22,9 +22,9 @@ consensusnodes:
         pk: "0"
 ellipticcurve:
 ftype: 0
-previousoutput: "0x12324"
+previousoutput: 
 running: false
 tctype: 0
-version: v0.6
+version: v0.8
 vrftype: 0
 difficulty: 0

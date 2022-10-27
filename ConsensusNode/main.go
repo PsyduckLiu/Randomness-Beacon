@@ -19,7 +19,7 @@ func main() {
 
 	config.SetupConfig()
 	node := node.NewNode(int64(id))
-	node.Run()
+	go node.Run()
 
 	// entropyNode.StartEntropyNode()
 

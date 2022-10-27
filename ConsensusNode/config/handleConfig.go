@@ -56,6 +56,15 @@ func SetupConfig() {
 
 	// first time setup
 	if !viper.GetBool("Running") {
+		// lock file
+		f, err := os.Open("../config.yml")
+		if err != nil {
+			panic(err)
+		}
+		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
+			log.Println("add share lock in no block failed", err)
+		}
+
 		fmt.Println("First time Setup")
 
 		// generate elliptic curve
@@ -90,6 +99,30 @@ func SetupConfig() {
 		if err := viper.WriteConfig(); err != nil {
 			panic(fmt.Errorf("setup conf failed, err:%s", err))
 		}
+
+		// unlock file
+		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {
+			log.Println("unlock share lock failed", err)
+		}
+		fmt.Println("Finish time Setup")
+	}
+}
+
+// write new previousputput
+func WriteOutput(output []byte) {
+	// set config file
+	viper.SetConfigFile("../config.yml")
+
+	// read config and keep origin settings
+	if err := viper.ReadInConfig(); err != nil {
+		panic(fmt.Errorf("fatal error config file: %w", err))
+	}
+
+	viper.Set("PreviousOutput", output)
+
+	// write new settings
+	if err := viper.WriteConfig(); err != nil {
+		panic(fmt.Errorf("setup conf failed, err:%s", err))
 	}
 }
 

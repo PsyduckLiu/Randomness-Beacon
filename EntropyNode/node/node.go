@@ -14,6 +14,9 @@ import (
 	"net"
 	"strconv"
 	"time"
+
+	"github.com/fsnotify/fsnotify"
+	"github.com/spf13/viper"
 )
 
 // initialize an entropy node
@@ -38,25 +41,63 @@ func StartEntropyNode(id int) {
 	}
 	fmt.Printf("===>My own key is: %v\n", privateKey)
 
-	// calculate VRF result
-	previousOutput := config.GetPreviousInput()
-	vrfResult := calVRF(previousOutput, privateKey)
-	vrfResultBinary := util.BytesToBinaryString(vrfResult)
-	fmt.Printf("VRF result is:%v\n", util.BytesToBinaryString(vrfResult))
-	fmt.Printf("VRF result last bit is:%v\n", vrfResultBinary[len(vrfResultBinary)-1:])
+	go WatchConfig(privateKey, id)
+	// // calculate VRF result
+	// previousOutput := config.GetPreviousInput()
+	// vrfResult := calVRF(previousOutput, privateKey)
+	// vrfResultBinary := util.BytesToBinaryString(vrfResult)
+	// fmt.Printf("VRF result is:%v\n", util.BytesToBinaryString(vrfResult))
+	// fmt.Printf("VRF result last bit is:%v\n", vrfResultBinary[len(vrfResultBinary)-1:])
 
-	// match VRF result with difficulty
-	difficulty := config.GetDifficulty()
-	vrfResultTail, err := strconv.Atoi(vrfResultBinary[len(vrfResultBinary)-1:])
-	if err != nil {
-		panic(err)
-	}
-	if vrfResultTail == difficulty {
-		fmt.Println("yes!!!!!!!!!!")
-		timeCommitment := commitment.GenerateTimeCommitment()
-		sendTCMsg(privateKey, vrfResult, int64(id), timeCommitment.String())
-		fmt.Printf("Time commitment(now random number) is:%v\n", timeCommitment)
-	}
+	// // match VRF result with difficulty
+	// difficulty := config.GetDifficulty()
+	// vrfResultTail, err := strconv.Atoi(vrfResultBinary[len(vrfResultBinary)-1:])
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// if vrfResultTail == difficulty {
+	// 	fmt.Println("yes!!!!!!!!!!")
+	// 	timeCommitment := commitment.GenerateTimeCommitment()
+	// 	sendTCMsg(privateKey, vrfResult, int64(id), timeCommitment.String())
+	// 	fmt.Printf("Time commitment(now random number) is:%v\n", timeCommitment)
+	// }
+}
+
+func WatchConfig(privateKey *ecdsa.PrivateKey, id int) {
+	previousOutput := string(config.GetPreviousInput())
+	fmt.Println("init output", previousOutput)
+
+	// set config file
+	viper.SetConfigFile("../config.yml")
+	viper.WatchConfig()
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		if err := viper.ReadInConfig(); err != nil {
+			panic(fmt.Errorf("fatal error config file: %w", err))
+		}
+
+		if previousOutput != viper.GetString("previousoutput") {
+			previousOutput = viper.GetString("previousoutput")
+			// calculate VRF result
+			// previousOutput := config.GetPreviousInput()
+			vrfResult := calVRF([]byte(previousOutput), privateKey)
+			vrfResultBinary := util.BytesToBinaryString(vrfResult)
+			fmt.Printf("VRF result is:%v\n", util.BytesToBinaryString(vrfResult))
+			fmt.Printf("VRF result last bit is:%v\n", vrfResultBinary[len(vrfResultBinary)-1:])
+
+			// match VRF result with difficulty
+			difficulty := config.GetDifficulty()
+			vrfResultTail, err := strconv.Atoi(vrfResultBinary[len(vrfResultBinary)-1:])
+			if err != nil {
+				panic(err)
+			}
+			if vrfResultTail == difficulty {
+				fmt.Println("yes!!!!!!!!!!")
+				timeCommitment := commitment.GenerateTimeCommitment()
+				sendTCMsg(privateKey, vrfResult, int64(id), timeCommitment.String())
+				fmt.Printf("Time commitment(now random number) is:%v\n", timeCommitment)
+			}
+		}
+	})
 }
 
 // send time commitment message
@@ -75,23 +116,9 @@ func sendTCMsg(sk *ecdsa.PrivateKey, vrfResult []byte, id int64, tc string) {
 		TimeCommitment: tc,
 	}
 
-	// lclAddr := net.UDPAddr{
-	// 	Port: util.EntropyPortByID(id),
-	// }
-	// conn, err := net.ListenUDP("udp4", &lclAddr)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer conn.Close()
-
 	// get consensus nodes' information
 	nodeConfig := config.GetConsensusNode()
 	for i := 0; i < len(nodeConfig); i++ {
-		// rAddr, err := net.ResolveUDPAddr("udp4", nodeConfig[i].Ip)
-		// if err != nil {
-		// 	panic(err)
-		// }
-
 		conn, err := net.DialTCP("tcp", nil, &net.TCPAddr{Port: util.EntropyPortByID(i)})
 		if err != nil {
 			panic(err)
@@ -107,15 +134,6 @@ func sendTCMsg(sk *ecdsa.PrivateKey, vrfResult []byte, id int64, tc string) {
 		go WriteTCP(conn, bs)
 	}
 }
-
-// write data by UDP
-// func WriteUDP(conn *net.UDPConn, rAddr *net.UDPAddr, bs []byte) {
-// 	n, err := conn.WriteToUDP(bs, rAddr)
-// 	if err != nil || n == 0 {
-// 		panic(err)
-// 	}
-// 	fmt.Println("Send request success!:=>")
-// }
 
 func WriteTCP(conn *net.TCPConn, v []byte) {
 	_, err := conn.Write(v)

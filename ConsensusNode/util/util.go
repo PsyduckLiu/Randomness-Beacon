@@ -22,7 +22,7 @@ func PortByID(id int64) int {
 
 // Get listening Entropy Port(10000 + id)
 func EntropyPortByID(id int64) int {
-	return 10000 + int(id)
+	return 20000 + int(id)
 }
 
 // Hash message v, SHA256

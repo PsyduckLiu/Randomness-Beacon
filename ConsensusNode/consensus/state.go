@@ -13,6 +13,9 @@ import (
 	"net"
 	"strconv"
 	"time"
+
+	"github.com/fsnotify/fsnotify"
+	"github.com/spf13/viper"
 )
 
 type Consensus interface {
@@ -48,7 +51,7 @@ func (s Stage) String() string {
 }
 
 // timer
-const StateTimerOut = 5 * time.Second
+const StateTimerOut = 30 * time.Second
 const MaxStateMsgNO = 100
 
 type RequestTimer struct {
@@ -122,13 +125,13 @@ type StateEngine struct {
 }
 
 func InitConsensus(id int64, cChan chan<- *message.RequestRecord) *StateEngine {
-	locAddr := net.TCPAddr{
-		Port: util.EntropyPortByID(id),
-	}
-	srvHub, err := net.ListenTCP("tcp4", &locAddr)
-	if err != nil {
-		panic(err)
-	}
+	// locAddr := net.TCPAddr{
+	// 	Port: util.EntropyPortByID(id),
+	// }
+	// srvHub, err := net.ListenTCP("tcp4", &locAddr)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	fmt.Printf("===>Service is Listening at[%d]\n", util.PortByID(id))
 
@@ -146,54 +149,61 @@ func InitConsensus(id int64, cChan chan<- *message.RequestRecord) *StateEngine {
 		nodeChan:    cChan,
 		msgLogs:     make(map[int64]*NormalLog),
 		sCache:      NewVCCache(),
-		SrvHub:      srvHub,
+		SrvHub:      new(net.TCPListener),
 	}
 	se.PrimaryID = se.CurViewID % message.TotalNodeNum
 
+	if se.PrimaryID == se.NodeID {
+		go se.WriteRandomOutput()
+	}
+
 	return se
+}
+
+func (s *StateEngine) WriteRandomOutput() {
+	time.Sleep(20 * time.Second)
+	fmt.Println("start wirte config")
+	// generate random init input
+	message := []byte("asdkjhdk")
+	randomNum := signature.Digest(message)
+
+	config.WriteOutput(randomNum)
 }
 
 // receive and handle consensus message
 func (s *StateEngine) StartConsensus(sig chan interface{}) {
 	s.nodeStatus = Serving
-	s.StartTimer(sig)
 
 	for {
 		select {
 		case <-s.Timer.C:
-			// s.Timer.tack()
-			fmt.Printf("======>[Node%d]Stop Receive messages", s.NodeID)
+			s.SrvHub.Close()
+			s.Timer.tack()
+			fmt.Println(time.Now().Unix())
+			fmt.Printf("======>[Node%d]Stop Receive messages\n", s.NodeID)
 			for i := 0; i < len(s.TimeCommitment); i++ {
 				fmt.Println(s.TimeCommitment[i])
 			}
-
-			// case conMsg := <-s.MsgChan:
-			// 	switch conMsg.Typ {
-			// 	case message.MTRequest,
-			// 		message.MTPrePrepare,
-			// 		message.MTPrepare,
-			// 		message.MTCommit:
-			// 		if s.nodeStatus != Serving {
-			// 			fmt.Println("======>[ERROR]node is not in service status now......")
-			// 			continue
-			// 		}
-			// 		if err := s.procConsensusMsg(conMsg); err != nil {
-			// 			fmt.Println(err)
-			// 		}
-			// 	case message.MTViewChange,
-			// 		message.MTNewView:
-			// 		if err := s.procManageMsg(conMsg); err != nil {
-			// 			fmt.Println(err)
-			// 		}
-			// 	}
+		case conMsg := <-s.MsgChan:
+			switch conMsg.Typ {
+			case message.MTCollect,
+				message.MTSubmit,
+				message.MTApprove:
+				if s.nodeStatus != Serving {
+					fmt.Println("======>[ERROR]node is not in service status now......")
+					continue
+				}
+				// if err := s.procConsensusMsg(conMsg); err != nil {
+				// 	fmt.Println(err)
+				// }
+			case message.MTViewChange,
+				message.MTNewView:
+				// if err := s.procManageMsg(conMsg); err != nil {
+				// 	fmt.Println(err)
+				// }
+			}
 		}
 	}
-}
-
-func (s *StateEngine) StartTimer(sig chan interface{}) {
-	// start timer
-	fmt.Println(s.Timer.IsOk)
-	s.Timer.tick()
 }
 
 // wait for request from client in UDP channel
@@ -264,4 +274,42 @@ func (s *StateEngine) WaitTC(sig chan interface{}) {
 		s.TimeCommitment = append(s.TimeCommitment, entropyMsg.TimeCommitment)
 		fmt.Printf("===>Entropy message from Node[%d],time commitment is:%s\n", entropyMsg.ClientID, entropyMsg.TimeCommitment)
 	}
+}
+
+// watch config
+// when previousout changes, start a new round
+func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
+	previousOutput := string(config.GetPreviousInput())
+	fmt.Println("init output", previousOutput)
+
+	// set config file
+	viper.SetConfigFile("../config.yml")
+	viper.WatchConfig()
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		if err := viper.ReadInConfig(); err != nil {
+			panic(fmt.Errorf("fatal error config file: %w", err))
+		}
+
+		if previousOutput != viper.GetString("previousoutput") {
+			fmt.Println("output change")
+			fmt.Println(viper.GetString("previousoutput"))
+			locAddr := net.TCPAddr{
+				Port: util.EntropyPortByID(id),
+			}
+			srvHub, err := net.ListenTCP("tcp4", &locAddr)
+			if err != nil {
+				panic(err)
+			}
+			s.SrvHub = srvHub
+
+			go s.WaitTC(sig)
+			previousOutput = viper.GetString("previousoutput")
+
+			fmt.Println("new", viper.GetString("previousoutput"))
+			s.Timer.tick()
+		}
+		// else {
+		// 	fmt.Println("old", previousOutput)
+		// }
+	})
 }

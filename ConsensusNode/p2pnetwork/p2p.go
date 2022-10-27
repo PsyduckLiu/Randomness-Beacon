@@ -120,9 +120,11 @@ func (sp *SimpleP2p) dialTcp(id int64) {
 			}
 
 			// store remote ip-conn-id-pk relation
+			sp.mutex.Lock()
 			sp.Peers[conn.RemoteAddr().String()] = conn
 			sp.Ip2Id[conn.RemoteAddr().String()] = int64(i)
 			sp.PeerPublicKeys[int64(i)] = newPublicKey
+			sp.mutex.Unlock()
 			fmt.Printf("===>[Node%d<=>%d]Connected=[%s<=>%s]\n", id, i, conn.LocalAddr().String(), conn.RemoteAddr().String())
 
 			// new identity message
@@ -236,7 +238,6 @@ func (sp *SimpleP2p) waitData(conn *net.TCPConn) {
 		default:
 			sp.MsgChan <- conMsg
 		}
-
 	}
 }
 
