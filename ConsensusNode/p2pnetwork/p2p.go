@@ -18,8 +18,9 @@ import (
 )
 
 type P2pNetwork interface {
-	GetPeerPublickey(peerId int64) *ecdsa.PublicKey
+	GetPrimaryConn(primaryId int64) *net.TCPConn
 	GetMySecretkey() *ecdsa.PrivateKey
+	SendUniqueNode(conn *net.TCPConn, v interface{}) error
 	BroadCast(v interface{}) error
 }
 
@@ -283,8 +284,14 @@ func WriteTCP(conn *net.TCPConn, v []byte, name string) {
 }
 
 // Get Peer Publickey
-func (sp *SimpleP2p) GetPeerPublickey(peerId int64) *ecdsa.PublicKey {
-	return sp.PeerPublicKeys[peerId]
+func (sp *SimpleP2p) GetPrimaryConn(primaryId int64) *net.TCPConn {
+	var conn *net.TCPConn
+	for ip, id := range sp.Ip2Id {
+		if id == primaryId {
+			conn = sp.Peers[ip]
+		}
+	}
+	return conn
 }
 
 // Get My Secret key

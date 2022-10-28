@@ -11,8 +11,11 @@ import (
 	"entropyNode/signature"
 	"entropyNode/util"
 	"fmt"
+	"log"
 	"net"
+	"os"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
@@ -56,8 +59,17 @@ func WatchConfig(privateKey *ecdsa.PrivateKey, id int, sig chan interface{}) {
 	viper.SetConfigFile("../config.yml")
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
+		// lock file
+		f, err := os.Open("../config.yml")
+		if err != nil {
+			panic(err)
+		}
+		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
+			log.Println("add share lock in no block failed", err)
+		}
+
 		// time.Sleep(1 * time.Second)
-		time.Sleep(500 * time.Millisecond)
+		// time.Sleep(500 * time.Millisecond)
 		if err := viper.ReadInConfig(); err != nil {
 			panic(fmt.Errorf("fatal error config file: %w", err))
 		}
@@ -86,6 +98,11 @@ func WatchConfig(privateKey *ecdsa.PrivateKey, id int, sig chan interface{}) {
 				sendTCMsg(privateKey, vrfResult, int64(id), timeCommitment.String(), sig)
 				fmt.Printf("Time commitment(now random number) is:%v\n", timeCommitment)
 			}
+		}
+
+		// unlock file
+		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {
+			log.Println("unlock share lock failed", err)
 		}
 	})
 }

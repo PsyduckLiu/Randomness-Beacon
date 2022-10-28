@@ -12,6 +12,7 @@ import (
 	"os"
 	"strconv"
 	"syscall"
+	"time"
 
 	"github.com/spf13/viper"
 )
@@ -46,6 +47,15 @@ type NodeConfig struct {
 // config file Setup
 // assign curve,previous output,VRF type,Time Commitment Type,F Function Type
 func SetupConfig() {
+	// lock file
+	f, err := os.Open("../config.yml")
+	if err != nil {
+		panic(err)
+	}
+	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
+		log.Println("add share lock in no block failed", err)
+	}
+
 	// set config file
 	viper.SetConfigFile("../config.yml")
 
@@ -93,6 +103,11 @@ func SetupConfig() {
 
 		fmt.Println("Finish time Setup")
 	}
+
+	// unlock file
+	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {
+		log.Println("unlock share lock failed", err)
+	}
 }
 
 // write new previousputput
@@ -116,10 +131,21 @@ func WriteOutput(output []byte) {
 
 	viper.Set("PreviousOutput", output)
 
+	time.Sleep(500 * time.Millisecond)
+	// fmt.Printf("version %s\n", viper.GetString("Version"))
+	// fmt.Printf("Node[0]'s ip is %s\n", viper.GetString("ConsensusNodes.Node0.Ip"))
+	// fmt.Printf("Node[0]'s ip is %s\n", viper.GetString("ConsensusNodes.Node1.Ip"))
+	// fmt.Printf("Node[0]'s ip is %s\n", viper.GetString("ConsensusNodes.Node2.Ip"))
+	// fmt.Printf("Node[0]'s ip is %s\n", viper.GetString("ConsensusNodes.Node3.Ip"))
+	// fmt.Printf("Node[0]'s ip is %s\n", viper.GetString("ConsensusNodes.Node4.Ip"))
+	// fmt.Printf("Node[0]'s ip is %s\n", viper.GetString("ConsensusNodes.Node5.Ip"))
+
 	// write new settings
 	if err := viper.WriteConfig(); err != nil {
 		panic(fmt.Errorf("setup conf failed, err:%s", err))
 	}
+	ReadConfig()
+	fmt.Println("Write output")
 
 	// unlock file
 	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {
@@ -146,6 +172,7 @@ func GetDifficulty() int {
 
 // get curve from config
 func GetCurve() []byte {
+
 	var configuration = new(Configurations)
 
 	// set config file
@@ -198,34 +225,32 @@ func NewConsensusNode(id int64, ip string, pk []byte) {
 	}
 
 	// handle new id-ip-pk
+	newNode := NodeConfig{
+		Pk: pk,
+		Ip: ip,
+	}
 	switch id {
 	case 0:
-		viper.Set("consensusnodes.node0.pk", pk)
-		viper.Set("consensusnodes.node0.ip", ip)
+		viper.Set("ConsensusNodes.Node0", newNode)
 	case 1:
-		viper.Set("consensusnodes.node1.pk", pk)
-		viper.Set("consensusnodes.node1.ip", ip)
+		viper.Set("ConsensusNodes.Node1", newNode)
 	case 2:
-		viper.Set("consensusnodes.node2.pk", pk)
-		viper.Set("consensusnodes.node2.ip", ip)
+		viper.Set("ConsensusNodes.Node2", newNode)
 	case 3:
-		viper.Set("consensusnodes.node3.pk", pk)
-		viper.Set("consensusnodes.node3.ip", ip)
+		viper.Set("ConsensusNodes.Node3", newNode)
 	case 4:
-		viper.Set("consensusnodes.node4.pk", pk)
-		viper.Set("consensusnodes.node4.ip", ip)
+		viper.Set("ConsensusNodes.Node4", newNode)
 	case 5:
-		viper.Set("consensusnodes.node5.pk", pk)
-		viper.Set("consensusnodes.node5.ip", ip)
+		viper.Set("ConsensusNodes.Node5", newNode)
 	case 6:
-		viper.Set("consensusnodes.node6.pk", pk)
-		viper.Set("consensusnodes.node6.ip", ip)
+		viper.Set("ConsensusNodes.Node6", newNode)
 	}
 
 	// write new settings
 	if err := viper.WriteConfig(); err != nil {
 		panic(fmt.Errorf("setup conf failed, err:%s", err))
 	}
+	fmt.Println("new consensus node")
 
 	// unlock file
 	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {
@@ -294,6 +319,7 @@ func RemoveConsensusNode(id int64) {
 	if err := viper.WriteConfig(); err != nil {
 		panic(fmt.Errorf("setup conf failed, err:%s", err))
 	}
+	fmt.Println("remove consensus node")
 
 	// unlock file
 	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {

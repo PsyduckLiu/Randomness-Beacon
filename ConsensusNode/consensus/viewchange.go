@@ -2,7 +2,6 @@ package consensus
 
 import (
 	"consensusNode/message"
-	"consensusNode/signature"
 	"fmt"
 )
 
@@ -67,27 +66,27 @@ func (s *StateEngine) ViewChange() {
 
 // invoked by state.go when received a viewchage message
 func (s *StateEngine) procViewChange(vc *message.ViewChange, msg *message.ConMessage) error {
-	publicKey := s.P2pWire.GetPeerPublickey(msg.From)
-	verify := signature.VerifySig(msg.Payload, msg.Sig, publicKey)
-	if !verify {
-		return fmt.Errorf("!===>Verify ViewChange message failed, From Node[%d]\n", msg.From)
-	}
-	fmt.Printf("======>[ViewChange]Verify success\n")
+	// publicKey := s.P2pWire.GetPeerPublickey(msg.From)
+	// verify := signature.VerifySig(msg.Payload, msg.Sig, publicKey)
+	// if !verify {
+	// 	return fmt.Errorf("!===>Verify ViewChange message failed, From Node[%d]\n", msg.From)
+	// }
+	// fmt.Printf("======>[ViewChange]Verify success\n")
 
-	nextPrimaryID := vc.NewViewID % message.TotalNodeNum
-	if s.NodeID != nextPrimaryID {
-		fmt.Printf("I'm Node[%d] not the new[%d] primary node\n", s.NodeID, nextPrimaryID)
-		return nil
-	}
+	// nextPrimaryID := vc.NewViewID % message.TotalNodeNum
+	// if s.NodeID != nextPrimaryID {
+	// 	fmt.Printf("I'm Node[%d] not the new[%d] primary node\n", s.NodeID, nextPrimaryID)
+	// 	return nil
+	// }
 
-	s.sCache.pushVC(vc)
-	if len(s.sCache.vcMsg) < 2*message.MaxFaultyNode {
-		return nil
-	}
-	if s.sCache.hasNewViewYet(vc.NewViewID) {
-		fmt.Printf("view change[%d] is in processing......\n", vc.NewViewID)
-		return nil
-	}
+	// s.sCache.pushVC(vc)
+	// if len(s.sCache.vcMsg) < 2*message.MaxFaultyNode {
+	// 	return nil
+	// }
+	// if s.sCache.hasNewViewYet(vc.NewViewID) {
+	// 	fmt.Printf("view change[%d] is in processing......\n", vc.NewViewID)
+	// 	return nil
+	// }
 
 	return s.createNewViewMsg(vc.NewViewID)
 }
@@ -118,22 +117,22 @@ func (s *StateEngine) createNewViewMsg(newVID int64) error {
 
 // invoked by state.go when received a newview message
 func (s *StateEngine) didChangeView(nv *message.NewView, msg *message.ConMessage) error {
-	publicKey := s.P2pWire.GetPeerPublickey(msg.From)
-	verify := signature.VerifySig(msg.Payload, msg.Sig, publicKey)
-	if !verify {
-		return fmt.Errorf("!===>Verify NewView message failed, From Node[%d]\n", msg.From)
-	}
-	fmt.Printf("======>[NewView]Verify success\n")
+	// publicKey := s.P2pWire.GetPeerPublickey(msg.From)
+	// verify := signature.VerifySig(msg.Payload, msg.Sig, publicKey)
+	// if !verify {
+	// 	return fmt.Errorf("!===>Verify NewView message failed, From Node[%d]\n", msg.From)
+	// }
+	// fmt.Printf("======>[NewView]Verify success\n")
 
-	s.CurViewID = nv.NewViewID
-	s.sCache.vcMsg = nv.VMsg
-	s.sCache.addNewView(nv)
-	s.CurSequence = 0
-	s.PrimaryID = s.CurViewID % message.TotalNodeNum
-	fmt.Printf("======>[NewView] New primary is(%d).....\n", s.PrimaryID)
+	// s.CurViewID = nv.NewViewID
+	// s.sCache.vcMsg = nv.VMsg
+	// s.sCache.addNewView(nv)
+	// s.CurSequence = 0
+	// s.PrimaryID = s.CurViewID % message.TotalNodeNum
+	// fmt.Printf("======>[NewView] New primary is(%d).....\n", s.PrimaryID)
 
-	// s.cleanRequest()
-	s.cleanLogandRequest()
+	// // s.cleanRequest()
+	// s.cleanLogandRequest()
 	return nil
 }
 

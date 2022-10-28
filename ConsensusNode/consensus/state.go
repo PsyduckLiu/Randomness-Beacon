@@ -7,11 +7,15 @@ import (
 	"consensusNode/signature"
 	"consensusNode/util"
 	"crypto/ecdsa"
+	"crypto/elliptic"
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net"
+	"os"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
@@ -120,19 +124,11 @@ type StateEngine struct {
 	MaxSeq  int64 `json:"maxSeq"`
 	//index is seqID
 	msgLogs        map[int64]*NormalLog
-	TimeCommitment []string
+	TimeCommitment map[string]string
 	sCache         *VCCache
 }
 
 func InitConsensus(id int64, cChan chan<- *message.RequestRecord) *StateEngine {
-	// locAddr := net.TCPAddr{
-	// 	Port: util.EntropyPortByID(id),
-	// }
-	// srvHub, err := net.ListenTCP("tcp4", &locAddr)
-	// if err != nil {
-	// 	panic(err)
-	// }
-
 	fmt.Printf("===>Service is Listening at[%d]\n", util.PortByID(id))
 
 	ch := make(chan *message.ConMessage, MaxStateMsgNO)
@@ -150,7 +146,7 @@ func InitConsensus(id int64, cChan chan<- *message.RequestRecord) *StateEngine {
 		msgLogs:        make(map[int64]*NormalLog),
 		sCache:         NewVCCache(),
 		SrvHub:         new(net.TCPListener),
-		TimeCommitment: make([]string, 0),
+		TimeCommitment: make(map[string]string),
 	}
 	se.PrimaryID = se.CurViewID % message.TotalNodeNum
 
@@ -178,28 +174,27 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 	for {
 		select {
 		case <-s.Timer.C:
-			// err := s.SrvHub.Close()
-			// if err != nil {
-			// 	fmt.Println("time out", err)
-			// }
 			s.Timer.tack()
+			if s.NodeID != s.PrimaryID {
+				go s.sendUnionMsg()
+			}
 			fmt.Println(time.Now().Unix())
 			fmt.Printf("======>[Node%d]Stop Receive messages\n", s.NodeID)
-			for i := 0; i < len(s.TimeCommitment); i++ {
-				fmt.Println(s.TimeCommitment[i])
+			for key, value := range s.TimeCommitment {
+				fmt.Println("key is", key)
+				fmt.Println("value is", value)
 			}
 		case conMsg := <-s.MsgChan:
 			switch conMsg.Typ {
-			case message.MTCollect,
-				message.MTSubmit,
+			case message.MTSubmit,
 				message.MTApprove:
 				if s.nodeStatus != Serving {
 					fmt.Println("======>[ERROR]node is not in service status now......")
 					continue
 				}
-				// if err := s.procConsensusMsg(conMsg); err != nil {
-				// 	fmt.Println(err)
-				// }
+				if err := s.procConsensusMsg(conMsg); err != nil {
+					fmt.Println(err)
+				}
 			case message.MTViewChange,
 				message.MTNewView:
 				// if err := s.procManageMsg(conMsg); err != nil {
@@ -279,7 +274,8 @@ func (s *StateEngine) WaitTC(sig chan interface{}) {
 			continue
 		}
 
-		s.TimeCommitment = append(s.TimeCommitment, entropyMsg.TimeCommitment)
+		s.TimeCommitment[string(util.Digest(entropyMsg.TimeCommitment))] = entropyMsg.TimeCommitment
+		// s.TimeCommitment = append(s.TimeCommitment, entropyMsg.TimeCommitment)
 		fmt.Printf("===>Entropy message from Node[%d],time commitment is:%s\n", entropyMsg.ClientID, entropyMsg.TimeCommitment)
 	}
 }
@@ -294,16 +290,27 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 	viper.SetConfigFile("../config.yml")
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
+		// lock file
+		f, err := os.Open("../config.yml")
+		if err != nil {
+			panic(err)
+		}
+		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
+			log.Println("add share lock in no block failed", err)
+		}
+
+		fmt.Println("change")
+
 		// time.Sleep(1 * time.Second)
-		time.Sleep(500 * time.Millisecond)
+		// time.Sleep(500 * time.Millisecond)
+		// config.ReadConfig()
 		if err := viper.ReadInConfig(); err != nil {
 			panic(fmt.Errorf("fatal error config file: %w", err))
 		}
 
 		newOutput := string(config.GetPreviousInput())
 		if previousOutput != newOutput {
-			fmt.Println("output change")
-			fmt.Println(newOutput)
+			fmt.Println("output change", newOutput)
 
 			locAddr := net.TCPAddr{
 				Port: util.EntropyPortByID(id),
@@ -318,7 +325,102 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 			go s.WaitTC(sig)
 			previousOutput = newOutput
 			s.Timer.tick()
-			fmt.Println("new", newOutput)
+		}
+
+		// unlock file
+		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {
+			log.Println("unlock share lock failed", err)
 		}
 	})
+}
+
+// backups send union message
+func (s *StateEngine) sendUnionMsg() {
+	// new submit message
+	// send submit message to primary node
+	var tc []string
+	for _, value := range s.TimeCommitment {
+		tc = append(tc, value)
+	}
+	submit := &message.Submit{
+		CollectTC: tc,
+	}
+	sk := s.P2pWire.GetMySecretkey()
+	sMsg := message.CreateConMsg(message.MTSubmit, submit, sk, s.NodeID)
+	conn := s.P2pWire.GetPrimaryConn(s.PrimaryID)
+	if err := s.P2pWire.SendUniqueNode(conn, sMsg); err != nil {
+		panic(err)
+	}
+}
+
+// primary union TC
+func (s *StateEngine) unionTC(msg *message.ConMessage) (err error) {
+	// time.Sleep(1 * time.Second)
+	fmt.Printf("======>[Union]Current Union Message from Node[%d]\n", msg.From)
+
+	nodeConfig := config.GetConsensusNode()
+
+	// get specified curve
+	marshalledCurve := config.GetCurve()
+	pub, err := x509.ParsePKIXPublicKey(marshalledCurve)
+	if err != nil {
+		panic(fmt.Errorf("===>[UnionERROR]Key message parse err:%s", err))
+	}
+	normalPublicKey := pub.(*ecdsa.PublicKey)
+	curve := normalPublicKey.Curve
+
+	// unmarshal public key
+	x, y := elliptic.Unmarshal(curve, nodeConfig[msg.From].Pk)
+	newPublicKey := &ecdsa.PublicKey{
+		Curve: curve,
+		X:     x,
+		Y:     y,
+	}
+
+	// verify signature
+	fmt.Println("payload", msg.Payload)
+	fmt.Println("pk", nodeConfig[msg.From].Pk)
+	verify := signature.VerifySig(msg.Payload, msg.Sig, newPublicKey)
+	if !verify {
+		fmt.Printf("===>[UnionERROR]Verify new public key Signature failed, From Node[%d]\n", msg.From)
+	}
+
+	// unmarshal message
+	submit := &message.Submit{}
+	if err := json.Unmarshal(msg.Payload, submit); err != nil {
+		return fmt.Errorf("======>[Union]Invalid[%s] Union message[%s]", err, msg)
+	}
+
+	fmt.Println("submit", submit)
+	fmt.Printf("Union Message from Node[%d],length is %d\n", msg.From, len(submit.CollectTC))
+	for _, value := range submit.CollectTC {
+		key := string(util.Digest(value))
+		if _, ok := s.TimeCommitment[key]; !ok {
+			fmt.Println("new key is", key)
+			fmt.Println("new value is", value)
+			s.TimeCommitment[key] = value
+		}
+	}
+
+	return
+}
+
+// handle different kinds of consensus messages
+func (s *StateEngine) procConsensusMsg(msg *message.ConMessage) (err error) {
+	fmt.Printf("\n======>[procConsensusMsg]Consesus message type:[%s] from Node[%d]\n", msg.Typ, msg.From)
+
+	switch msg.Typ {
+	case message.MTSubmit:
+		return s.unionTC(msg)
+
+		// case message.MTApprove:
+		// 	prepare := &message.Prepare{}
+		// 	if err := json.Unmarshal(msg.Payload, prepare); err != nil {
+		// 		return fmt.Errorf("======>[procConsensusMsg]invalid[%s] Prepare message[%s]", err, msg)
+		// 	}
+		// 	return s.prePrepare2Prepare(prepare, msg)
+		// }
+
+	}
+	return
 }
