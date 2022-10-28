@@ -41,10 +41,14 @@ func StartEntropyNode(id int) {
 	}
 	fmt.Printf("===>My own key is: %v\n", privateKey)
 
-	go WatchConfig(privateKey, id)
+	var signal chan interface{}
+	go WatchConfig(privateKey, id, signal)
+
+	s := <-signal
+	fmt.Printf("===>[EXIT]Node[%d] exit because of:%s\n", id, s)
 }
 
-func WatchConfig(privateKey *ecdsa.PrivateKey, id int) {
+func WatchConfig(privateKey *ecdsa.PrivateKey, id int, sig chan interface{}) {
 	previousOutput := string(config.GetPreviousInput())
 	fmt.Println("init output", previousOutput)
 
@@ -52,7 +56,8 @@ func WatchConfig(privateKey *ecdsa.PrivateKey, id int) {
 	viper.SetConfigFile("../config.yml")
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
-		time.Sleep(1 * time.Second)
+		// time.Sleep(1 * time.Second)
+		time.Sleep(500 * time.Millisecond)
 		if err := viper.ReadInConfig(); err != nil {
 			panic(fmt.Errorf("fatal error config file: %w", err))
 		}
@@ -78,7 +83,7 @@ func WatchConfig(privateKey *ecdsa.PrivateKey, id int) {
 			if vrfResultTail == difficulty {
 				fmt.Println("yes!!!!!!!!!!")
 				timeCommitment := commitment.GenerateTimeCommitment()
-				sendTCMsg(privateKey, vrfResult, int64(id), timeCommitment.String())
+				sendTCMsg(privateKey, vrfResult, int64(id), timeCommitment.String(), sig)
 				fmt.Printf("Time commitment(now random number) is:%v\n", timeCommitment)
 			}
 		}
@@ -86,7 +91,7 @@ func WatchConfig(privateKey *ecdsa.PrivateKey, id int) {
 }
 
 // send time commitment message
-func sendTCMsg(sk *ecdsa.PrivateKey, vrfResult []byte, id int64, tc string) {
+func sendTCMsg(sk *ecdsa.PrivateKey, vrfResult []byte, id int64, tc string, sig chan interface{}) {
 	// new time commitment message
 	// send time commitment message to origin nodes
 	marshalledKey, err := x509.MarshalPKIXPublicKey(&sk.PublicKey)

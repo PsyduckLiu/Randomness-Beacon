@@ -51,7 +51,7 @@ func (s Stage) String() string {
 }
 
 // timer
-const StateTimerOut = 11 * time.Second
+const StateTimerOut = 5 * time.Second
 const MaxStateMsgNO = 100
 
 type RequestTimer struct {
@@ -294,7 +294,8 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 	viper.SetConfigFile("../config.yml")
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
-		time.Sleep(1 * time.Second)
+		// time.Sleep(1 * time.Second)
+		time.Sleep(500 * time.Millisecond)
 		if err := viper.ReadInConfig(); err != nil {
 			panic(fmt.Errorf("fatal error config file: %w", err))
 		}
@@ -312,7 +313,7 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 				panic(err)
 			}
 			s.SrvHub = srvHub
-			s.SrvHub.SetDeadline(time.Now().Add(20 * time.Second))
+			s.SrvHub.SetDeadline(time.Now().Add(5 * time.Second))
 
 			go s.WaitTC(sig)
 			previousOutput = newOutput
