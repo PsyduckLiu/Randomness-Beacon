@@ -164,7 +164,7 @@ func (s *StateEngine) WriteRandomOutput() {
 	message := []byte("hello world")
 	randomNum := signature.Digest(message)
 
-	config.WriteOutput(randomNum)
+	config.WriteOutput(string(randomNum))
 }
 
 // receive and handle consensus message
@@ -253,7 +253,7 @@ func (s *StateEngine) WaitTC(sig chan interface{}) {
 
 		// verify the VRF result
 		previousOutput := config.GetPreviousInput()
-		verify = signature.VerifySig(previousOutput, entropyMsg.VRFResult, entropyPK)
+		verify = signature.VerifySig([]byte(previousOutput), entropyMsg.VRFResult, entropyPK)
 		if !verify {
 			fmt.Printf("===>[ERROR]Verify new VRF result failed, From Entropy Node[%d]\n", entropyMsg.ClientID)
 			continue
@@ -291,25 +291,27 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		// lock file
-		f, err := os.Open("../config.yml")
+		f, err := os.Open("../lock")
 		if err != nil {
 			panic(err)
 		}
 		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
 			log.Println("add share lock in no block failed", err)
 		}
+		fmt.Println(time.Now())
+		fmt.Println("Config Change")
 
-		fmt.Println("change")
-
-		// time.Sleep(1 * time.Second)
-		// time.Sleep(500 * time.Millisecond)
-		// config.ReadConfig()
+		// 	// time.Sleep(1 * time.Second)
+		// time.Sleep(200 * time.Millisecond)
+		// 	// config.ReadConfig()
 		if err := viper.ReadInConfig(); err != nil {
 			panic(fmt.Errorf("fatal error config file: %w", err))
 		}
+		// newnewConfig := viper.AllSettings()
+		// fmt.Printf("All settings #4 %+v\n\n", newnewConfig)
 
 		newOutput := string(config.GetPreviousInput())
-		if previousOutput != newOutput {
+		if previousOutput != newOutput && newOutput != "" {
 			fmt.Println("output change", newOutput)
 
 			locAddr := net.TCPAddr{
@@ -362,7 +364,7 @@ func (s *StateEngine) unionTC(msg *message.ConMessage) (err error) {
 
 	// get specified curve
 	marshalledCurve := config.GetCurve()
-	pub, err := x509.ParsePKIXPublicKey(marshalledCurve)
+	pub, err := x509.ParsePKIXPublicKey([]byte(marshalledCurve))
 	if err != nil {
 		panic(fmt.Errorf("===>[UnionERROR]Key message parse err:%s", err))
 	}
@@ -370,7 +372,7 @@ func (s *StateEngine) unionTC(msg *message.ConMessage) (err error) {
 	curve := normalPublicKey.Curve
 
 	// unmarshal public key
-	x, y := elliptic.Unmarshal(curve, nodeConfig[msg.From].Pk)
+	x, y := elliptic.Unmarshal(curve, []byte(nodeConfig[msg.From].Pk))
 	newPublicKey := &ecdsa.PublicKey{
 		Curve: curve,
 		X:     x,

@@ -42,7 +42,7 @@ type SimpleP2p struct {
 func NewSimpleP2pLib(id int64, msgChan chan<- *message.ConMessage) P2pNetwork {
 	// get specified curve
 	marshalledCurve := config.GetCurve()
-	pub, err := x509.ParsePKIXPublicKey(marshalledCurve)
+	pub, err := x509.ParsePKIXPublicKey([]byte(marshalledCurve))
 	if err != nil {
 		panic(fmt.Errorf("===>[ERROR]Key message parse err:%s", err))
 	}
@@ -68,7 +68,7 @@ func NewSimpleP2pLib(id int64, msgChan chan<- *message.ConMessage) P2pNetwork {
 	fmt.Printf("===>[Node%d] is waiting at:%s\n", id, s.Addr().String())
 
 	// write new node details into config
-	config.NewConsensusNode(id, s.Addr().String(), elliptic.Marshal(curve, privateKey.PublicKey.X, privateKey.PublicKey.Y))
+	config.NewConsensusNode(id, s.Addr().String(), string(elliptic.Marshal(curve, privateKey.PublicKey.X, privateKey.PublicKey.Y)))
 
 	sp := &SimpleP2p{
 		NodeId:         id,
@@ -105,7 +105,7 @@ func (sp *SimpleP2p) dialTcp(id int64) {
 
 			// get specified curve
 			marshalledCurve := config.GetCurve()
-			pub, err := x509.ParsePKIXPublicKey(marshalledCurve)
+			pub, err := x509.ParsePKIXPublicKey([]byte(marshalledCurve))
 			if err != nil {
 				panic(fmt.Errorf("===>[ERROR]Key message parse err:%s", err))
 			}
@@ -113,7 +113,7 @@ func (sp *SimpleP2p) dialTcp(id int64) {
 			curve := normalPublicKey.Curve
 
 			// unmarshal public key
-			x, y := elliptic.Unmarshal(curve, nodeConfig[i].Pk)
+			x, y := elliptic.Unmarshal(curve, []byte(nodeConfig[i].Pk))
 			newPublicKey := &ecdsa.PublicKey{
 				Curve: curve,
 				X:     x,
@@ -201,7 +201,7 @@ func (sp *SimpleP2p) waitData(conn *net.TCPConn) {
 
 			// get specified curve
 			marshalledCurve := config.GetCurve()
-			pub, err := x509.ParsePKIXPublicKey(marshalledCurve)
+			pub, err := x509.ParsePKIXPublicKey([]byte(marshalledCurve))
 			if err != nil {
 				panic(fmt.Errorf("===>[ERROR]Key message parse err:%s", err))
 			}
@@ -209,7 +209,7 @@ func (sp *SimpleP2p) waitData(conn *net.TCPConn) {
 			curve := normalPublicKey.Curve
 
 			// unmarshal public key
-			x, y := elliptic.Unmarshal(curve, nodeConfig[conMsg.From].Pk)
+			x, y := elliptic.Unmarshal(curve, []byte(nodeConfig[conMsg.From].Pk))
 			newPublicKey := &ecdsa.PublicKey{
 				Curve: curve,
 				X:     x,

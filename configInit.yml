@@ -1,30 +1,44 @@
-consensusnodes:
-    node0:
-        ip: "0"
-        pk: "0"
-    node1:
-        ip: "0"
-        pk: "0"
-    node2:
-        ip: "0"
-        pk: "0"
-    node3:
-        ip: "0"
-        pk: "0"
-    node4:
-        ip: "0"
-        pk: "0"
-    node5:
-        ip: "0"
-        pk: "0"
-    node6:
-        ip: "0"
-        pk: "0"
+# consensusnodes:
+#     node0:
+#         ip: "0"
+#         pk: "0"
+#     node1:
+#         ip: "0"
+#         pk: "0"
+#     node2:
+#         ip: "0"
+#         pk: "0"
+#     node3:
+#         ip: "0"
+#         pk: "0"
+#     node4:
+#         ip: "0"
+#         pk: "0"
+#     node5:
+#         ip: "0"
+#         pk: "0"
+#     node6:
+#         ip: "0"
+#         pk: "0"
+node0_ip: "0"
+node0_pk: "0"
+node1_ip: "0"
+node1_pk: "0"
+node2_ip: "0"
+node2_pk: "0"
+node3_ip: "0"
+node3_pk: "0"
+node4_ip: "0"
+node4_pk: "0"
+node5_ip: "0"
+node5_pk: "0"
+node6_ip: "0"
+node6_pk: "0"
 ellipticcurve:
 ftype: 0
 previousoutput: 
 running: false
 tctype: 0
-version: v0.10
+version: v0.12
 vrftype: 0
 difficulty: 0

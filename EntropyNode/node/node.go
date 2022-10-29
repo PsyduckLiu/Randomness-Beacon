@@ -29,7 +29,7 @@ func StartEntropyNode(id int) {
 	// get specified curve
 	config.ReadConfig()
 	marshalledCurve := config.GetCurve()
-	pub, err := x509.ParsePKIXPublicKey(marshalledCurve)
+	pub, err := x509.ParsePKIXPublicKey([]byte(marshalledCurve))
 	if err != nil {
 		panic(fmt.Errorf("===>[ERROR]Key message parse err:%s", err))
 	}
@@ -60,24 +60,26 @@ func WatchConfig(privateKey *ecdsa.PrivateKey, id int, sig chan interface{}) {
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		// lock file
-		f, err := os.Open("../config.yml")
+		f, err := os.Open("../lock")
 		if err != nil {
 			panic(err)
 		}
 		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
 			log.Println("add share lock in no block failed", err)
 		}
+		fmt.Println(time.Now())
+		fmt.Println("Config Change")
 
-		// time.Sleep(1 * time.Second)
-		// time.Sleep(500 * time.Millisecond)
+		// 	// time.Sleep(1 * time.Second)
+		// 	// time.Sleep(200 * time.Millisecond)
+		// config.ReadConfig()
 		if err := viper.ReadInConfig(); err != nil {
 			panic(fmt.Errorf("fatal error config file: %w", err))
 		}
 
 		newOutput := string(config.GetPreviousInput())
-		if previousOutput != newOutput {
-			fmt.Println("output change")
-			fmt.Println("newoutput:", newOutput)
+		if previousOutput != newOutput && newOutput != "" {
+			fmt.Println("output change", newOutput)
 
 			// calculate VRF result
 			previousOutput = newOutput
