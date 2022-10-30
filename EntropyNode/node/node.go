@@ -55,10 +55,12 @@ func WatchConfig(privateKey *ecdsa.PrivateKey, id int, sig chan interface{}) {
 	previousOutput := string(config.GetPreviousInput())
 	fmt.Println("init output", previousOutput)
 
+	myViper := viper.New()
 	// set config file
-	viper.SetConfigFile("../config.yml")
-	viper.WatchConfig()
-	viper.OnConfigChange(func(e fsnotify.Event) {
+	myViper.SetConfigFile("../config.yml")
+	myViper.WatchConfig()
+	myViper.OnConfigChange(func(e fsnotify.Event) {
+		// time.Sleep(100 * time.Millisecond)
 		// lock file
 		f, err := os.Open("../lock")
 		if err != nil {
@@ -70,10 +72,8 @@ func WatchConfig(privateKey *ecdsa.PrivateKey, id int, sig chan interface{}) {
 		fmt.Println(time.Now())
 		fmt.Println("Config Change")
 
-		// 	// time.Sleep(1 * time.Second)
-		// 	// time.Sleep(200 * time.Millisecond)
 		// config.ReadConfig()
-		if err := viper.ReadInConfig(); err != nil {
+		if err := myViper.ReadInConfig(); err != nil {
 			panic(fmt.Errorf("fatal error config file: %w", err))
 		}
 
@@ -130,6 +130,7 @@ func sendTCMsg(sk *ecdsa.PrivateKey, vrfResult []byte, id int64, tc string, sig 
 	for i := 0; i < len(nodeConfig); i++ {
 		conn, err := net.DialTCP("tcp", nil, &net.TCPAddr{Port: util.EntropyPortByID(i)})
 		if err != nil {
+			fmt.Println(time.Now())
 			fmt.Printf("dial tcp err:%s\n", err)
 			continue
 		}
@@ -140,7 +141,6 @@ func sendTCMsg(sk *ecdsa.PrivateKey, vrfResult []byte, id int64, tc string, sig 
 			panic(err)
 		}
 
-		// go WriteUDP(conn, rAddr, bs)
 		go WriteTCP(conn, bs)
 	}
 }
@@ -156,7 +156,6 @@ func WriteTCP(conn *net.TCPConn, v []byte) {
 
 // calculate VRF output
 func calVRF(previousOutput []byte, sk *ecdsa.PrivateKey) []byte {
-	// skD := sk.D
 	vrfRes := signature.GenerateSig(previousOutput, sk)
 
 	valid := signature.VerifySig(previousOutput, vrfRes, &sk.PublicKey)

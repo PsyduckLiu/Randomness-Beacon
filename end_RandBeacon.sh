@@ -14,3 +14,5 @@ for i in $(seq 0 9)
 do
 kill -9 `ps -ef |grep exe/main\ $i|awk '{print $2}'`
 done
+
+# rm -f output.txt

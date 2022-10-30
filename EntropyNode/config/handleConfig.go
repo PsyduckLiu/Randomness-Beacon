@@ -6,17 +6,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-//	type Configurations struct {
-//		Running        bool
-//		Version        string
-//		PreviousOutput string
-//		EllipticCurve  string
-//		VRFType        int
-//		TCType         int
-//		FType          int
-//		Difficulty     int
-//		ConsensusNodes NodesConfig
-//	}
 type Configurations struct {
 	Running        bool
 	Version        string
@@ -26,21 +15,20 @@ type Configurations struct {
 	TCType         int
 	FType          int
 	Difficulty     int
-	// ConsensusNodes NodesConfig
-	Node0_ip string
-	Node0_pk string
-	Node1_ip string
-	Node1_pk string
-	Node2_ip string
-	Node2_pk string
-	Node3_ip string
-	Node3_pk string
-	Node4_ip string
-	Node4_pk string
-	Node5_ip string
-	Node5_pk string
-	Node6_ip string
-	Node6_pk string
+	Node0_ip       string
+	Node0_pk       string
+	Node1_ip       string
+	Node1_pk       string
+	Node2_ip       string
+	Node2_pk       string
+	Node3_ip       string
+	Node3_pk       string
+	Node4_ip       string
+	Node4_pk       string
+	Node5_ip       string
+	Node5_pk       string
+	Node6_ip       string
+	Node6_pk       string
 }
 type NodesConfig struct {
 	Node0 NodeConfig
@@ -61,13 +49,14 @@ type NodeConfig struct {
 func GetDifficulty() int {
 	var configuration = new(Configurations)
 
+	myViper := viper.New()
 	// set config file
-	viper.SetConfigFile("../config.yml")
+	myViper.SetConfigFile("../config.yml")
 
-	if err := viper.ReadInConfig(); err != nil {
+	if err := myViper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
-	if err := viper.Unmarshal(configuration); err != nil {
+	if err := myViper.Unmarshal(configuration); err != nil {
 		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
 	}
 
@@ -78,13 +67,14 @@ func GetDifficulty() int {
 func GetCurve() string {
 	var configuration = new(Configurations)
 
+	myViper := viper.New()
 	// set config file
-	viper.SetConfigFile("../config.yml")
+	myViper.SetConfigFile("../config.yml")
 
-	if err := viper.ReadInConfig(); err != nil {
+	if err := myViper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
-	if err := viper.Unmarshal(configuration); err != nil {
+	if err := myViper.Unmarshal(configuration); err != nil {
 		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
 	}
 
@@ -95,13 +85,14 @@ func GetCurve() string {
 func GetPreviousInput() string {
 	var configuration = new(Configurations)
 
+	myViper := viper.New()
 	// set config file
-	viper.SetConfigFile("../config.yml")
+	myViper.SetConfigFile("../config.yml")
 
-	if err := viper.ReadInConfig(); err != nil {
+	if err := myViper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
-	if err := viper.Unmarshal(configuration); err != nil {
+	if err := myViper.Unmarshal(configuration); err != nil {
 		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
 	}
 
@@ -113,13 +104,14 @@ func GetConsensusNode() []NodeConfig {
 	var nodeConfig []NodeConfig
 	var configuration = new(Configurations)
 
+	myViper := viper.New()
 	// set config file
-	viper.SetConfigFile("../config.yml")
+	myViper.SetConfigFile("../config.yml")
 
-	if err := viper.ReadInConfig(); err != nil {
+	if err := myViper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
-	if err := viper.Unmarshal(configuration); err != nil {
+	if err := myViper.Unmarshal(configuration); err != nil {
 		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
 	}
 
@@ -127,44 +119,30 @@ func GetConsensusNode() []NodeConfig {
 		var node NodeConfig
 		switch i {
 		case 0:
-			// node.Ip = configuration.ConsensusNodes.Node0.Ip
-			// node.Pk = configuration.ConsensusNodes.Node0.Pk
 			node.Ip = configuration.Node0_ip
 			node.Pk = configuration.Node0_pk
 			nodeConfig = append(nodeConfig, node)
 		case 1:
-			// node.Ip = configuration.ConsensusNodes.Node1.Ip
-			// node.Pk = configuration.ConsensusNodes.Node1.Pk
 			node.Ip = configuration.Node1_ip
 			node.Pk = configuration.Node1_pk
 			nodeConfig = append(nodeConfig, node)
 		case 2:
-			// node.Ip = configuration.ConsensusNodes.Node2.Ip
-			// node.Pk = configuration.ConsensusNodes.Node2.Pk
 			node.Ip = configuration.Node2_ip
 			node.Pk = configuration.Node2_pk
 			nodeConfig = append(nodeConfig, node)
 		case 3:
-			// node.Ip = configuration.ConsensusNodes.Node3.Ip
-			// node.Pk = configuration.ConsensusNodes.Node3.Pk
 			node.Ip = configuration.Node3_ip
 			node.Pk = configuration.Node3_pk
 			nodeConfig = append(nodeConfig, node)
 		case 4:
-			// node.Ip = configuration.ConsensusNodes.Node4.Ip
-			// node.Pk = configuration.ConsensusNodes.Node4.Pk
 			node.Ip = configuration.Node4_ip
 			node.Pk = configuration.Node4_pk
 			nodeConfig = append(nodeConfig, node)
 		case 5:
-			// node.Ip = configuration.ConsensusNodes.Node5.Ip
-			// node.Pk = configuration.ConsensusNodes.Node5.Pk
 			node.Ip = configuration.Node5_ip
 			node.Pk = configuration.Node5_pk
 			nodeConfig = append(nodeConfig, node)
 		case 6:
-			// node.Ip = configuration.ConsensusNodes.Node6.Ip
-			// node.Pk = configuration.ConsensusNodes.Node6.Pk
 			node.Ip = configuration.Node6_ip
 			node.Pk = configuration.Node6_pk
 			nodeConfig = append(nodeConfig, node)
@@ -178,13 +156,14 @@ func GetConsensusNode() []NodeConfig {
 func ReadConfig() {
 	var configuration = new(Configurations)
 
+	myViper := viper.New()
 	// set fonfig file
-	viper.SetConfigFile("../config.yml")
+	myViper.SetConfigFile("../config.yml")
 
-	if err := viper.ReadInConfig(); err != nil {
+	if err := myViper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
-	if err := viper.Unmarshal(configuration); err != nil {
+	if err := myViper.Unmarshal(configuration); err != nil {
 		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
 	}
 
@@ -208,20 +187,6 @@ func ReadConfig() {
 	fmt.Printf("Node[5]'s pk is %s\n", configuration.Node5_pk)
 	fmt.Printf("Node[6]'s ip is %s\n", configuration.Node6_ip)
 	fmt.Printf("Node[6]'s pk is %s\n", configuration.Node6_pk)
-	// fmt.Printf("Node[0]'s ip is %s\n", configuration.ConsensusNodes.Node0.Ip)
-	// fmt.Printf("Node[0]'s pk is %s\n", configuration.ConsensusNodes.Node0.Pk)
-	// fmt.Printf("Node[1]'s ip is %s\n", configuration.ConsensusNodes.Node1.Ip)
-	// fmt.Printf("Node[1]'s pk is %s\n", configuration.ConsensusNodes.Node1.Pk)
-	// fmt.Printf("Node[2]'s ip is %s\n", configuration.ConsensusNodes.Node2.Ip)
-	// fmt.Printf("Node[2]'s pk is %s\n", configuration.ConsensusNodes.Node2.Pk)
-	// fmt.Printf("Node[3]'s ip is %s\n", configuration.ConsensusNodes.Node3.Ip)
-	// fmt.Printf("Node[3]'s pk is %s\n", configuration.ConsensusNodes.Node3.Pk)
-	// fmt.Printf("Node[4]'s ip is %s\n", configuration.ConsensusNodes.Node4.Ip)
-	// fmt.Printf("Node[4]'s pk is %s\n", configuration.ConsensusNodes.Node4.Pk)
-	// fmt.Printf("Node[5]'s ip is %s\n", configuration.ConsensusNodes.Node5.Ip)
-	// fmt.Printf("Node[5]'s pk is %s\n", configuration.ConsensusNodes.Node5.Pk)
-	// fmt.Printf("Node[6]'s ip is %s\n", configuration.ConsensusNodes.Node6.Ip)
-	// fmt.Printf("Node[6]'s pk is %s\n", configuration.ConsensusNodes.Node6.Pk)
 	fmt.Printf("Difficulty:%d\n", configuration.Difficulty)
 	fmt.Printf("VRFType:%d\n", configuration.VRFType)
 	fmt.Printf("TCType:%d\n", configuration.TCType)

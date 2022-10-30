@@ -11,14 +11,11 @@ const (
 	MTCollect MType = iota
 	MTSubmit
 	MTApprove
+	MTOutput
 	MTViewChange
 	MTNewView
 	MTIdentity
 )
-
-// to be modified
-const MaxFaultyNode = 2
-const TotalNodeNum = 3*MaxFaultyNode + 1
 
 // MType.String()
 func (mt MType) String() string {
@@ -29,6 +26,8 @@ func (mt MType) String() string {
 		return "Submit"
 	case MTApprove:
 		return "Approve"
+	case MTOutput:
+		return "Output"
 	case MTViewChange:
 		return "ViewChange"
 	case MTNewView:

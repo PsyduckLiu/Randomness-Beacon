@@ -1,10 +1,17 @@
 package util
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/sha256"
 	"fmt"
+	"os"
+	"time"
 )
+
+// to be modified
+const MaxFaultyNode = 2
+const TotalNodeNum = 3*MaxFaultyNode + 1
 
 // transfer []bytes to string
 func BytesToBinaryString(bs []byte) string {
@@ -32,4 +39,23 @@ func Digest(v interface{}) []byte {
 	digest := h.Sum(nil)
 
 	return digest
+}
+
+func WriteResult(output string) {
+	filePath := "../output.txt"
+	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		file, err = os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0666)
+		if err != nil {
+			fmt.Println("file failed", err)
+		}
+
+	}
+	defer file.Close()
+
+	write := bufio.NewWriter(file)
+	write.WriteString(time.Now().String() + "\n")
+	write.WriteString(output + "\n")
+
+	write.Flush()
 }

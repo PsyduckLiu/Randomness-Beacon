@@ -12,9 +12,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/big"
 	"net"
 	"os"
 	"strconv"
+	"sync"
 	"syscall"
 	"time"
 
@@ -55,7 +57,7 @@ func (s Stage) String() string {
 }
 
 // timer
-const StateTimerOut = 5 * time.Second
+const StateTimerOut = 6 * time.Second
 const MaxStateMsgNO = 100
 
 type RequestTimer struct {
@@ -120,9 +122,12 @@ type StateEngine struct {
 	MsgChan  <-chan *message.ConMessage
 	nodeChan chan<- *message.RequestRecord
 
-	MiniSeq int64 `json:"miniSeq"`
-	MaxSeq  int64 `json:"maxSeq"`
-	//index is seqID
+	SubmitNum      int64
+	OutputNum      int64
+	Result         *big.Int
+	Mutex          sync.Mutex
+	MiniSeq        int64 `json:"miniSeq"`
+	MaxSeq         int64 `json:"maxSeq"`
 	msgLogs        map[int64]*NormalLog
 	TimeCommitment map[string]string
 	sCache         *VCCache
@@ -134,21 +139,25 @@ func InitConsensus(id int64, cChan chan<- *message.RequestRecord) *StateEngine {
 	ch := make(chan *message.ConMessage, MaxStateMsgNO)
 	p2p := p2pnetwork.NewSimpleP2pLib(id, ch)
 	se := &StateEngine{
-		NodeID:         id,
-		CurViewID:      0,
-		CurSequence:    0,
-		MiniSeq:        0,
-		MaxSeq:         64,
-		Timer:          newRequestTimer(),
-		P2pWire:        p2p,
-		MsgChan:        ch,
-		nodeChan:       cChan,
-		msgLogs:        make(map[int64]*NormalLog),
-		sCache:         NewVCCache(),
-		SrvHub:         new(net.TCPListener),
+		NodeID:      id,
+		CurViewID:   0,
+		CurSequence: 0,
+		SubmitNum:   0,
+		OutputNum:   0,
+		Result:      big.NewInt(0),
+		Mutex:       sync.Mutex{},
+		MiniSeq:     0,
+		MaxSeq:      64,
+		Timer:       newRequestTimer(),
+		P2pWire:     p2p,
+		MsgChan:     ch,
+		nodeChan:    cChan,
+		msgLogs:     make(map[int64]*NormalLog),
+		sCache:      NewVCCache(),
+		// SrvHub:         new(net.TCPListener),
 		TimeCommitment: make(map[string]string),
 	}
-	se.PrimaryID = se.CurViewID % message.TotalNodeNum
+	se.PrimaryID = se.CurViewID % util.TotalNodeNum
 
 	if se.PrimaryID == se.NodeID {
 		go se.WriteRandomOutput()
@@ -158,8 +167,9 @@ func InitConsensus(id int64, cChan chan<- *message.RequestRecord) *StateEngine {
 }
 
 func (s *StateEngine) WriteRandomOutput() {
-	time.Sleep(25 * time.Second)
+	time.Sleep(30 * time.Second)
 	fmt.Println("start wirte config")
+
 	// generate random init input
 	message := []byte("hello world")
 	randomNum := signature.Digest(message)
@@ -178,7 +188,8 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 			if s.NodeID != s.PrimaryID {
 				go s.sendUnionMsg()
 			}
-			fmt.Println(time.Now().Unix())
+
+			fmt.Println(time.Now())
 			fmt.Printf("======>[Node%d]Stop Receive messages\n", s.NodeID)
 			for key, value := range s.TimeCommitment {
 				fmt.Println("key is", key)
@@ -187,7 +198,8 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 		case conMsg := <-s.MsgChan:
 			switch conMsg.Typ {
 			case message.MTSubmit,
-				message.MTApprove:
+				message.MTApprove,
+				message.MTOutput:
 				if s.nodeStatus != Serving {
 					fmt.Println("======>[ERROR]node is not in service status now......")
 					continue
@@ -203,6 +215,64 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 			}
 		}
 	}
+}
+
+// watch config
+// when previousout changes, start a new round
+func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
+	previousOutput := string(config.GetPreviousInput())
+	fmt.Println("init output", previousOutput)
+
+	myViper := viper.New()
+	// set config file
+	myViper.SetConfigFile("../config.yml")
+	myViper.WatchConfig()
+	myViper.OnConfigChange(func(e fsnotify.Event) {
+		// time.Sleep(100 * time.Millisecond)
+		// lock file
+		f, err := os.Open("../lock")
+		if err != nil {
+			panic(err)
+		}
+		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
+			log.Println("add share lock in no block failed", err)
+		}
+		fmt.Println(time.Now())
+		fmt.Println("Config Change")
+
+		// 	// config.ReadConfig()
+		if err := myViper.ReadInConfig(); err != nil {
+			panic(fmt.Errorf("fatal error config file: %w", err))
+		}
+		// newnewConfig := myViper.AllSettings()
+		// fmt.Printf("All settings #4 %+v\n\n", newnewConfig)
+
+		newOutput := string(config.GetPreviousInput())
+		if previousOutput != newOutput && newOutput != "" {
+			fmt.Println("output change", newOutput)
+
+			if s.SrvHub == nil {
+				locAddr := net.TCPAddr{
+					Port: util.EntropyPortByID(id),
+				}
+				srvHub, err := net.ListenTCP("tcp4", &locAddr)
+				if err != nil {
+					panic(err)
+				}
+				s.SrvHub = srvHub
+			}
+			s.SrvHub.SetDeadline(time.Now().Add(5 * time.Second))
+
+			go s.WaitTC(sig)
+			previousOutput = newOutput
+			s.Timer.tick()
+		}
+
+		// unlock file
+		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {
+			log.Println("unlock share lock failed", err)
+		}
+	})
 }
 
 // wait for request from client in UDP channel
@@ -232,9 +302,15 @@ func (s *StateEngine) WaitTC(sig chan interface{}) {
 			fmt.Printf("===>[ERROR]Service message parse err:%s\n", err)
 			continue
 		}
+		if msgFromEntropyNode.Typ != message.MTCollect {
+			fmt.Printf("===>[ERROR]Not collect message:%s\n", err)
+			continue
+		}
+
 		entropyMsg := &message.EntropyMessage{}
 		if err := json.Unmarshal(msgFromEntropyNode.Payload, entropyMsg); err != nil {
 			fmt.Printf("===>[ERROR] Invalid[%s] Entropy message[%s]", err, msgFromEntropyNode)
+			continue
 		}
 
 		// get entropy node's public key and verify signature
@@ -274,66 +350,12 @@ func (s *StateEngine) WaitTC(sig chan interface{}) {
 			continue
 		}
 
+		s.Mutex.Lock()
 		s.TimeCommitment[string(util.Digest(entropyMsg.TimeCommitment))] = entropyMsg.TimeCommitment
-		// s.TimeCommitment = append(s.TimeCommitment, entropyMsg.TimeCommitment)
+		s.Mutex.Unlock()
+
 		fmt.Printf("===>Entropy message from Node[%d],time commitment is:%s\n", entropyMsg.ClientID, entropyMsg.TimeCommitment)
 	}
-}
-
-// watch config
-// when previousout changes, start a new round
-func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
-	previousOutput := string(config.GetPreviousInput())
-	fmt.Println("init output", previousOutput)
-
-	// set config file
-	viper.SetConfigFile("../config.yml")
-	viper.WatchConfig()
-	viper.OnConfigChange(func(e fsnotify.Event) {
-		// lock file
-		f, err := os.Open("../lock")
-		if err != nil {
-			panic(err)
-		}
-		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
-			log.Println("add share lock in no block failed", err)
-		}
-		fmt.Println(time.Now())
-		fmt.Println("Config Change")
-
-		// 	// time.Sleep(1 * time.Second)
-		// time.Sleep(200 * time.Millisecond)
-		// 	// config.ReadConfig()
-		if err := viper.ReadInConfig(); err != nil {
-			panic(fmt.Errorf("fatal error config file: %w", err))
-		}
-		// newnewConfig := viper.AllSettings()
-		// fmt.Printf("All settings #4 %+v\n\n", newnewConfig)
-
-		newOutput := string(config.GetPreviousInput())
-		if previousOutput != newOutput && newOutput != "" {
-			fmt.Println("output change", newOutput)
-
-			locAddr := net.TCPAddr{
-				Port: util.EntropyPortByID(id),
-			}
-			srvHub, err := net.ListenTCP("tcp4", &locAddr)
-			if err != nil {
-				panic(err)
-			}
-			s.SrvHub = srvHub
-			s.SrvHub.SetDeadline(time.Now().Add(5 * time.Second))
-
-			go s.WaitTC(sig)
-			previousOutput = newOutput
-			s.Timer.tick()
-		}
-
-		// unlock file
-		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {
-			log.Println("unlock share lock failed", err)
-		}
-	})
 }
 
 // backups send union message
@@ -357,7 +379,6 @@ func (s *StateEngine) sendUnionMsg() {
 
 // primary union TC
 func (s *StateEngine) unionTC(msg *message.ConMessage) (err error) {
-	// time.Sleep(1 * time.Second)
 	fmt.Printf("======>[Union]Current Union Message from Node[%d]\n", msg.From)
 
 	nodeConfig := config.GetConsensusNode()
@@ -380,17 +401,17 @@ func (s *StateEngine) unionTC(msg *message.ConMessage) (err error) {
 	}
 
 	// verify signature
-	fmt.Println("payload", msg.Payload)
-	fmt.Println("pk", nodeConfig[msg.From].Pk)
+	// fmt.Println("payload", msg.Payload)
+	// fmt.Println("pk", nodeConfig[msg.From].Pk)
 	verify := signature.VerifySig(msg.Payload, msg.Sig, newPublicKey)
 	if !verify {
-		fmt.Printf("===>[UnionERROR]Verify new public key Signature failed, From Node[%d]\n", msg.From)
+		panic(fmt.Errorf("===>[UnionERROR]Verify new public key Signature failed, From Node[%d]", msg.From))
 	}
 
 	// unmarshal message
 	submit := &message.Submit{}
 	if err := json.Unmarshal(msg.Payload, submit); err != nil {
-		return fmt.Errorf("======>[Union]Invalid[%s] Union message[%s]", err, msg)
+		panic(fmt.Errorf("======>[Union]Invalid[%s] Union message[%s]", err, msg))
 	}
 
 	fmt.Println("submit", submit)
@@ -404,6 +425,184 @@ func (s *StateEngine) unionTC(msg *message.ConMessage) (err error) {
 		}
 	}
 
+	s.SubmitNum++
+	// new submit message
+	// send submit message to primary node
+	if s.SubmitNum == util.TotalNodeNum-1 {
+		var tc []string
+		for _, value := range s.TimeCommitment {
+			tc = append(tc, value)
+		}
+		approve := &message.Approve{
+			UnionTC: tc,
+		}
+
+		sk := s.P2pWire.GetMySecretkey()
+		aMsg := message.CreateConMsg(message.MTApprove, approve, sk, s.NodeID)
+		if err := s.P2pWire.BroadCast(aMsg); err != nil {
+			panic(err)
+		}
+		go s.handleTC()
+
+		s.SubmitNum = 0
+		fmt.Printf("======>[Union]Send submit message success\n")
+	}
+
+	return
+}
+
+// backups check union tc sent by primary
+func (s *StateEngine) approveTC(msg *message.ConMessage) (err error) {
+	fmt.Printf("======>[Approve]Current Approve Message from Node[%d]\n", msg.From)
+
+	nodeConfig := config.GetConsensusNode()
+
+	// get specified curve
+	marshalledCurve := config.GetCurve()
+	pub, err := x509.ParsePKIXPublicKey([]byte(marshalledCurve))
+	if err != nil {
+		panic(fmt.Errorf("===>[ApproveERROR]Key message parse err:%s", err))
+	}
+	normalPublicKey := pub.(*ecdsa.PublicKey)
+	curve := normalPublicKey.Curve
+
+	// unmarshal public key
+	x, y := elliptic.Unmarshal(curve, []byte(nodeConfig[msg.From].Pk))
+	newPublicKey := &ecdsa.PublicKey{
+		Curve: curve,
+		X:     x,
+		Y:     y,
+	}
+
+	// verify signature
+	// fmt.Println("payload", msg.Payload)
+	// fmt.Println("pk", nodeConfig[msg.From].Pk)
+	verify := signature.VerifySig(msg.Payload, msg.Sig, newPublicKey)
+	if !verify {
+		panic(fmt.Errorf("===>[ApproveERROR]Verify new public key Signature failed, From Node[%d]", msg.From))
+	}
+
+	// unmarshal message
+	approve := &message.Approve{}
+	if err := json.Unmarshal(msg.Payload, approve); err != nil {
+		panic(fmt.Errorf("======>[Approve]Invalid[%s] Approve message[%s]", err, msg))
+	}
+
+	fmt.Println("approve", approve)
+	fmt.Printf("Approve Message from Node[%d],length is %d\n", msg.From, len(approve.UnionTC))
+	for _, value := range approve.UnionTC {
+		fmt.Println("[UnionTC] value is", value)
+	}
+
+	// generate an union tc set
+	unionTC := make(map[string]string)
+	for _, value := range approve.UnionTC {
+		key := string(util.Digest(value))
+		unionTC[key] = value
+	}
+
+	// check union tc set
+	for key := range s.TimeCommitment {
+		if _, ok := unionTC[key]; !ok {
+			panic(fmt.Errorf("===>[ApproveERROR]where is my tc????"))
+		}
+	}
+
+	// get new union tc set
+	for key, value := range unionTC {
+		if _, ok := s.TimeCommitment[key]; !ok {
+			fmt.Println("new key is", key)
+			fmt.Println("new value is", value)
+			s.TimeCommitment[key] = value
+		}
+	}
+
+	go s.handleTC()
+	return
+}
+
+// resolve tc and compute F
+func (s *StateEngine) handleTC() (err error) {
+	var resolvedTC []string
+	for _, value := range s.TimeCommitment {
+		// TODO:resolve tc
+		resolvedTC = append(resolvedTC, value)
+	}
+
+	// Xor all resolved tc
+	result := big.NewInt(0)
+	for _, value := range resolvedTC {
+		n, ok := new(big.Int).SetString(value, 10)
+		if !ok {
+			panic(fmt.Errorf("SetString: error"))
+		}
+		result.Xor(result, n)
+	}
+
+	s.Result = result
+	fmt.Println("after xor all resolved tc,result is:", s.Result)
+
+	if s.NodeID != s.PrimaryID {
+		sk := s.P2pWire.GetMySecretkey()
+		oMsg := message.CreateConMsg(message.MTOutput, s.Result.String(), sk, s.NodeID)
+		conn := s.P2pWire.GetPrimaryConn(s.PrimaryID)
+		if err := s.P2pWire.SendUniqueNode(conn, oMsg); err != nil {
+			panic(err)
+		}
+	}
+
+	s.TimeCommitment = make(map[string]string)
+	return
+}
+
+// output tc and compute F
+func (s *StateEngine) outputTC(msg *message.ConMessage) (err error) {
+	fmt.Printf("======>[Output]Current Output Message from Node[%d]\n", msg.From)
+
+	nodeConfig := config.GetConsensusNode()
+
+	// get specified curve
+	marshalledCurve := config.GetCurve()
+	pub, err := x509.ParsePKIXPublicKey([]byte(marshalledCurve))
+	if err != nil {
+		panic(fmt.Errorf("===>[OutputERROR]Key message parse err:%s", err))
+	}
+	normalPublicKey := pub.(*ecdsa.PublicKey)
+	curve := normalPublicKey.Curve
+
+	// unmarshal public key
+	x, y := elliptic.Unmarshal(curve, []byte(nodeConfig[msg.From].Pk))
+	newPublicKey := &ecdsa.PublicKey{
+		Curve: curve,
+		X:     x,
+		Y:     y,
+	}
+
+	// verify signature
+	// fmt.Println("payload", msg.Payload)
+	// fmt.Println("pk", nodeConfig[msg.From].Pk)
+	verify := signature.VerifySig(msg.Payload, msg.Sig, newPublicKey)
+	if !verify {
+		panic(fmt.Errorf("===>[OutputERROR]Verify new public key Signature failed, From Node[%d]", msg.From))
+	}
+
+	// unmarshal message
+	result := new(string)
+	if err := json.Unmarshal(msg.Payload, result); err != nil {
+		panic(fmt.Errorf("======>[Output]Invalid[%s] Output message[%s]", err, msg))
+	}
+
+	if *result == s.Result.String() {
+		s.OutputNum++
+		if s.OutputNum == util.TotalNodeNum-1 {
+			s.OutputNum = 0
+			fmt.Println("[Output]new output is", s.Result)
+			util.WriteResult(s.Result.String())
+			time.Sleep(5 * time.Second)
+			config.WriteOutput(s.Result.String())
+		}
+	}
+
 	return
 }
 
@@ -414,15 +613,11 @@ func (s *StateEngine) procConsensusMsg(msg *message.ConMessage) (err error) {
 	switch msg.Typ {
 	case message.MTSubmit:
 		return s.unionTC(msg)
-
-		// case message.MTApprove:
-		// 	prepare := &message.Prepare{}
-		// 	if err := json.Unmarshal(msg.Payload, prepare); err != nil {
-		// 		return fmt.Errorf("======>[procConsensusMsg]invalid[%s] Prepare message[%s]", err, msg)
-		// 	}
-		// 	return s.prePrepare2Prepare(prepare, msg)
-		// }
-
+	case message.MTApprove:
+		return s.approveTC(msg)
+	case message.MTOutput:
+		return s.outputTC(msg)
 	}
+
 	return
 }

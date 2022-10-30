@@ -1,25 +1,3 @@
-# consensusnodes:
-#     node0:
-#         ip: "0"
-#         pk: "0"
-#     node1:
-#         ip: "0"
-#         pk: "0"
-#     node2:
-#         ip: "0"
-#         pk: "0"
-#     node3:
-#         ip: "0"
-#         pk: "0"
-#     node4:
-#         ip: "0"
-#         pk: "0"
-#     node5:
-#         ip: "0"
-#         pk: "0"
-#     node6:
-#         ip: "0"
-#         pk: "0"
 node0_ip: "0"
 node0_pk: "0"
 node1_ip: "0"
@@ -39,6 +17,6 @@ ftype: 0
 previousoutput: 
 running: false
 tctype: 0
-version: v0.12
+version: v1.0
 vrftype: 0
 difficulty: 0

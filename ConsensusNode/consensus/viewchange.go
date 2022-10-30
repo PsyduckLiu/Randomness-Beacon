@@ -2,6 +2,7 @@ package consensus
 
 import (
 	"consensusNode/message"
+	"consensusNode/util"
 	"fmt"
 )
 
@@ -48,7 +49,7 @@ func (s *StateEngine) ViewChange() {
 		NodeID:    s.NodeID,
 	}
 
-	nextPrimaryID := vc.NewViewID % message.TotalNodeNum
+	nextPrimaryID := vc.NewViewID % util.TotalNodeNum
 	if s.NodeID == nextPrimaryID {
 		s.sCache.pushVC(vc) //[vc.NodeID] = vc
 	}
@@ -100,7 +101,7 @@ func (s *StateEngine) createNewViewMsg(newVID int64) error {
 
 	s.sCache.addNewView(nv)
 	s.CurSequence = 0
-	s.PrimaryID = s.CurViewID % message.TotalNodeNum
+	s.PrimaryID = s.CurViewID % util.TotalNodeNum
 	fmt.Printf("======>[ViewChange] New primary is me[%d].....\n", s.PrimaryID)
 
 	sk := s.P2pWire.GetMySecretkey()
