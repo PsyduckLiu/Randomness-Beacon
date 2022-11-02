@@ -197,6 +197,7 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 			s.CollectTimer.tack()
 			s.stage = Submit
 			if s.NodeID != s.PrimaryID {
+				// time.Sleep(100 * time.Millisecond)
 				go s.sendUnionMsg()
 			}
 
@@ -269,7 +270,8 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 		if err != nil {
 			panic(err)
 		}
-		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
+		// if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
+		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_SH); err != nil {
 			log.Println("add share lock in no block failed", err)
 		}
 
@@ -535,6 +537,7 @@ func (s *StateEngine) approveTC(msg *message.ConMessage) (err error) {
 	}
 
 	s.ConfirmNum++
+	// time.Sleep(100 * time.Millisecond)
 	s.sendConfirmMsg()
 	// go s.handleTC()
 	return
@@ -544,7 +547,6 @@ func (s *StateEngine) approveTC(msg *message.ConMessage) (err error) {
 func (s *StateEngine) sendConfirmMsg() {
 	// new confirm message
 	var tc []string
-	fmt.Println(len(s.TimeCommitment))
 	for _, value := range s.TimeCommitment {
 		tc = append(tc, value)
 	}
@@ -565,7 +567,8 @@ func (s *StateEngine) sendConfirmMsg() {
 
 // confirm TC
 func (s *StateEngine) confirmTC(msg *message.ConMessage) (err error) {
-	if s.ConfirmNum > 2*util.MaxFaultyNode+1 {
+	if s.ConfirmNum == 2*util.MaxFaultyNode+1 {
+		fmt.Println("late!")
 		return
 	}
 
@@ -620,6 +623,7 @@ func (s *StateEngine) confirmTC(msg *message.ConMessage) (err error) {
 	s.ConfirmNum++
 	if s.ConfirmNum == 2*util.MaxFaultyNode+1 {
 		fmt.Println("[Confirm]Confirm success")
+		s.stage = Output
 		go s.handleTC()
 	}
 
@@ -662,9 +666,10 @@ func (s *StateEngine) handleTC() (err error) {
 
 // output tc and compute F
 func (s *StateEngine) outputTC(msg *message.ConMessage) (err error) {
-	// if s.OutputNum > 2*util.MaxFaultyNode {
-	// 	return
-	// }
+	if s.OutputNum == 2*util.MaxFaultyNode {
+		fmt.Println("late!")
+		return
+	}
 
 	fmt.Printf("======>[Output]Current Output Message from Node[%d]\n", msg.From)
 	nodeConfig := config.GetConsensusNode()
@@ -702,7 +707,8 @@ func (s *StateEngine) outputTC(msg *message.ConMessage) (err error) {
 	// send output message to primary node
 	if *result == s.Result.String() {
 		s.OutputNum++
-		if s.OutputNum == util.TotalNodeNum-1 {
+		// if s.OutputNum == util.TotalNodeNum-1 {
+		if s.OutputNum == 2*util.MaxFaultyNode {
 			fmt.Println("[Output]new output is", s.Result)
 			util.WriteResult(s.Result.String())
 			s.stage = Collect
@@ -719,22 +725,29 @@ func (s *StateEngine) procConsensusMsg(msg *message.ConMessage) (err error) {
 	fmt.Printf("\n======>[procConsensusMsg]Consesus message type:[%s] from Node[%d]\n", msg.Typ, msg.From)
 	fmt.Println(s.stage)
 
-	// time.Sleep(100 * time.Millisecond)
+	time.Sleep(200 * time.Millisecond)
 	switch msg.Typ {
 	case message.MTSubmit:
 		if s.stage == Submit {
-			return s.unionTC(msg)
+			// return s.unionTC(msg)
+			go s.unionTC(msg)
 		}
 	case message.MTApprove:
 		if s.stage == Approve {
-			return s.approveTC(msg)
+			// return s.approveTC(msg)
+			go s.approveTC(msg)
 		}
 	case message.MTConfirm:
 		if s.stage == Confirm {
-			return s.confirmTC(msg)
+			// return s.confirmTC(msg)
+			go s.confirmTC(msg)
 		}
 	case message.MTOutput:
-		return s.outputTC(msg)
+		if s.stage == Output {
+			// return s.outputTC(msg)
+			go s.outputTC(msg)
+		}
+
 	}
 
 	return

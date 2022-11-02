@@ -65,7 +65,8 @@ func WatchConfig(privateKey *ecdsa.PrivateKey, id int, sig chan interface{}) {
 		if err != nil {
 			panic(err)
 		}
-		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
+		// if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
+		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_SH); err != nil {
 			log.Println("add share lock in no block failed", err)
 		}
 		fmt.Println(time.Now())
