@@ -14,9 +14,8 @@ node6_ip: "0"
 node6_pk: "0"
 ellipticcurve:
 ftype: 0
-previousoutput: 
 running: false
 tctype: 0
-version: v1.0
+version: v1.2
 vrftype: 0
 difficulty: 0

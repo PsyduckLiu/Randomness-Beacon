@@ -11,6 +11,7 @@ const (
 	MTCollect MType = iota
 	MTSubmit
 	MTApprove
+	MTConfirm
 	MTOutput
 	MTViewChange
 	MTNewView
@@ -26,6 +27,8 @@ func (mt MType) String() string {
 		return "Submit"
 	case MTApprove:
 		return "Approve"
+	case MTConfirm:
+		return "Confirm"
 	case MTOutput:
 		return "Output"
 	case MTViewChange:

@@ -3,7 +3,6 @@ package node
 import (
 	"consensusNode/consensus"
 	"consensusNode/message"
-	"consensusNode/service"
 	"fmt"
 )
 
@@ -17,11 +16,11 @@ type Node struct {
 	NodeID int64
 	signal chan interface{}
 	// srvChan         chan interface{}
-	conChan         <-chan *message.RequestRecord
-	directReplyChan <-chan *message.Reply
+	conChan <-chan *message.RequestRecord
+	// directReplyChan <-chan *message.Reply
 	// waitQueue       []*message.Request
 	consensus *consensus.StateEngine
-	service   *service.Service
+	// service   *service.Service
 }
 
 // initialize a new node

@@ -7,37 +7,32 @@ import (
 )
 
 type Configurations struct {
-	Running        bool
-	Version        string
-	PreviousOutput string
-	EllipticCurve  string
-	VRFType        int
-	TCType         int
-	FType          int
-	Difficulty     int
-	Node0_ip       string
-	Node0_pk       string
-	Node1_ip       string
-	Node1_pk       string
-	Node2_ip       string
-	Node2_pk       string
-	Node3_ip       string
-	Node3_pk       string
-	Node4_ip       string
-	Node4_pk       string
-	Node5_ip       string
-	Node5_pk       string
-	Node6_ip       string
-	Node6_pk       string
+	Running bool   `mapstructure:"running"`
+	Version string `mapstructure:"version"`
+	// PreviousOutput string `mapstructure:"previousOutput"`
+	EllipticCurve string `mapstructure:"ellipticCurve"`
+	VRFType       int    `mapstructure:"vrfType"`
+	TCType        int    `mapstructure:"tcType"`
+	FType         int    `mapstructure:"fType "`
+	Difficulty    int    `mapstructure:"difficulty"`
+	Node0_ip      string `mapstructure:"node0_ip"`
+	Node0_pk      string `mapstructure:"node0_pk"`
+	Node1_ip      string `mapstructure:"node1_ip"`
+	Node1_pk      string `mapstructure:"node1_pk"`
+	Node2_ip      string `mapstructure:"node2_ip"`
+	Node2_pk      string `mapstructure:"node2_pk"`
+	Node3_ip      string `mapstructure:"node3_ip"`
+	Node3_pk      string `mapstructure:"node3_pk"`
+	Node4_ip      string `mapstructure:"node4_ip"`
+	Node4_pk      string `mapstructure:"node4_pk"`
+	Node5_ip      string `mapstructure:"node5_ip"`
+	Node5_pk      string `mapstructure:"node5_pk"`
+	Node6_ip      string `mapstructure:"node6_ip"`
+	Node6_pk      string `mapstructure:"node6_pk"`
 }
-type NodesConfig struct {
-	Node0 NodeConfig
-	Node1 NodeConfig
-	Node2 NodeConfig
-	Node3 NodeConfig
-	Node4 NodeConfig
-	Node5 NodeConfig
-	Node6 NodeConfig
+
+type Output struct {
+	PreviousOutput string `mapstructure:"previousOutput"`
 }
 
 type NodeConfig struct {
@@ -47,56 +42,41 @@ type NodeConfig struct {
 
 // get difficulty from config
 func GetDifficulty() int {
-	var configuration = new(Configurations)
-
-	myViper := viper.New()
 	// set config file
-	myViper.SetConfigFile("../config.yml")
+	configViper := viper.New()
+	configViper.SetConfigFile("../config.yml")
 
-	if err := myViper.ReadInConfig(); err != nil {
+	if err := configViper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
-	if err := myViper.Unmarshal(configuration); err != nil {
-		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
-	}
 
-	return configuration.Difficulty
+	return configViper.GetInt("Difficulty")
 }
 
 // get curve from config
 func GetCurve() string {
-	var configuration = new(Configurations)
-
-	myViper := viper.New()
 	// set config file
-	myViper.SetConfigFile("../config.yml")
+	configViper := viper.New()
+	configViper.SetConfigFile("../config.yml")
 
-	if err := myViper.ReadInConfig(); err != nil {
+	if err := configViper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
-	if err := myViper.Unmarshal(configuration); err != nil {
-		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
-	}
 
-	return configuration.EllipticCurve
+	return configViper.GetString("EllipticCurve")
 }
 
-// get previous input from config
-func GetPreviousInput() string {
-	var configuration = new(Configurations)
-
-	myViper := viper.New()
+// get previous output from config
+func GetPreviousOutput() string {
 	// set config file
-	myViper.SetConfigFile("../config.yml")
+	outputViper := viper.New()
+	outputViper.SetConfigFile("../output.yml")
 
-	if err := myViper.ReadInConfig(); err != nil {
+	if err := outputViper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
-	if err := myViper.Unmarshal(configuration); err != nil {
-		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
-	}
 
-	return configuration.PreviousOutput
+	return outputViper.GetString("PreviousOutput")
 }
 
 // get consensus nodes from config
@@ -104,14 +84,14 @@ func GetConsensusNode() []NodeConfig {
 	var nodeConfig []NodeConfig
 	var configuration = new(Configurations)
 
-	myViper := viper.New()
 	// set config file
-	myViper.SetConfigFile("../config.yml")
+	configViper := viper.New()
+	configViper.SetConfigFile("../config.yml")
 
-	if err := myViper.ReadInConfig(); err != nil {
+	if err := configViper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
-	if err := myViper.Unmarshal(configuration); err != nil {
+	if err := configViper.Unmarshal(configuration); err != nil {
 		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
 	}
 
@@ -156,21 +136,23 @@ func GetConsensusNode() []NodeConfig {
 func ReadConfig() {
 	var configuration = new(Configurations)
 
-	myViper := viper.New()
-	// set fonfig file
-	myViper.SetConfigFile("../config.yml")
+	// set config file
+	configViper := viper.New()
+	configViper.SetConfigFile("../config.yml")
+	outputViper := viper.New()
+	outputViper.SetConfigFile("../output.yml")
 
-	if err := myViper.ReadInConfig(); err != nil {
+	if err := configViper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
-	if err := myViper.Unmarshal(configuration); err != nil {
+	if err := configViper.Unmarshal(configuration); err != nil {
 		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
 	}
 
 	fmt.Printf("Reading using model:\n")
 	fmt.Printf("Running:%v\n", configuration.Running)
 	fmt.Printf("Version:%s\n", configuration.Version)
-	fmt.Printf("PreviousOutput:%s\n", configuration.PreviousOutput)
+	fmt.Printf("PreviousOutput:%s\n", outputViper.GetString("PreviousOutput"))
 	fmt.Printf("EllipticCurve:%v\n", configuration.EllipticCurve)
 	fmt.Printf("Consensusnodes:\n")
 	fmt.Printf("Node[0]'s ip is %s\n", configuration.Node0_ip)

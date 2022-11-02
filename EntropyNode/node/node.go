@@ -52,15 +52,14 @@ func StartEntropyNode(id int) {
 }
 
 func WatchConfig(privateKey *ecdsa.PrivateKey, id int, sig chan interface{}) {
-	previousOutput := string(config.GetPreviousInput())
+	previousOutput := string(config.GetPreviousOutput())
 	fmt.Println("init output", previousOutput)
 
 	myViper := viper.New()
 	// set config file
-	myViper.SetConfigFile("../config.yml")
+	myViper.SetConfigFile("../output.yml")
 	myViper.WatchConfig()
 	myViper.OnConfigChange(func(e fsnotify.Event) {
-		// time.Sleep(100 * time.Millisecond)
 		// lock file
 		f, err := os.Open("../lock")
 		if err != nil {
@@ -77,7 +76,7 @@ func WatchConfig(privateKey *ecdsa.PrivateKey, id int, sig chan interface{}) {
 			panic(fmt.Errorf("fatal error config file: %w", err))
 		}
 
-		newOutput := string(config.GetPreviousInput())
+		newOutput := string(config.GetPreviousOutput())
 		if previousOutput != newOutput && newOutput != "" {
 			fmt.Println("output change", newOutput)
 

@@ -82,7 +82,7 @@ func (s *Service) WaitRequest(sig chan interface{}, stateMachine *consensus.Stat
 		fmt.Printf("======>[NewEntropyMsg]Verify success\n")
 
 		// verify the VRF result
-		previousOutput := config.GetPreviousInput()
+		previousOutput := config.GetPreviousOutput()
 		verify = signature.VerifySig([]byte(previousOutput), entropyMsg.VRFResult, entropyPK)
 		if !verify {
 			fmt.Printf("===>[ERROR]Verify new VRF result failed, From Entropy Node[%d]\n", entropyMsg.ClientID)

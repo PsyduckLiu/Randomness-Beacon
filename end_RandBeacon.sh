@@ -9,6 +9,7 @@ cat result/running.pid | xargs -IX kill -9 X
 
 cd ..
 cat configInit.yml > config.yml
+cat outputInit.yml > output.yml
 # kill -9 `ps -ef |grep main|awk '{print $2}'`
 for i in $(seq 0 9)
 do

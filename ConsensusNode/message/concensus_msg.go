@@ -59,6 +59,11 @@ type Approve struct {
 }
 
 // RequestRecord type in Consensus
+type Confirm struct {
+	ConfirmTC []string
+}
+
+// RequestRecord type in Consensus
 type RequestRecord struct {
 	*PrePrepare
 	*Request

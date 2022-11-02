@@ -42,7 +42,7 @@ func (s *StateEngine) ViewChange() {
 	// fmt.Printf("======>[ViewChange] (%d, %d).....\n", s.CurViewID, s.lastCP.Seq)
 	fmt.Printf("======>[ViewChange] Current view is(%d).....\n", s.CurViewID)
 	s.nodeStatus = ViewChanging
-	s.Timer.tack()
+	s.CollectTimer.tack()
 
 	vc := &message.ViewChange{
 		NewViewID: s.CurViewID + 1,
