@@ -8,6 +8,7 @@ import (
 	"consensusNode/util"
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	"crypto/rand"
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
@@ -40,6 +41,7 @@ const (
 	Approve
 	Confirm
 	Output
+	Error
 )
 
 // stage.string()
@@ -120,6 +122,7 @@ type StateEngine struct {
 	nodeStatus  EngineStatus
 	SrvHub      *net.TCPListener
 
+	GlobalTimer  *RequestTimer
 	CollectTimer *RequestTimer
 	SubmitTimer  *RequestTimer
 
@@ -157,6 +160,7 @@ func InitConsensus(id int64, cChan chan<- *message.RequestRecord) *StateEngine {
 		Mutex:        sync.Mutex{},
 		MiniSeq:      0,
 		MaxSeq:       64,
+		GlobalTimer:  newRequestTimer(),
 		CollectTimer: newRequestTimer(),
 		SubmitTimer:  newRequestTimer(),
 		P2pWire:      p2p,
@@ -193,6 +197,9 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 
 	for {
 		select {
+		case <-s.GlobalTimer.C:
+			fmt.Printf("======>[Node%d]Time is out and view change starts\n", s.NodeID)
+			s.ViewChange()
 		case <-s.CollectTimer.C:
 			s.CollectTimer.tack()
 			s.stage = Submit
@@ -217,8 +224,15 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 				for _, value := range s.TimeCommitment {
 					tc = append(tc, value)
 				}
-				approve := &message.Approve{
-					UnionTC: tc,
+
+				approve := &message.Approve{}
+				result, _ := rand.Int(rand.Reader, big.NewInt(2))
+				if result.Cmp(big.NewInt(0)) == 0 {
+					fmt.Println("I'm crazy!!!!!")
+				} else {
+					approve = &message.Approve{
+						UnionTC: tc,
+					}
 				}
 
 				sk := s.P2pWire.GetMySecretkey()
@@ -246,9 +260,9 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 				}
 			case message.MTViewChange,
 				message.MTNewView:
-				// if err := s.procManageMsg(conMsg); err != nil {
-				// 	fmt.Println(err)
-				// }
+				if err := s.procManageMsg(conMsg); err != nil {
+					fmt.Println(err)
+				}
 			}
 		}
 	}
@@ -307,6 +321,7 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 
 			go s.WaitTC(sig)
 			previousOutput = newOutput
+			s.GlobalTimer.tick(25 * time.Second)
 			s.CollectTimer.tick(5 * time.Second)
 			s.SubmitTimer.tick(10 * time.Second)
 		}
@@ -523,7 +538,8 @@ func (s *StateEngine) approveTC(msg *message.ConMessage) (err error) {
 	// check union tc set
 	for key := range s.TimeCommitment {
 		if _, ok := unionTC[key]; !ok {
-			panic(fmt.Errorf("===>[ApproveERROR]where is my tc????"))
+			s.stage = Error
+			return fmt.Errorf("===>[ApproveERROR]where is my tc????")
 		}
 	}
 
@@ -567,7 +583,7 @@ func (s *StateEngine) sendConfirmMsg() {
 
 // confirm TC
 func (s *StateEngine) confirmTC(msg *message.ConMessage) (err error) {
-	if s.ConfirmNum == 2*util.MaxFaultyNode+1 {
+	if s.ConfirmNum >= 2*util.MaxFaultyNode+1 {
 		fmt.Println("late!")
 		return
 	}
@@ -659,6 +675,7 @@ func (s *StateEngine) handleTC() (err error) {
 			panic(err)
 		}
 		s.stage = Collect
+		s.GlobalTimer.tack()
 	}
 
 	return
@@ -666,7 +683,7 @@ func (s *StateEngine) handleTC() (err error) {
 
 // output tc and compute F
 func (s *StateEngine) outputTC(msg *message.ConMessage) (err error) {
-	if s.OutputNum == 2*util.MaxFaultyNode {
+	if s.OutputNum >= 2*util.MaxFaultyNode {
 		fmt.Println("late!")
 		return
 	}
@@ -710,6 +727,7 @@ func (s *StateEngine) outputTC(msg *message.ConMessage) (err error) {
 		// if s.OutputNum == util.TotalNodeNum-1 {
 		if s.OutputNum == 2*util.MaxFaultyNode {
 			fmt.Println("[Output]new output is", s.Result)
+			s.GlobalTimer.tack()
 			util.WriteResult(s.Result.String())
 			s.stage = Collect
 			time.Sleep(5 * time.Second)
@@ -722,10 +740,11 @@ func (s *StateEngine) outputTC(msg *message.ConMessage) (err error) {
 
 // handle different kinds of consensus messages
 func (s *StateEngine) procConsensusMsg(msg *message.ConMessage) (err error) {
+	time.Sleep(200 * time.Millisecond)
+
 	fmt.Printf("\n======>[procConsensusMsg]Consesus message type:[%s] from Node[%d]\n", msg.Typ, msg.From)
 	fmt.Println(s.stage)
 
-	time.Sleep(200 * time.Millisecond)
 	switch msg.Typ {
 	case message.MTSubmit:
 		if s.stage == Submit {
@@ -751,4 +770,30 @@ func (s *StateEngine) procConsensusMsg(msg *message.ConMessage) (err error) {
 	}
 
 	return
+}
+
+// handle different kinds of manage messages
+func (s *StateEngine) procManageMsg(msg *message.ConMessage) (err error) {
+	time.Sleep(200 * time.Millisecond)
+	fmt.Printf("\n======>[procConsensusMsg]Manage message type:[%s] from Node[%d]\n", msg.Typ, msg.From)
+
+	switch msg.Typ {
+	case message.MTViewChange:
+		go s.procViewChange(msg)
+		// vc := &message.ViewChange{}
+		// if err := json.Unmarshal(msg.Payload, vc); err != nil {
+		// 	return fmt.Errorf("======>[procConsensusMsg] invalid[%s]ViewChange message[%s]", err, msg)
+		// }
+		// return s.procViewChange(vc, msg)
+
+	case message.MTNewView:
+		go s.didChangeView(msg)
+		// vc := &message.NewView{}
+		// if err := json.Unmarshal(msg.Payload, vc); err != nil {
+		// 	return fmt.Errorf("======>[procConsensusMsg] invalid[%s] didiViewChange message[%s]", err, msg)
+		// }
+		// return s.didChangeView(vc, msg)
+	}
+
+	return nil
 }
