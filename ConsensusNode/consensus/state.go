@@ -490,6 +490,7 @@ func (s *StateEngine) unionTC(msg *message.ConMessage) (err error) {
 // backups check union tc sent by primary
 func (s *StateEngine) approveTC(msg *message.ConMessage) (err error) {
 	fmt.Printf("======>[Approve]Current Approve Message from Node[%d]\n", msg.From)
+	fmt.Println("my length is", len(s.TimeCommitment))
 
 	nodeConfig := config.GetConsensusNode()
 

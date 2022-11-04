@@ -1,83 +1,74 @@
 ===>Service is Listening at[30004]
 Curve is &{115792089210356248762697446949407573530086143415290314195533631308867097853951 115792089210356248762697446949407573529996955224135760342422259061068512044369 41058363725152142129326129780047268409114441015993725554835256314039467401291 48439561293906451759052585252797914202762949526041747995844080717082404635286 36134250956749795798585127919587881956611106672985015071877198253568414405109 256 P-256}
-===>My own key is: &{{0x8d8ee0 84769047012241885868646255100109370151862711687065632147532834851957557887259 70062915054424999598988603406745933774969919659106948401372579772475182269355} 66442876001034437920152212542145386452624613318631276769133331163972774003154}
+===>My own key is: &{{0x8d9ee0 67039175255407039741452172172673623918171898894670235574110343679983800775482 23425761294777075710469474814453059268946865412349744449661465953363239050993} 59681968870071156243530361343258260629698926736323357264729348999129215008002}
 ===>[Node4] is waiting at:0.0.0.0:30004
 new consensus node
 ===>Consensus node[4] is waiting at:0.0.0.0:30004
-===>[Node4<=>0]Connected=[127.0.0.1:52552<=>127.0.0.1:30000]
-===>[Node4<=>1]Connected=[127.0.0.1:33402<=>127.0.0.1:30001]
-===>[Node4<=>2]Connected=[127.0.0.1:48284<=>127.0.0.1:30002]
-===>[Node4<=>3]Connected=[127.0.0.1:59232<=>127.0.0.1:30003]
+===>[Node4<=>0]Connected=[127.0.0.1:42180<=>127.0.0.1:30000]
+===>[Node4<=>1]Connected=[127.0.0.1:49202<=>127.0.0.1:30001]
+===>[Node4<=>2]Connected=[127.0.0.1:59794<=>127.0.0.1:30002]
+===>[Node4<=>3]Connected=[127.0.0.1:35532<=>127.0.0.1:30003]
 ===>Consensus node[4] start......
 init output A²¡\G?ˆø)R¡×»Ç¼mH>;r$	¬¶)¸°¤
-===>Randomness Beacon is running at PID[7380]
+===>Randomness Beacon is running at PID[19935]
 ===============================================
 *                                             *
 *             Randomness Beacon               *
 *                                             *
 ===============================================
-===>Get new public key from Node[5], IP[127.0.0.1:60104]
-===>Node[5]'s new public key is[&{0x8d8ee0 11061229116503253226041801914027782761819272853786435274393158791914283497801 4773733875943537565278291312360889469896747606804418167665900971525303681363}]
-===>[Node4<=>5]Connected=[127.0.0.1:30004<=>127.0.0.1:60104]
-===>Get new public key from Node[6], IP[127.0.0.1:60114]
-===>Node[6]'s new public key is[&{0x8d8ee0 5924913737130412208790633565288864570524255756871223129583644915464293988621 9081162359632170425207824890165458407015661662654092744413573532825742002136}]
-===>[Node4<=>6]Connected=[127.0.0.1:30004<=>127.0.0.1:60114]
-2022-11-03 11:20:54.1524705 +0800 CST m=+25.792009401
+===>Get new public key from Node[5], IP[127.0.0.1:48716]
+===>Node[5]'s new public key is[&{0x8d9ee0 3101465503900588481048382541241511934246189655357107322494288572417332604538 56876561096733871266281603157566742052459958253239595947744955614642675169394}]
+===>[Node4<=>5]Connected=[127.0.0.1:30004<=>127.0.0.1:48716]
+===>Get new public key from Node[6], IP[127.0.0.1:48726]
+===>Node[6]'s new public key is[&{0x8d9ee0 24182683449437078340831466036000647500096685972285954268387410798921971809337 94910541037701343354651536969903547098513470432112063088093973094396550945836}]
+===>[Node4<=>6]Connected=[127.0.0.1:30004<=>127.0.0.1:48726]
+2022-11-04 10:27:09.9508274 +0800 CST m=+26.028573001
 Config Change
 output change ¹M'¹“M>¥.R×Ú}«úÄ„ïãzS€îˆ÷¬âïÍé
 ======>[NewEntropyMsg]Verify success
 ======>[VRFresult]Verify success
-===>Entropy message from Node[2],time commitment is:81326379115609391630831968218126388633742877978178013527993992460735265732234
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[3],time commitment is:77127294458718969210531961228210780228569745429694377717531501967997123768888
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[0],time commitment is:109987254340534969810281633645761278496806876265497557248882678612816923771386
-2022-11-03 11:20:59.1540658 +0800 CST m=+30.793604801
+===>Entropy message from Node[7],time commitment is:18128271711478964433808644228309536379128199714309720246181732461196973836892
+2022-11-04 10:27:14.9534478 +0800 CST m=+31.031193501
 ======>[Node4]Stop Receive messages
-key is {CôQüÄŸÏ­ËÁëş$>†‹£aÔôr¶Hë~Ğ
-value is 77127294458718969210531961228210780228569745429694377717531501967997123768888
-key is ûî™Läì8a†è¡àåD"å–}„–úá®÷Ùõè»
-value is 109987254340534969810281633645761278496806876265497557248882678612816923771386
-key is ôtXé/0†o>„iq”…Š¼³+'LŸê[Lv;—
-value is 81326379115609391630831968218126388633742877978178013527993992460735265732234
+key is °²šˆ×Ğ›¼kpË‚¨K^àZğİ¦]—Î±z¨Ì
+value is 18128271711478964433808644228309536379128199714309720246181732461196973836892
 
 ======>[procConsensusMsg]Consesus message type:[Approve] from Node[0]
 Approve
 ======>[Approve]Current Approve Message from Node[0]
+my length is 1
 approve &{[]}
 Approve Message from Node[0],length is 0
 ======>[Node4]Time is out and view change starts
 ======>[ViewChange] Current view is(0).....
 
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[5]
-======>[ViewChange]Current Approve Message from Node[5]
+======>[procConsensusMsg]Manage message type:[ViewChange] from Node[3]
+======>[ViewChange]Current ViewChange Message from Node[3]
 ======>[ViewChange]Verify success
 I'm Node[4] not the new[1] primary node
 
 ======>[procConsensusMsg]Manage message type:[ViewChange] from Node[1]
-======>[ViewChange]Current Approve Message from Node[1]
+======>[ViewChange]Current ViewChange Message from Node[1]
 ======>[ViewChange]Verify success
 I'm Node[4] not the new[1] primary node
 
 ======>[procConsensusMsg]Manage message type:[ViewChange] from Node[6]
-======>[ViewChange]Current Approve Message from Node[6]
+======>[ViewChange]Current ViewChange Message from Node[6]
 ======>[ViewChange]Verify success
 I'm Node[4] not the new[1] primary node
 
 ======>[procConsensusMsg]Manage message type:[ViewChange] from Node[0]
-======>[ViewChange]Current Approve Message from Node[0]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[1] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[3]
-======>[ViewChange]Current Approve Message from Node[3]
+======>[ViewChange]Current ViewChange Message from Node[0]
 ======>[ViewChange]Verify success
 I'm Node[4] not the new[1] primary node
 
 ======>[procConsensusMsg]Manage message type:[ViewChange] from Node[2]
-======>[ViewChange]Current Approve Message from Node[2]
+======>[ViewChange]Current ViewChange Message from Node[2]
+======>[ViewChange]Verify success
+I'm Node[4] not the new[1] primary node
+
+======>[procConsensusMsg]Manage message type:[ViewChange] from Node[5]
+======>[ViewChange]Current ViewChange Message from Node[5]
 ======>[ViewChange]Verify success
 I'm Node[4] not the new[1] primary node
 
@@ -85,99 +76,44 @@ I'm Node[4] not the new[1] primary node
 ======>[NewView]Current Approve Message from Node[1]
 ======>[NewView]Verify success
 ======>[NewView] New primary is(1).....
+======>[Submit]Send submit message success
 
 ======>[procConsensusMsg]Consesus message type:[Approve] from Node[1]
 Approve
 ======>[Approve]Current Approve Message from Node[1]
-approve &{[92173117539750025480797853561092586854872417205882321356780795350324221258171 81326379115609391630831968218126388633742877978178013527993992460735265732234 77127294458718969210531961228210780228569745429694377717531501967997123768888 109987254340534969810281633645761278496806876265497557248882678612816923771386]}
-Approve Message from Node[1],length is 4
-[UnionTC] value is 92173117539750025480797853561092586854872417205882321356780795350324221258171
-[UnionTC] value is 81326379115609391630831968218126388633742877978178013527993992460735265732234
-[UnionTC] value is 77127294458718969210531961228210780228569745429694377717531501967997123768888
-[UnionTC] value is 109987254340534969810281633645761278496806876265497557248882678612816923771386
-new key is ¬tPxÂ;î{ù¢Ş@¸R£(?/¡w¾°éRÖ©P
-new value is 92173117539750025480797853561092586854872417205882321356780795350324221258171
-======>[Approve]Send confirm message success
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[3]
-Confirm
-======>[Confirm]Current Confirm Message from Node[3]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
-Confirm
-======>[Confirm]Current Confirm Message from Node[6]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[5]
-Confirm
-======>[Confirm]Current Confirm Message from Node[5]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[2]
-Confirm
-======>[Confirm]Current Confirm Message from Node[2]
-[Confirm]Confirm success
-after xor all resolved tc,result is: 15228783932257253463058959626706903055865640026538037296750226380144982600947
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[0]
-Collect
-2022-11-03 11:21:32.2875691 +0800 CST m=+63.927108001
-Config Change
-output change 15228783932257253463058959626706903055865640026538037296750226380144982600947
-2022-11-03 11:21:32.2879821 +0800 CST m=+63.927521101
-Config Change
-======>[NewEntropyMsg]Verify success
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[6],time commitment is:111660179349092390667555876400892688490037793238407469808908398111533809377131
-===>Entropy message from Node[2],time commitment is:102352830706679849218516467307887942435001011026667896162424520322569505354291
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[1],time commitment is:13204510227587122099732337708856363599593870481308496723318340522095206196227
-2022-11-03 11:21:37.2902548 +0800 CST m=+68.929793701
-======>[Node4]Stop Receive messages
-key is qÙ’„{À~C\°¿ótlxgš_„İ²êmMex¥Ÿ“
-value is 111660179349092390667555876400892688490037793238407469808908398111533809377131
-key is Nm 1"+„NğcêQ3dWÃ}ñµ
-{Üùàœ
-value is 102352830706679849218516467307887942435001011026667896162424520322569505354291
-key is }Ê1œ_äò#ÛˆBÅ¾kß¥­EõQv<ë(İFöjø
-value is 13204510227587122099732337708856363599593870481308496723318340522095206196227
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[1]
-Approve
-======>[Approve]Current Approve Message from Node[1]
+my length is 1
 approve &{[]}
 Approve Message from Node[1],length is 0
 ======>[Node4]Time is out and view change starts
 ======>[ViewChange] Current view is(1).....
 
 ======>[procConsensusMsg]Manage message type:[ViewChange] from Node[3]
-======>[ViewChange]Current Approve Message from Node[3]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[2] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[1]
-======>[ViewChange]Current Approve Message from Node[1]
+======>[ViewChange]Current ViewChange Message from Node[3]
 ======>[ViewChange]Verify success
 I'm Node[4] not the new[2] primary node
 
 ======>[procConsensusMsg]Manage message type:[ViewChange] from Node[5]
-======>[ViewChange]Current Approve Message from Node[5]
+======>[ViewChange]Current ViewChange Message from Node[5]
+======>[ViewChange]Verify success
+I'm Node[4] not the new[2] primary node
+
+======>[procConsensusMsg]Manage message type:[ViewChange] from Node[1]
+======>[ViewChange]Current ViewChange Message from Node[1]
 ======>[ViewChange]Verify success
 I'm Node[4] not the new[2] primary node
 
 ======>[procConsensusMsg]Manage message type:[ViewChange] from Node[6]
-======>[ViewChange]Current Approve Message from Node[6]
+======>[ViewChange]Current ViewChange Message from Node[6]
 ======>[ViewChange]Verify success
 I'm Node[4] not the new[2] primary node
 
 ======>[procConsensusMsg]Manage message type:[ViewChange] from Node[0]
-======>[ViewChange]Current Approve Message from Node[0]
+======>[ViewChange]Current ViewChange Message from Node[0]
 ======>[ViewChange]Verify success
 I'm Node[4] not the new[2] primary node
 
 ======>[procConsensusMsg]Manage message type:[ViewChange] from Node[2]
-======>[ViewChange]Current Approve Message from Node[2]
+======>[ViewChange]Current ViewChange Message from Node[2]
 ======>[ViewChange]Verify success
 I'm Node[4] not the new[2] primary node
 
@@ -185,178 +121,20 @@ I'm Node[4] not the new[2] primary node
 ======>[NewView]Current Approve Message from Node[2]
 ======>[NewView]Verify success
 ======>[NewView] New primary is(2).....
+======>[Submit]Send submit message success
 
 ======>[procConsensusMsg]Consesus message type:[Approve] from Node[2]
 Approve
 ======>[Approve]Current Approve Message from Node[2]
-approve &{[102352830706679849218516467307887942435001011026667896162424520322569505354291 111660179349092390667555876400892688490037793238407469808908398111533809377131 13204510227587122099732337708856363599593870481308496723318340522095206196227]}
-Approve Message from Node[2],length is 3
-[UnionTC] value is 102352830706679849218516467307887942435001011026667896162424520322569505354291
-[UnionTC] value is 111660179349092390667555876400892688490037793238407469808908398111533809377131
-[UnionTC] value is 13204510227587122099732337708856363599593870481308496723318340522095206196227
+my length is 1
+approve &{[18128271711478964433808644228309536379128199714309720246181732461196973836892]}
+Approve Message from Node[2],length is 1
+[UnionTC] value is 18128271711478964433808644228309536379128199714309720246181732461196973836892
 ======>[Approve]Send confirm message success
 
 ======>[procConsensusMsg]Consesus message type:[Confirm] from Node[5]
 Confirm
 ======>[Confirm]Current Confirm Message from Node[5]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[1]
-Confirm
-======>[Confirm]Current Confirm Message from Node[1]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
-Confirm
-======>[Confirm]Current Confirm Message from Node[6]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[0]
-Confirm
-======>[Confirm]Current Confirm Message from Node[0]
-[Confirm]Confirm success
-after xor all resolved tc,result is: 4363607403814051923680967489642537891423989966295414735443816462904421140827
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[3]
-Collect
-2022-11-03 11:22:10.0296681 +0800 CST m=+101.669207101
-Config Change
-output change 4363607403814051923680967489642537891423989966295414735443816462904421140827
-2022-11-03 11:22:10.0299751 +0800 CST m=+101.669514101
-Config Change
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[0],time commitment is:54377596680901126740647634809632597740567802281608831229130402199537762062942
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[8],time commitment is:71538359766084616650486333366794568703425229098251369945108832123631816562847
-2022-11-03 11:22:15.0302603 +0800 CST m=+106.669799201
-======>[Node4]Stop Receive messages
-key is İpMˆ¤‚°kïĞ?XéÂ0`óÙ|S ®Ğ¦mEŒ
-value is 54377596680901126740647634809632597740567802281608831229130402199537762062942
-key is °,GËM‹F+Û¾h?²DÙèŞ å{_H_õ,d#„
-value is 71538359766084616650486333366794568703425229098251369945108832123631816562847
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[2]
-Approve
-======>[Approve]Current Approve Message from Node[2]
-approve &{[54377596680901126740647634809632597740567802281608831229130402199537762062942 71538359766084616650486333366794568703425229098251369945108832123631816562847]}
-Approve Message from Node[2],length is 2
-[UnionTC] value is 54377596680901126740647634809632597740567802281608831229130402199537762062942
-[UnionTC] value is 71538359766084616650486333366794568703425229098251369945108832123631816562847
-======>[Approve]Send confirm message success
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
-Confirm
-======>[Confirm]Current Confirm Message from Node[6]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[3]
-Confirm
-======>[Confirm]Current Confirm Message from Node[3]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[5]
-Confirm
-======>[Confirm]Current Confirm Message from Node[5]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[1]
-Confirm
-======>[Confirm]Current Confirm Message from Node[1]
-[Confirm]Confirm success
-after xor all resolved tc,result is: 104063591489170304138552493873150537494511718639516511028491436535065718819521
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[0]
-Collect
-2022-11-03 11:22:31.6341588 +0800 CST m=+123.273697801
-Config Change
-output change 104063591489170304138552493873150537494511718639516511028491436535065718819521
-======>[NewEntropyMsg]Verify success
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[2],time commitment is:109508455366872717949356124804921888197861178030744917932519868072795517844197
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[9],time commitment is:112643574336973792621865959360497514946703488597281389000283519073363157557763
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[0],time commitment is:83932070439644560075282859160973620072409512051908788212647711092157222703684
-===>Entropy message from Node[4],time commitment is:60214083480082362082226254497611529684585108353287694558724632505901909727153
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[6],time commitment is:46172495701524479181108835586386960370369641932442661914755120567599134742664
-2022-11-03 11:22:36.6368431 +0800 CST m=+128.276382001
-======>[Node4]Stop Receive messages
-key is ó ÃÑ}OÛ{µg6Ò~f`÷-¦üÔòüÎ­MLš0¬
-value is 109508455366872717949356124804921888197861178030744917932519868072795517844197
-key is ŞO.IZzØéR`p7Aáv¡£À¡:³:·§ğCr{
-value is 112643574336973792621865959360497514946703488597281389000283519073363157557763
-key is †ğK™2‘õ;Å`¢"¿I16ºY0ë:‘Ÿ§SÆ¯D*©
-value is 83932070439644560075282859160973620072409512051908788212647711092157222703684
-key is [ÍÑW•hÚH±Šƒ’G<iş=¹%¥‘ê÷Ÿò
-value is 60214083480082362082226254497611529684585108353287694558724632505901909727153
-key is &"%0„yıyJ;T²Ñ¡ÚéMdX‘¹àöÔÏ
-value is 46172495701524479181108835586386960370369641932442661914755120567599134742664
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[2]
-Approve
-======>[Approve]Current Approve Message from Node[2]
-approve &{[60214083480082362082226254497611529684585108353287694558724632505901909727153 109508455366872717949356124804921888197861178030744917932519868072795517844197 83932070439644560075282859160973620072409512051908788212647711092157222703684 46172495701524479181108835586386960370369641932442661914755120567599134742664 112643574336973792621865959360497514946703488597281389000283519073363157557763]}
-Approve Message from Node[2],length is 5
-[UnionTC] value is 60214083480082362082226254497611529684585108353287694558724632505901909727153
-[UnionTC] value is 109508455366872717949356124804921888197861178030744917932519868072795517844197
-[UnionTC] value is 83932070439644560075282859160973620072409512051908788212647711092157222703684
-[UnionTC] value is 46172495701524479181108835586386960370369641932442661914755120567599134742664
-[UnionTC] value is 112643574336973792621865959360497514946703488597281389000283519073363157557763
-======>[Approve]Send confirm message success
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[3]
-Confirm
-======>[Confirm]Current Confirm Message from Node[3]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[5]
-Confirm
-======>[Confirm]Current Confirm Message from Node[5]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[1]
-Confirm
-======>[Confirm]Current Confirm Message from Node[1]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[0]
-Confirm
-======>[Confirm]Current Confirm Message from Node[0]
-[Confirm]Confirm success
-after xor all resolved tc,result is: 36900670586303693912974289734070624090799928875631114014307752978007386113435
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
-Collect
-2022-11-03 11:22:49.1227137 +0800 CST m=+140.762252701
-Config Change
-output change 36900670586303693912974289734070624090799928875631114014307752978007386113435
-2022-11-03 11:22:49.1231137 +0800 CST m=+140.762652701
-Config Change
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[1],time commitment is:66307527587612091440975337930957262875649804382249546538569851239333387201858
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[4],time commitment is:88416741422889211070159236179228021674253501115683952355925204703098249063505
-2022-11-03 11:22:54.1269368 +0800 CST m=+145.766475701
-======>[Node4]Stop Receive messages
-key is ¡q/­DÄP§“
-Êl5¢m$ÇQ3;ÚŠµí+ë½
-value is 66307527587612091440975337930957262875649804382249546538569851239333387201858
-key is °ÁcXS 4¦AáòZÆò¸|àá½û	q­_ÒK?Ò
-value is 88416741422889211070159236179228021674253501115683952355925204703098249063505
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[2]
-Approve
-======>[Approve]Current Approve Message from Node[2]
-approve &{[88416741422889211070159236179228021674253501115683952355925204703098249063505 66307527587612091440975337930957262875649804382249546538569851239333387201858]}
-Approve Message from Node[2],length is 2
-[UnionTC] value is 88416741422889211070159236179228021674253501115683952355925204703098249063505
-[UnionTC] value is 66307527587612091440975337930957262875649804382249546538569851239333387201858
-======>[Approve]Send confirm message success
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
-Confirm
-======>[Confirm]Current Confirm Message from Node[6]
 
 ======>[procConsensusMsg]Consesus message type:[Confirm] from Node[3]
 Confirm
@@ -366,104 +144,83 @@ Confirm
 Confirm
 ======>[Confirm]Current Confirm Message from Node[0]
 
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[5]
-Confirm
-======>[Confirm]Current Confirm Message from Node[5]
-[Confirm]Confirm success
-after xor all resolved tc,result is: 37037760235812996431185875958956085099026164186883702370159031938984519713043
-
 ======>[procConsensusMsg]Consesus message type:[Confirm] from Node[1]
+Confirm
+======>[Confirm]Current Confirm Message from Node[1]
+[Confirm]Confirm success
+after xor all resolved tc,result is: 18128271711478964433808644228309536379128199714309720246181732461196973836892
+
+======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
 Collect
-2022-11-03 11:23:06.8058268 +0800 CST m=+158.445365701
+2022-11-04 10:28:17.4313192 +0800 CST m=+93.509064701
 Config Change
-output change 37037760235812996431185875958956085099026164186883702370159031938984519713043
-2022-11-03 11:23:06.8106055 +0800 CST m=+158.450144401
+output change 18128271711478964433808644228309536379128199714309720246181732461196973836892
+2022-11-04 10:28:17.4316793 +0800 CST m=+93.509424901
 Config Change
 ======>[NewEntropyMsg]Verify success
 ======>[NewEntropyMsg]Verify success
 ======>[VRFresult]Verify success
+===>Entropy message from Node[0],time commitment is:94370535475212859178510333436936858462636181545721939221093926021283807309168
+======>[NewEntropyMsg]Verify success
 ======>[VRFresult]Verify success
-===>Entropy message from Node[9],time commitment is:60725981319326414829649329717803165865048240478039659729409013503117352756367
-===>Entropy message from Node[2],time commitment is:10307552102993155140178206180962990834086669192328491046163459268734169262913
+======>[VRFresult]Verify success
+===>Entropy message from Node[8],time commitment is:83888904592209594851100918183096184505627455875563485853107159153145244978753
+===>Entropy message from Node[9],time commitment is:34312367357274322855342411899673897481132854767942337219409144161103597104051
 ======>[NewEntropyMsg]Verify success
 ======>[NewEntropyMsg]Verify success
 ======>[VRFresult]Verify success
-===>Entropy message from Node[1],time commitment is:36467179752629926056259134523276003474715236929308802587374562733062106825518
 ======>[VRFresult]Verify success
-===>Entropy message from Node[7],time commitment is:89303895181779659399522561146503906679657634129928489182170157152741038265400
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[6],time commitment is:43542720810438120056743437253235317261958862732110715298073269992666278812811
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[0],time commitment is:16150797832819699959832620549327733716628708907375326305043584955604954206933
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[4],time commitment is:34621348120829737252653594858519091641144990429218494211115203537216840960842
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[8],time commitment is:16262432562561801915279552365295722459243425309895836554223191865653448094596
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[3],time commitment is:7766553221462034756738901009630054165989437658829629161170262761704498088531
-2022-11-03 11:23:11.8107244 +0800 CST m=+163.450263301
+===>Entropy message from Node[7],time commitment is:112964451319115586643393406346748293034667495382707103644075025238611929006217
+===>Entropy message from Node[6],time commitment is:115699469260215822922266154854718296879209454801595478709728369059402900266551
+2022-11-04 10:28:22.4324021 +0800 CST m=+98.510147701
 ======>[Node4]Stop Receive messages
-key is ’Qìp~N:WıgÈªÕºG©¯ëùZİ(êÔ&6
-value is 34621348120829737252653594858519091641144990429218494211115203537216840960842
-key is 5Å¿¿½À¢Æ6bøˆP“³¿¹(ŸíõĞ §-ù
-value is 7766553221462034756738901009630054165989437658829629161170262761704498088531
-key is eSŸ`$#j~¶7Sd¬p!Œ‰„o·M|¦~%w³ƒÜ
-value is 10307552102993155140178206180962990834086669192328491046163459268734169262913
-key is òÛPÀÔV8‡TLÓ;ÇÏûÑİYgoõå•>ù¡w
-value is 36467179752629926056259134523276003474715236929308802587374562733062106825518
-key is ƒ7ëïpèÂ7¢`Ø5
-Ãk—-Æ?Eµ‹`
-ÌÓ
-value is 89303895181779659399522561146503906679657634129928489182170157152741038265400
-key is dÈ€ö{—QŞÒgn«¯õÚmc=v3†	iÌÏŠi
-value is 16150797832819699959832620549327733716628708907375326305043584955604954206933
-key is —‘O{½Y2ÂH–eù(t©—óGYˆU	{…ŸfÃt 
-value is 60725981319326414829649329717803165865048240478039659729409013503117352756367
-key is vC=ŞÇÿU~²î—‚áš\/|›»ô¶™„îq"#{m
-value is 43542720810438120056743437253235317261958862732110715298073269992666278812811
-key is )Póôhÿ¼Hı¥à€7/!2SÜO+j£§J\TO]"
-value is 16262432562561801915279552365295722459243425309895836554223191865653448094596
+key is ¢€lößI÷9û:ñsêÚzzñãO?LKşÛ°
+value is 115699469260215822922266154854718296879209454801595478709728369059402900266551
+key is ×–((OYæ¤_¥5á~-tD=ĞîÍù¯å$ºŒ
+value is 94370535475212859178510333436936858462636181545721939221093926021283807309168
+key is  îİc—:UxŒ–ã%%2_ØœŞû68°¦Z¢A°Ş¦
+value is 83888904592209594851100918183096184505627455875563485853107159153145244978753
+key is 6˜Cİ®©àÓgbÔƒó­(·ï§bú„ûÒú
+value is 34312367357274322855342411899673897481132854767942337219409144161103597104051
+key is “Wş¹k€QÂøW:Ih NÖãZ¾×â}©œ®a
+value is 112964451319115586643393406346748293034667495382707103644075025238611929006217
 
 ======>[procConsensusMsg]Consesus message type:[Approve] from Node[2]
 Approve
 ======>[Approve]Current Approve Message from Node[2]
+my length is 5
 approve &{[]}
 Approve Message from Node[2],length is 0
 ======>[Node4]Time is out and view change starts
 ======>[ViewChange] Current view is(2).....
 
 ======>[procConsensusMsg]Manage message type:[ViewChange] from Node[0]
-======>[ViewChange]Current Approve Message from Node[0]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[3] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[1]
-======>[ViewChange]Current Approve Message from Node[1]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[3] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[5]
-======>[ViewChange]Current Approve Message from Node[5]
+======>[ViewChange]Current ViewChange Message from Node[0]
 ======>[ViewChange]Verify success
 I'm Node[4] not the new[3] primary node
 
 ======>[procConsensusMsg]Manage message type:[ViewChange] from Node[6]
-======>[ViewChange]Current Approve Message from Node[6]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[3] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[2]
-======>[ViewChange]Current Approve Message from Node[2]
+======>[ViewChange]Current ViewChange Message from Node[6]
 ======>[ViewChange]Verify success
 I'm Node[4] not the new[3] primary node
 
 ======>[procConsensusMsg]Manage message type:[ViewChange] from Node[3]
-======>[ViewChange]Current Approve Message from Node[3]
+======>[ViewChange]Current ViewChange Message from Node[3]
+======>[ViewChange]Verify success
+I'm Node[4] not the new[3] primary node
+
+======>[procConsensusMsg]Manage message type:[ViewChange] from Node[1]
+======>[ViewChange]Current ViewChange Message from Node[1]
+======>[ViewChange]Verify success
+I'm Node[4] not the new[3] primary node
+
+======>[procConsensusMsg]Manage message type:[ViewChange] from Node[2]
+======>[ViewChange]Current ViewChange Message from Node[2]
+======>[ViewChange]Verify success
+I'm Node[4] not the new[3] primary node
+
+======>[procConsensusMsg]Manage message type:[ViewChange] from Node[5]
+======>[ViewChange]Current ViewChange Message from Node[5]
 ======>[ViewChange]Verify success
 I'm Node[4] not the new[3] primary node
 
@@ -471,1070 +228,24 @@ I'm Node[4] not the new[3] primary node
 ======>[NewView]Current Approve Message from Node[3]
 ======>[NewView]Verify success
 ======>[NewView] New primary is(3).....
+======>[Submit]Send submit message success
 
 ======>[procConsensusMsg]Consesus message type:[Approve] from Node[3]
 Approve
 ======>[Approve]Current Approve Message from Node[3]
-approve &{[16150797832819699959832620549327733716628708907375326305043584955604954206933 10307552102993155140178206180962990834086669192328491046163459268734169262913 60725981319326414829649329717803165865048240478039659729409013503117352756367 34621348120829737252653594858519091641144990429218494211115203537216840960842 7766553221462034756738901009630054165989437658829629161170262761704498088531 36467179752629926056259134523276003474715236929308802587374562733062106825518 89303895181779659399522561146503906679657634129928489182170157152741038265400 43542720810438120056743437253235317261958862732110715298073269992666278812811 16262432562561801915279552365295722459243425309895836554223191865653448094596]}
-Approve Message from Node[3],length is 9
-[UnionTC] value is 16150797832819699959832620549327733716628708907375326305043584955604954206933
-[UnionTC] value is 10307552102993155140178206180962990834086669192328491046163459268734169262913
-[UnionTC] value is 60725981319326414829649329717803165865048240478039659729409013503117352756367
-[UnionTC] value is 34621348120829737252653594858519091641144990429218494211115203537216840960842
-[UnionTC] value is 7766553221462034756738901009630054165989437658829629161170262761704498088531
-[UnionTC] value is 36467179752629926056259134523276003474715236929308802587374562733062106825518
-[UnionTC] value is 89303895181779659399522561146503906679657634129928489182170157152741038265400
-[UnionTC] value is 43542720810438120056743437253235317261958862732110715298073269992666278812811
-[UnionTC] value is 16262432562561801915279552365295722459243425309895836554223191865653448094596
-======>[Approve]Send confirm message success
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[0]
-Confirm
-======>[Confirm]Current Confirm Message from Node[0]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
-Confirm
-======>[Confirm]Current Confirm Message from Node[6]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[5]
-Confirm
-======>[Confirm]Current Confirm Message from Node[5]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[2]
-Confirm
-======>[Confirm]Current Confirm Message from Node[2]
-[Confirm]Confirm success
-after xor all resolved tc,result is: 25675388676887706594846324602054282566077497214651898341579858009125947859995
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[1]
-Collect
-2022-11-03 11:23:44.605548 +0800 CST m=+196.245087001
-Config Change
-output change 25675388676887706594846324602054282566077497214651898341579858009125947859995
-2022-11-03 11:23:44.6066693 +0800 CST m=+196.246208301
-Config Change
-======>[NewEntropyMsg]Verify success
-======>[NewEntropyMsg]Verify success
-======>[NewEntropyMsg]Verify success
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-======>[VRFresult]Verify success
-======>[VRFresult]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[6],time commitment is:39539651791761408385972420895749584789050713045398058680717546340046133012250
-===>Entropy message from Node[5],time commitment is:31752010718614269590667081588685811954955636447225632258565628333815984561650
-===>Entropy message from Node[7],time commitment is:10285809777245037345885062118045644367512618092606715453398834093672003913603
-===>Entropy message from Node[3],time commitment is:105803585973523343788337884719532015811117055268692193264244402510058517044947
-2022-11-03 11:23:49.6068219 +0800 CST m=+201.246360801
-======>[Node4]Stop Receive messages
-key is P%ÂùÑ¯VVî_OUbß73ß¯¶äÑ)webxãÂµ^¥
-value is 39539651791761408385972420895749584789050713045398058680717546340046133012250
-key is qq`M{ôÿ/á	1á¹ïœh'·ZÑEcïuÍ'
-value is 31752010718614269590667081588685811954955636447225632258565628333815984561650
-key is Ê)ÍÑvP¡'ø…Ï„ßl²ª°‹•Fˆªf#Ç
-value is 10285809777245037345885062118045644367512618092606715453398834093672003913603
-key is ‡S¦e^ñJ*ï{àBÏ¬2>xgÜªn€K„ o“
-value is 105803585973523343788337884719532015811117055268692193264244402510058517044947
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[3]
-Approve
-======>[Approve]Current Approve Message from Node[3]
-approve &{[]}
-Approve Message from Node[3],length is 0
-======>[Node4]Time is out and view change starts
-======>[ViewChange] Current view is(3).....
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[3]
-======>[ViewChange]Current Approve Message from Node[3]
-======>[ViewChange]Verify success
-======>[ViewChange] New primary is me[4].....
-======>[ViewChange]Send NewView message success
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[2]
-======>[ViewChange]Current Approve Message from Node[2]
-======>[ViewChange]Verify success
-view change[4] is in processing......
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[1]
-======>[ViewChange]Current Approve Message from Node[1]
-======>[ViewChange]Verify success
-view change[4] is in processing......
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[5]
-======>[ViewChange]Current Approve Message from Node[5]
-======>[ViewChange]Verify success
-view change[4] is in processing......
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[0]
-======>[ViewChange]Current Approve Message from Node[0]
-======>[ViewChange]Verify success
-view change[4] is in processing......
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[6]
-======>[ViewChange]Current Approve Message from Node[6]
-======>[ViewChange]Verify success
-view change[4] is in processing......
-======>[Union]Send approve message success
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[2]
-Confirm
-======>[Confirm]Current Confirm Message from Node[2]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[0]
-Confirm
-======>[Confirm]Current Confirm Message from Node[0]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[5]
-Confirm
-======>[Confirm]Current Confirm Message from Node[5]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
-Confirm
-======>[Confirm]Current Confirm Message from Node[6]
-[Confirm]Confirm success
-after xor all resolved tc,result is: 107676276877646046650015152623045459908698542108104483640695862009650291139512
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[3]
-Output
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[1]
-Output
-
-======>[procConsensusMsg]Consesus message type:[Output] from Node[3]
-Output
-======>[Output]Current Output Message from Node[3]
-
-======>[procConsensusMsg]Consesus message type:[Output] from Node[0]
-Output
-======>[Output]Current Output Message from Node[0]
-
-======>[procConsensusMsg]Consesus message type:[Output] from Node[6]
-Output
-======>[Output]Current Output Message from Node[6]
-
-======>[procConsensusMsg]Consesus message type:[Output] from Node[5]
-Output
-======>[Output]Current Output Message from Node[5]
-[Output]new output is 107676276877646046650015152623045459908698542108104483640695862009650291139512
-
-======>[procConsensusMsg]Consesus message type:[Output] from Node[2]
-Collect
-
-======>[procConsensusMsg]Consesus message type:[Output] from Node[1]
-Collect
-Aliases:
-map[string]string{}
-Override:
-map[string]interface {}{"previousoutput":"107676276877646046650015152623045459908698542108104483640695862009650291139512"}
-PFlags:
-map[string]viper.FlagValue{}
-Env:
-map[string][]string{}
-Key/Value Store:
-map[string]interface {}{}
-Config:
-map[string]interface {}{"previousoutput":"25675388676887706594846324602054282566077497214651898341579858009125947859995"}
-Defaults:
-map[string]interface {}{}
-Write output
-2022-11-03 11:24:22.36244 +0800 CST m=+234.001979001
-Config Change
-output change 107676276877646046650015152623045459908698542108104483640695862009650291139512
-======>[NewEntropyMsg]Verify success
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[9],time commitment is:29556653156252704581165322847000506407550605623278293570627196057830368666803
-===>Entropy message from Node[1],time commitment is:7494953526396969897893530096565401026919658033852415753612586424551084358336
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[0],time commitment is:110510601727121713070860149246373200763955082245281736296467838270249808228160
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[4],time commitment is:29127777773010423480477806364381365856468676400413401061027537132232648211942
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[3],time commitment is:101326685462267572803881957292799030848925567631740723252477357455116728723772
-2022-11-03 11:24:27.3633343 +0800 CST m=+239.002873201
-======>[Node4]Stop Receive messages
-key is ¬ï?¦î¨*‚Å\`Ôğ)³*{„D©­£ğÕ·×
-value is 110510601727121713070860149246373200763955082245281736296467838270249808228160
-key is Kj—ÂZ•÷eç¹Ké/'¹‚c˜™vèÿ¿êùÂ[ı-
-value is 29127777773010423480477806364381365856468676400413401061027537132232648211942
-key is ˜×$[\øÓoa’aGrëW>Ù‘Õh™%ôXø2;…Ÿ
-value is 101326685462267572803881957292799030848925567631740723252477357455116728723772
-key is M)Û®·ãYælYBÚ-èÃÎÊé˜”Ü`w3µó
-value is 29556653156252704581165322847000506407550605623278293570627196057830368666803
-key is L’Ô¡ñQ^,G]ğòV.@š.ï…ğ	&QÒ
-value is 7494953526396969897893530096565401026919658033852415753612586424551084358336
-
-======>[procConsensusMsg]Consesus message type:[Submit] from Node[2]
-Submit
-======>[Union]Current Union Message from Node[2]
-submit &{[101326685462267572803881957292799030848925567631740723252477357455116728723772 29556653156252704581165322847000506407550605623278293570627196057830368666803 7494953526396969897893530096565401026919658033852415753612586424551084358336 110510601727121713070860149246373200763955082245281736296467838270249808228160 29127777773010423480477806364381365856468676400413401061027537132232648211942]}
-Union Message from Node[2],length is 5
-
-======>[procConsensusMsg]Consesus message type:[Submit] from Node[1]
-Submit
-======>[Union]Current Union Message from Node[1]
-submit &{[29556653156252704581165322847000506407550605623278293570627196057830368666803 29127777773010423480477806364381365856468676400413401061027537132232648211942 110510601727121713070860149246373200763955082245281736296467838270249808228160 101326685462267572803881957292799030848925567631740723252477357455116728723772 7494953526396969897893530096565401026919658033852415753612586424551084358336]}
-Union Message from Node[1],length is 5
-
-======>[procConsensusMsg]Consesus message type:[Submit] from Node[6]
-Submit
-======>[Union]Current Union Message from Node[6]
-submit &{[29556653156252704581165322847000506407550605623278293570627196057830368666803 7494953526396969897893530096565401026919658033852415753612586424551084358336 110510601727121713070860149246373200763955082245281736296467838270249808228160 29127777773010423480477806364381365856468676400413401061027537132232648211942 101326685462267572803881957292799030848925567631740723252477357455116728723772]}
-Union Message from Node[6],length is 5
-
-======>[procConsensusMsg]Consesus message type:[Submit] from Node[0]
-Submit
-======>[Union]Current Union Message from Node[0]
-submit &{[29556653156252704581165322847000506407550605623278293570627196057830368666803 7494953526396969897893530096565401026919658033852415753612586424551084358336 110510601727121713070860149246373200763955082245281736296467838270249808228160 29127777773010423480477806364381365856468676400413401061027537132232648211942 101326685462267572803881957292799030848925567631740723252477357455116728723772]}
-Union Message from Node[0],length is 5
-
-======>[procConsensusMsg]Consesus message type:[Submit] from Node[5]
-Submit
-======>[Union]Current Union Message from Node[5]
-submit &{[29127777773010423480477806364381365856468676400413401061027537132232648211942 110510601727121713070860149246373200763955082245281736296467838270249808228160 101326685462267572803881957292799030848925567631740723252477357455116728723772 29556653156252704581165322847000506407550605623278293570627196057830368666803 7494953526396969897893530096565401026919658033852415753612586424551084358336]}
-Union Message from Node[5],length is 5
-
-======>[procConsensusMsg]Consesus message type:[Submit] from Node[3]
-Submit
-======>[Union]Current Union Message from Node[3]
-submit &{[110510601727121713070860149246373200763955082245281736296467838270249808228160 29556653156252704581165322847000506407550605623278293570627196057830368666803 7494953526396969897893530096565401026919658033852415753612586424551084358336 101326685462267572803881957292799030848925567631740723252477357455116728723772 29127777773010423480477806364381365856468676400413401061027537132232648211942]}
-Union Message from Node[3],length is 5
-I'm crazy!!!!!
-======>[Union]Send approve message success
-======>[Node4]Time is out and view change starts
-======>[ViewChange] Current view is(4).....
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[2]
-======>[ViewChange]Current Approve Message from Node[2]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[5] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[5]
-======>[ViewChange]Current Approve Message from Node[5]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[5] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[1]
-======>[ViewChange]Current Approve Message from Node[1]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[5] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[3]
-======>[ViewChange]Current Approve Message from Node[3]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[5] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[6]
-======>[ViewChange]Current Approve Message from Node[6]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[5] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[0]
-======>[ViewChange]Current Approve Message from Node[0]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[5] primary node
-
-======>[procConsensusMsg]Manage message type:[NewView] from Node[5]
-======>[NewView]Current Approve Message from Node[5]
-======>[NewView]Verify success
-======>[NewView] New primary is(5).....
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[5]
-Approve
-======>[Approve]Current Approve Message from Node[5]
-approve &{[29556653156252704581165322847000506407550605623278293570627196057830368666803 7494953526396969897893530096565401026919658033852415753612586424551084358336 29127777773010423480477806364381365856468676400413401061027537132232648211942 110510601727121713070860149246373200763955082245281736296467838270249808228160 101326685462267572803881957292799030848925567631740723252477357455116728723772]}
-Approve Message from Node[5],length is 5
-[UnionTC] value is 29556653156252704581165322847000506407550605623278293570627196057830368666803
-[UnionTC] value is 7494953526396969897893530096565401026919658033852415753612586424551084358336
-[UnionTC] value is 29127777773010423480477806364381365856468676400413401061027537132232648211942
-[UnionTC] value is 110510601727121713070860149246373200763955082245281736296467838270249808228160
-[UnionTC] value is 101326685462267572803881957292799030848925567631740723252477357455116728723772
-======>[Approve]Send confirm message success
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[0]
-Confirm
-======>[Confirm]Current Confirm Message from Node[0]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[2]
-Confirm
-======>[Confirm]Current Confirm Message from Node[2]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[1]
-Confirm
-======>[Confirm]Current Confirm Message from Node[1]
-[Confirm]Confirm success
-after xor all resolved tc,result is: 2703581204340042124935503636405593692867467195275651706150922937009977632233
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
-Collect
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[3]
-Collect
-2022-11-03 11:25:00.1866266 +0800 CST m=+271.826165601
-Config Change
-output change 2703581204340042124935503636405593692867467195275651706150922937009977632233
-2022-11-03 11:25:00.1909952 +0800 CST m=+271.830534201
-Config Change
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[3],time commitment is:103185294987566997608168013423434287323947877445982652515564313838562898207668
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[0],time commitment is:27429361713501159644863167616036732658650645336145408381886368836180277373638
-2022-11-03 11:25:05.1910161 +0800 CST m=+276.830555101
-======>[Node4]Stop Receive messages
-key is €Ôs­sOOìËÛºŸ¯M†ÜZÒ Ç?À©E
-value is 27429361713501159644863167616036732658650645336145408381886368836180277373638
-key is A¹>Jš²Íz¿À4u¨,ÍÈ›{aRÑ%·úÕ`
-value is 103185294987566997608168013423434287323947877445982652515564313838562898207668
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[5]
-Approve
-======>[Approve]Current Approve Message from Node[5]
-approve &{[103185294987566997608168013423434287323947877445982652515564313838562898207668 27429361713501159644863167616036732658650645336145408381886368836180277373638]}
-Approve Message from Node[5],length is 2
-[UnionTC] value is 103185294987566997608168013423434287323947877445982652515564313838562898207668
-[UnionTC] value is 27429361713501159644863167616036732658650645336145408381886368836180277373638
-======>[Approve]Send confirm message success
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[3]
-Confirm
-======>[Confirm]Current Confirm Message from Node[3]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[0]
-Confirm
-======>[Confirm]Current Confirm Message from Node[0]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
-Confirm
-======>[Confirm]Current Confirm Message from Node[6]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[2]
-Confirm
-======>[Confirm]Current Confirm Message from Node[2]
-[Confirm]Confirm success
-after xor all resolved tc,result is: 97934078505670384151898950383562917147251086688052143668425816068867606923634
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[1]
-Collect
-2022-11-03 11:25:21.7324729 +0800 CST m=+293.372011801
-Config Change
-output change 97934078505670384151898950383562917147251086688052143668425816068867606923634
-2022-11-03 11:25:21.7334972 +0800 CST m=+293.373036101
-Config Change
-======>[NewEntropyMsg]Verify success
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[0],time commitment is:38675667802022123847990105049255053490013070664662164191305064721907245802731
-===>Entropy message from Node[6],time commitment is:1909322489143903299505666924471973635630475244401345909197547459508598557681
-======>[NewEntropyMsg]Verify success
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[7],time commitment is:39557084417629928190111243570740066542276186663954626398503155011621828055459
-===>Entropy message from Node[8],time commitment is:94167503157425548812688222019397606097864164591985443861566757847284802312360
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[4],time commitment is:88717019261610941522736254852627164894840125951670908948242277466070178584368
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[3],time commitment is:24221408933140619084108143739438508147266970926032658526033779848280719873346
-2022-11-03 11:25:26.7385991 +0800 CST m=+298.378138001
-======>[Node4]Stop Receive messages
-key is ”Ú‘²v©ŒF€Œ©Q…\7•¸7‹ìm¼Q´Î˜Yƒ
-value is 24221408933140619084108143739438508147266970926032658526033779848280719873346
-key is 9ñ—pÂíÍÈ2&;•×'#ºøfw-wh\ïx(H
-value is 38675667802022123847990105049255053490013070664662164191305064721907245802731
-key is "&Ø-í‰ßüßù×-¬V H†ô¥B)à¢Š® Ôs¯
-value is 1909322489143903299505666924471973635630475244401345909197547459508598557681
-key is !±”E™X±­Öxñû¬¡H¹±‹èá¨Öœ	åÙ@
-value is 39557084417629928190111243570740066542276186663954626398503155011621828055459
-key is ¹%´ ŒjĞt?$¨™¥M–=èTÏ'C¬
-value is 94167503157425548812688222019397606097864164591985443861566757847284802312360
-key is ‘‡NRß6âx¹»aBÍö'Ú>Ëë>”¥ì¼–#Œ
-value is 88717019261610941522736254852627164894840125951670908948242277466070178584368
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[5]
-Approve
-======>[Approve]Current Approve Message from Node[5]
-approve &{[24221408933140619084108143739438508147266970926032658526033779848280719873346 1909322489143903299505666924471973635630475244401345909197547459508598557681 38675667802022123847990105049255053490013070664662164191305064721907245802731 39557084417629928190111243570740066542276186663954626398503155011621828055459 94167503157425548812688222019397606097864164591985443861566757847284802312360 88717019261610941522736254852627164894840125951670908948242277466070178584368]}
-Approve Message from Node[5],length is 6
-[UnionTC] value is 24221408933140619084108143739438508147266970926032658526033779848280719873346
-[UnionTC] value is 1909322489143903299505666924471973635630475244401345909197547459508598557681
-[UnionTC] value is 38675667802022123847990105049255053490013070664662164191305064721907245802731
-[UnionTC] value is 39557084417629928190111243570740066542276186663954626398503155011621828055459
-[UnionTC] value is 94167503157425548812688222019397606097864164591985443861566757847284802312360
-[UnionTC] value is 88717019261610941522736254852627164894840125951670908948242277466070178584368
-======>[Approve]Send confirm message success
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
-Confirm
-======>[Confirm]Current Confirm Message from Node[6]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[0]
-Confirm
-======>[Confirm]Current Confirm Message from Node[0]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[2]
-Confirm
-======>[Confirm]Current Confirm Message from Node[2]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[3]
-Confirm
-======>[Confirm]Current Confirm Message from Node[3]
-[Confirm]Confirm success
-after xor all resolved tc,result is: 17791624608844410584200868225029157156746031380605867990178858333752655717475
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[1]
-Collect
-2022-11-03 11:25:39.3260496 +0800 CST m=+310.965588501
-Config Change
-output change 17791624608844410584200868225029157156746031380605867990178858333752655717475
-2022-11-03 11:25:39.3270824 +0800 CST m=+310.966621401
-Config Change
-======>[NewEntropyMsg]Verify success
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[4],time commitment is:31313771911147434543558187930319562636464389584961552911236138367847188260685
-===>Entropy message from Node[9],time commitment is:87289618398124560093318911405245138180383397421189382545914155484519822761937
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[5],time commitment is:79667029043585711835848559199399513962251007583149972469975679107677329093765
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[0],time commitment is:66220949854802940902394042028427386519071640807057511837555318199376847003323
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[6],time commitment is:108291834845132653372964557506225839293580634852854700266316490807991985712602
-2022-11-03 11:25:44.3281084 +0800 CST m=+315.967647401
-======>[Node4]Stop Receive messages
-key is =Ãÿ¦¡Àˆ¨;°jªfwÚÏù^ÈÏÙŸ&i”º
-value is 87289618398124560093318911405245138180383397421189382545914155484519822761937
-key is ûÚ®§e°® Á¡p¾MÅ$¬‚nG}*SYÇµ³ı
-value is 79667029043585711835848559199399513962251007583149972469975679107677329093765
-key is [KUÇëô[iìĞÃæ©p	tÍŸ<Û@¿·n“hÌ
-value is 66220949854802940902394042028427386519071640807057511837555318199376847003323
-key is D‹»†»¹”†lwéÕıƒ’_a ¤è”4Œh!}jæ!Á
-value is 108291834845132653372964557506225839293580634852854700266316490807991985712602
-key is f¥>=16
-Î&İÒ†Ìd<>~¥ª±\‡g¬Q
-value is 31313771911147434543558187930319562636464389584961552911236138367847188260685
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[5]
-Approve
-======>[Approve]Current Approve Message from Node[5]
-approve &{[87289618398124560093318911405245138180383397421189382545914155484519822761937 31313771911147434543558187930319562636464389584961552911236138367847188260685 79667029043585711835848559199399513962251007583149972469975679107677329093765 66220949854802940902394042028427386519071640807057511837555318199376847003323 108291834845132653372964557506225839293580634852854700266316490807991985712602]}
-Approve Message from Node[5],length is 5
-[UnionTC] value is 87289618398124560093318911405245138180383397421189382545914155484519822761937
-[UnionTC] value is 31313771911147434543558187930319562636464389584961552911236138367847188260685
-[UnionTC] value is 79667029043585711835848559199399513962251007583149972469975679107677329093765
-[UnionTC] value is 66220949854802940902394042028427386519071640807057511837555318199376847003323
-[UnionTC] value is 108291834845132653372964557506225839293580634852854700266316490807991985712602
-======>[Approve]Send confirm message success
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[0]
-Confirm
-======>[Confirm]Current Confirm Message from Node[0]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[2]
-Confirm
-======>[Confirm]Current Confirm Message from Node[2]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
-Confirm
-======>[Confirm]Current Confirm Message from Node[6]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[1]
-Confirm
-======>[Confirm]Current Confirm Message from Node[1]
-[Confirm]Confirm success
-after xor all resolved tc,result is: 32982728377651999888710561887040830367723753363513859983754535155040193806200
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[3]
-Collect
-2022-11-03 11:25:56.8641931 +0800 CST m=+328.503732101
-Config Change
-output change 32982728377651999888710561887040830367723753363513859983754535155040193806200
-======>[NewEntropyMsg]Verify success
-======>[NewEntropyMsg]Verify success
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-======>[VRFresult]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[8],time commitment is:78255093291369535804666269384825155362689103864491169994399117389013367826759
-===>Entropy message from Node[5],time commitment is:50290229253276243618789813172851512605597618888309311456709659587261670423408
-===>Entropy message from Node[0],time commitment is:84910324628647470244423142835611811311912236167834551941709963390892189345989
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[3],time commitment is:26557344446750467279112093148532199354768491958781032008128832429038090312973
-2022-11-03 11:26:01.8660244 +0800 CST m=+333.505563301
-======>[Node4]Stop Receive messages
-key is ÷®4–šJÒ“‡µÉ“•¨(ÿ¸sˆéLÆµ„a !
-value is 78255093291369535804666269384825155362689103864491169994399117389013367826759
-key is àŒù¶PéƒtSŠlÇI Y ôÖx5´˜nïşŠjRù
-value is 50290229253276243618789813172851512605597618888309311456709659587261670423408
-key is ÓĞgPGó­eßÍğl)ô±NMÒÆLõÍJ"õø Œ§
-value is 84910324628647470244423142835611811311912236167834551941709963390892189345989
-key is M»p+ñ2bï²gqÛ!¢UÖè|XBªcš:§Ã
-value is 26557344446750467279112093148532199354768491958781032008128832429038090312973
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[5]
-Approve
-======>[Approve]Current Approve Message from Node[5]
-approve &{[]}
-Approve Message from Node[5],length is 0
-======>[Node4]Time is out and view change starts
-======>[ViewChange] Current view is(5).....
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[0]
-======>[ViewChange]Current Approve Message from Node[0]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[6] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[6]
-======>[ViewChange]Current Approve Message from Node[6]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[6] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[1]
-======>[ViewChange]Current Approve Message from Node[1]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[6] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[3]
-======>[ViewChange]Current Approve Message from Node[3]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[6] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[5]
-======>[ViewChange]Current Approve Message from Node[5]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[6] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[2]
-======>[ViewChange]Current Approve Message from Node[2]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[6] primary node
-
-======>[procConsensusMsg]Manage message type:[NewView] from Node[6]
-======>[NewView]Current Approve Message from Node[6]
-======>[NewView]Verify success
-======>[NewView] New primary is(6).....
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[6]
-Approve
-======>[Approve]Current Approve Message from Node[6]
-approve &{[26557344446750467279112093148532199354768491958781032008128832429038090312973 78255093291369535804666269384825155362689103864491169994399117389013367826759 50290229253276243618789813172851512605597618888309311456709659587261670423408 84910324628647470244423142835611811311912236167834551941709963390892189345989]}
-Approve Message from Node[6],length is 4
-[UnionTC] value is 26557344446750467279112093148532199354768491958781032008128832429038090312973
-[UnionTC] value is 78255093291369535804666269384825155362689103864491169994399117389013367826759
-[UnionTC] value is 50290229253276243618789813172851512605597618888309311456709659587261670423408
-[UnionTC] value is 84910324628647470244423142835611811311912236167834551941709963390892189345989
-======>[Approve]Send confirm message success
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[5]
-Confirm
-======>[Confirm]Current Confirm Message from Node[5]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[2]
-Confirm
-======>[Confirm]Current Confirm Message from Node[2]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[0]
-Confirm
-======>[Confirm]Current Confirm Message from Node[0]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[3]
-Confirm
-======>[Confirm]Current Confirm Message from Node[3]
-[Confirm]Confirm success
-after xor all resolved tc,result is: 30366717765946992243273111511706803201319712534122358941886718279422597097471
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[1]
-Collect
-2022-11-03 11:26:34.7723284 +0800 CST m=+366.411867401
-Config Change
-output change 30366717765946992243273111511706803201319712534122358941886718279422597097471
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-======>[NewEntropyMsg]Verify success
-===>Entropy message from Node[3],time commitment is:91683285036937475272689920470383456973039276575648633424387505354960397890667
-======>[VRFresult]Verify success
-===>Entropy message from Node[7],time commitment is:76313159863516301431732103568840290374129369860109474959471883269248086437928
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[2],time commitment is:11752099355020391864156959269580649792432911997429307293054382839820219338885
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[1],time commitment is:108891514386166124688305991905801009238177405309486134350933197114592250788912
-2022-11-03 11:26:39.7768514 +0800 CST m=+371.416390601
-======>[Node4]Stop Receive messages
-key is ù“r'1¦Ğ\§R/½Ø8œj
-Oşm)óH¹S¾âú
-value is 91683285036937475272689920470383456973039276575648633424387505354960397890667
-key is v]îê-Ö÷ã 9• *šmO”x}r{ÍÑ
-value is 76313159863516301431732103568840290374129369860109474959471883269248086437928
-key is 1S¬‡ìú±\Lwşx…ƒµ„w“½ÊS2P4¼y&ä
-value is 11752099355020391864156959269580649792432911997429307293054382839820219338885
-key is ûPu­’Ğ–çÓ4®³jy odÂÁTI{‰
-value is 108891514386166124688305991905801009238177405309486134350933197114592250788912
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[6]
-Approve
-======>[Approve]Current Approve Message from Node[6]
-approve &{[]}
-Approve Message from Node[6],length is 0
-======>[Node4]Time is out and view change starts
-======>[ViewChange] Current view is(6).....
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[5]
-======>[ViewChange]Current Approve Message from Node[5]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[0] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[2]
-======>[ViewChange]Current Approve Message from Node[2]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[0] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[3]
-======>[ViewChange]Current Approve Message from Node[3]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[0] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[0]
-======>[ViewChange]Current Approve Message from Node[0]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[0] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[6]
-======>[ViewChange]Current Approve Message from Node[6]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[0] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[1]
-======>[ViewChange]Current Approve Message from Node[1]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[0] primary node
-
-======>[procConsensusMsg]Manage message type:[NewView] from Node[0]
-======>[NewView]Current Approve Message from Node[0]
-======>[NewView]Verify success
-======>[NewView] New primary is(0).....
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[0]
-Approve
-======>[Approve]Current Approve Message from Node[0]
-approve &{[11752099355020391864156959269580649792432911997429307293054382839820219338885 91683285036937475272689920470383456973039276575648633424387505354960397890667 108891514386166124688305991905801009238177405309486134350933197114592250788912 76313159863516301431732103568840290374129369860109474959471883269248086437928]}
-Approve Message from Node[0],length is 4
-[UnionTC] value is 11752099355020391864156959269580649792432911997429307293054382839820219338885
-[UnionTC] value is 91683285036937475272689920470383456973039276575648633424387505354960397890667
-[UnionTC] value is 108891514386166124688305991905801009238177405309486134350933197114592250788912
-[UnionTC] value is 76313159863516301431732103568840290374129369860109474959471883269248086437928
-======>[Approve]Send confirm message success
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[1]
-Confirm
-======>[Confirm]Current Confirm Message from Node[1]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[5]
-Confirm
-======>[Confirm]Current Confirm Message from Node[5]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[2]
-Confirm
-======>[Confirm]Current Confirm Message from Node[2]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[3]
-Confirm
-======>[Confirm]Current Confirm Message from Node[3]
-[Confirm]Confirm success
-after xor all resolved tc,result is: 62985087670439476323063580469163612121128294582978421028221565701040462342390
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
-Collect
-2022-11-03 11:27:12.6392943 +0800 CST m=+404.278833301
-Config Change
-output change 62985087670439476323063580469163612121128294582978421028221565701040462342390
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[0],time commitment is:107816346772183397591749427702037824895511915177900936391480285241789592238520
-======>[NewEntropyMsg]Verify success
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[6],time commitment is:12424282871390195427570375340523368232238875231924649025546161281678945482891
-===>Entropy message from Node[1],time commitment is:101856053584376643103793842000340838800466828356592442935219394365000420217017
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[8],time commitment is:55663276054976799241272423758071737821624171009644756906834673473923987316449
-2022-11-03 11:27:17.6403969 +0800 CST m=+409.279935801
-======>[Node4]Stop Receive messages
-key is òîĞ›ƒ±®Q®£§ÕÌÁÇ¯Â O‘©Í½@WH¢­eÅ
-value is 107816346772183397591749427702037824895511915177900936391480285241789592238520
-key is EÒOóˆH˜Qmá¤¾k1ĞUsë‡t±rÔ^+
-ÂÜªdR
-value is 12424282871390195427570375340523368232238875231924649025546161281678945482891
-key is Ìtú•1À×Ük\f 1ÎáE>ğ-Êwíó¡O»
-value is 101856053584376643103793842000340838800466828356592442935219394365000420217017
-key is J}—òf7›x8i½5N&sĞS1ş÷r2œ›ã?Lıƒ<
-value is 55663276054976799241272423758071737821624171009644756906834673473923987316449
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[0]
-Approve
-======>[Approve]Current Approve Message from Node[0]
-approve &{[]}
-Approve Message from Node[0],length is 0
-======>[Node4]Time is out and view change starts
-======>[ViewChange] Current view is(7).....
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[1]
-======>[ViewChange]Current Approve Message from Node[1]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[1] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[5]
-======>[ViewChange]Current Approve Message from Node[5]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[1] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[2]
-======>[ViewChange]Current Approve Message from Node[2]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[1] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[0]
-======>[ViewChange]Current Approve Message from Node[0]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[1] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[6]
-======>[ViewChange]Current Approve Message from Node[6]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[1] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[3]
-======>[ViewChange]Current Approve Message from Node[3]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[1] primary node
-
-======>[procConsensusMsg]Manage message type:[NewView] from Node[1]
-======>[NewView]Current Approve Message from Node[1]
-======>[NewView]Verify success
-======>[NewView] New primary is(1).....
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[1]
-Approve
-======>[Approve]Current Approve Message from Node[1]
-approve &{[12424282871390195427570375340523368232238875231924649025546161281678945482891 101856053584376643103793842000340838800466828356592442935219394365000420217017 55663276054976799241272423758071737821624171009644756906834673473923987316449 107816346772183397591749427702037824895511915177900936391480285241789592238520]}
-Approve Message from Node[1],length is 4
-[UnionTC] value is 12424282871390195427570375340523368232238875231924649025546161281678945482891
-[UnionTC] value is 101856053584376643103793842000340838800466828356592442935219394365000420217017
-[UnionTC] value is 55663276054976799241272423758071737821624171009644756906834673473923987316449
-[UnionTC] value is 107816346772183397591749427702037824895511915177900936391480285241789592238520
-======>[Approve]Send confirm message success
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[2]
-Confirm
-======>[Confirm]Current Confirm Message from Node[2]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[3]
-Confirm
-======>[Confirm]Current Confirm Message from Node[3]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[5]
-Confirm
-======>[Confirm]Current Confirm Message from Node[5]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[0]
-Confirm
-======>[Confirm]Current Confirm Message from Node[0]
-[Confirm]Confirm success
-after xor all resolved tc,result is: 50224735299642354968408502350350849930121904444553732114429883382919373737835
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
-Collect
-2022-11-03 11:27:50.4538057 +0800 CST m=+442.093344601
-Config Change
-output change 50224735299642354968408502350350849930121904444553732114429883382919373737835
-2022-11-03 11:27:50.4723012 +0800 CST m=+442.111840201
-Config Change
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-======>[NewEntropyMsg]Verify success
-======>[NewEntropyMsg]Verify success
-===>Entropy message from Node[1],time commitment is:55171154039054960541979154550439358727874602945261752564942527593158105741956
-======>[VRFresult]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[0],time commitment is:92239018572018553188446271085923387177706395986588546299695360761314253757663
-===>Entropy message from Node[4],time commitment is:48176257341273916353296614238666165450725104931663156230162066339472679527662
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[7],time commitment is:42678953773756029690333475044490204713452127773680799189332859674554420043983
-2022-11-03 11:27:55.4773957 +0800 CST m=+447.116934701
-======>[Node4]Stop Receive messages
-key is Õ"–.$æ»ìÕç,bggğAÃ¶:Dã~Åù¯
-value is 55171154039054960541979154550439358727874602945261752564942527593158105741956
-key is N)Ğ¿nqó¯Ù ÿ‚Í³õÎá+Êş¬ŠÊ"Œ2
-value is 92239018572018553188446271085923387177706395986588546299695360761314253757663
-key is :î¡&mÒ-G¨˜÷Æ—q²¢i«4JŒIãîpÉj
-value is 48176257341273916353296614238666165450725104931663156230162066339472679527662
-key is ®Ïï;:”5"¥gšAîªeAIT°]
- W2œìwè
-value is 42678953773756029690333475044490204713452127773680799189332859674554420043983
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[1]
-Approve
-======>[Approve]Current Approve Message from Node[1]
-approve &{[]}
-Approve Message from Node[1],length is 0
-======>[Node4]Time is out and view change starts
-======>[ViewChange] Current view is(8).....
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[3]
-======>[ViewChange]Current Approve Message from Node[3]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[2] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[2]
-======>[ViewChange]Current Approve Message from Node[2]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[2] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[6]
-======>[ViewChange]Current Approve Message from Node[6]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[2] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[0]
-======>[ViewChange]Current Approve Message from Node[0]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[2] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[5]
-======>[ViewChange]Current Approve Message from Node[5]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[2] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[1]
-======>[ViewChange]Current Approve Message from Node[1]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[2] primary node
-
-======>[procConsensusMsg]Manage message type:[NewView] from Node[2]
-======>[NewView]Current Approve Message from Node[2]
-======>[NewView]Verify success
-======>[NewView] New primary is(2).....
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[2]
-Approve
-======>[Approve]Current Approve Message from Node[2]
-approve &{[42678953773756029690333475044490204713452127773680799189332859674554420043983 55171154039054960541979154550439358727874602945261752564942527593158105741956 48176257341273916353296614238666165450725104931663156230162066339472679527662 92239018572018553188446271085923387177706395986588546299695360761314253757663]}
-Approve Message from Node[2],length is 4
-[UnionTC] value is 42678953773756029690333475044490204713452127773680799189332859674554420043983
-[UnionTC] value is 55171154039054960541979154550439358727874602945261752564942527593158105741956
-[UnionTC] value is 48176257341273916353296614238666165450725104931663156230162066339472679527662
-[UnionTC] value is 92239018572018553188446271085923387177706395986588546299695360761314253757663
-======>[Approve]Send confirm message success
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
-Confirm
-======>[Confirm]Current Confirm Message from Node[6]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[3]
-Confirm
-======>[Confirm]Current Confirm Message from Node[3]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[0]
-Confirm
-======>[Confirm]Current Confirm Message from Node[0]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[5]
-Confirm
-======>[Confirm]Current Confirm Message from Node[5]
-[Confirm]Confirm success
-after xor all resolved tc,result is: 60972222822491498523832861757053830558649384780554961150234924831142242263674
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[1]
-Collect
-2022-11-03 11:28:28.3126522 +0800 CST m=+479.952191101
-Config Change
-output change 60972222822491498523832861757053830558649384780554961150234924831142242263674
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[4],time commitment is:7355157051852147849857228351416060417079848131508939258103502635269480837429
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[8],time commitment is:77100475555181404160436405462956468307546335511457721175389387106150516888230
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[6],time commitment is:77288599203003788942873227041752624375509448032972522594365237022392966904194
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[5],time commitment is:1414661245632715373083432719294277572213751077377671331241097140520684073075
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[3],time commitment is:29700417622975267211895949006253306273642462809507560497800973552311921849300
-2022-11-03 11:28:33.3151635 +0800 CST m=+484.954702401
-======>[Node4]Stop Receive messages
-key is r@­ªª_\vêõÆ\YP_ªf¡2àj…
-‹
-value is 77100475555181404160436405462956468307546335511457721175389387106150516888230
-key is àeÙ·¹éÕK'õçÌPnœgÌÛ}o‘æè¦Ì´
-value is 77288599203003788942873227041752624375509448032972522594365237022392966904194
-key is &)¢å@­:
-<*)2Ú©ñ‘l›>«)†q€,>àí
-value is 1414661245632715373083432719294277572213751077377671331241097140520684073075
-key is X6™a‡²yeªÄ¯Í@¾\YCKp%%ÛU*«ıo
-value is 29700417622975267211895949006253306273642462809507560497800973552311921849300
-key is q’rB³+Mà;|©^iwXt†I½ºC€“ŸÍÛÃ
-value is 7355157051852147849857228351416060417079848131508939258103502635269480837429
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[2]
-Approve
-======>[Approve]Current Approve Message from Node[2]
-approve &{[]}
-Approve Message from Node[2],length is 0
-======>[Node4]Time is out and view change starts
-======>[ViewChange] Current view is(9).....
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[0]
-======>[ViewChange]Current Approve Message from Node[0]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[3] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[1]
-======>[ViewChange]Current Approve Message from Node[1]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[3] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[2]
-======>[ViewChange]Current Approve Message from Node[2]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[3] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[3]
-======>[ViewChange]Current Approve Message from Node[3]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[3] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[5]
-======>[ViewChange]Current Approve Message from Node[5]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[3] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[6]
-======>[ViewChange]Current Approve Message from Node[6]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[3] primary node
-
-======>[procConsensusMsg]Manage message type:[NewView] from Node[3]
-======>[NewView]Current Approve Message from Node[3]
-======>[NewView]Verify success
-======>[NewView] New primary is(3).....
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[3]
-Approve
-======>[Approve]Current Approve Message from Node[3]
-approve &{[1414661245632715373083432719294277572213751077377671331241097140520684073075 77288599203003788942873227041752624375509448032972522594365237022392966904194 77100475555181404160436405462956468307546335511457721175389387106150516888230 7355157051852147849857228351416060417079848131508939258103502635269480837429 29700417622975267211895949006253306273642462809507560497800973552311921849300]}
+my length is 5
+approve &{[94370535475212859178510333436936858462636181545721939221093926021283807309168 34312367357274322855342411899673897481132854767942337219409144161103597104051 83888904592209594851100918183096184505627455875563485853107159153145244978753 115699469260215822922266154854718296879209454801595478709728369059402900266551 112964451319115586643393406346748293034667495382707103644075025238611929006217]}
 Approve Message from Node[3],length is 5
-[UnionTC] value is 1414661245632715373083432719294277572213751077377671331241097140520684073075
-[UnionTC] value is 77288599203003788942873227041752624375509448032972522594365237022392966904194
-[UnionTC] value is 77100475555181404160436405462956468307546335511457721175389387106150516888230
-[UnionTC] value is 7355157051852147849857228351416060417079848131508939258103502635269480837429
-[UnionTC] value is 29700417622975267211895949006253306273642462809507560497800973552311921849300
+[UnionTC] value is 94370535475212859178510333436936858462636181545721939221093926021283807309168
+[UnionTC] value is 34312367357274322855342411899673897481132854767942337219409144161103597104051
+[UnionTC] value is 83888904592209594851100918183096184505627455875563485853107159153145244978753
+[UnionTC] value is 115699469260215822922266154854718296879209454801595478709728369059402900266551
+[UnionTC] value is 112964451319115586643393406346748293034667495382707103644075025238611929006217
 ======>[Approve]Send confirm message success
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[5]
-Confirm
-======>[Confirm]Current Confirm Message from Node[5]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
-Confirm
-======>[Confirm]Current Confirm Message from Node[6]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[1]
-Confirm
-======>[Confirm]Current Confirm Message from Node[1]
 
 ======>[procConsensusMsg]Consesus message type:[Confirm] from Node[0]
 Confirm
 ======>[Confirm]Current Confirm Message from Node[0]
-[Confirm]Confirm success
-after xor all resolved tc,result is: 37261464134944237112367233596608751536390500692672174181942417996417750833590
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[2]
-Collect
-2022-11-03 11:29:06.1850887 +0800 CST m=+517.824627701
-Config Change
-output change 37261464134944237112367233596608751536390500692672174181942417996417750833590
-2022-11-03 11:29:06.1855386 +0800 CST m=+517.825077601
-Config Change
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[3],time commitment is:28652903354479001686524162514984310132000076055419164560021529344181734944539
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[8],time commitment is:103358895189520660722486048359781807707405089405205404699886214390567439629243
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[6],time commitment is:96087683179677110827592130887661153698855924077707196327417486889662341021256
-2022-11-03 11:29:11.1856718 +0800 CST m=+522.825210801
-======>[Node4]Stop Receive messages
-key is ÑÊíÍ¼äéÃş·Îáï\…í3Æë`â¢C“BEÿj
-value is 28652903354479001686524162514984310132000076055419164560021529344181734944539
-key is -¡Qå
-E¬}ú[–İÄ¨©\Y‘Jµ?1¾ÌDüeùu.ô^
-value is 103358895189520660722486048359781807707405089405205404699886214390567439629243
-key is á. %ø¨_/}U½ıƒ
-ß†ú+S*ƒÃHÍw
-value is 96087683179677110827592130887661153698855924077707196327417486889662341021256
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[3]
-Approve
-======>[Approve]Current Approve Message from Node[3]
-approve &{[]}
-Approve Message from Node[3],length is 0
-======>[Node4]Time is out and view change starts
-======>[ViewChange] Current view is(10).....
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[1]
-======>[ViewChange]Current Approve Message from Node[1]
-======>[ViewChange]Verify success
-======>[ViewChange] New primary is me[4].....
-======>[ViewChange]Send NewView message success
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[6]
-======>[ViewChange]Current Approve Message from Node[6]
-======>[ViewChange]Verify success
-view change[11] is in processing......
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[2]
-======>[ViewChange]Current Approve Message from Node[2]
-======>[ViewChange]Verify success
-view change[11] is in processing......
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[3]
-======>[ViewChange]Current Approve Message from Node[3]
-======>[ViewChange]Verify success
-view change[11] is in processing......
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[5]
-======>[ViewChange]Current Approve Message from Node[5]
-======>[ViewChange]Verify success
-view change[11] is in processing......
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[0]
-======>[ViewChange]Current Approve Message from Node[0]
-======>[ViewChange]Verify success
-view change[11] is in processing......
-======>[Union]Send approve message success
 
 ======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
 Confirm
@@ -1544,295 +255,16 @@ Confirm
 Confirm
 ======>[Confirm]Current Confirm Message from Node[5]
 
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[1]
-Confirm
-======>[Confirm]Current Confirm Message from Node[1]
-
 ======>[procConsensusMsg]Consesus message type:[Confirm] from Node[2]
 Confirm
 ======>[Confirm]Current Confirm Message from Node[2]
 [Confirm]Confirm success
-after xor all resolved tc,result is: 7103247865355974358306489073332585414848843270724790106363804231325955697384
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[0]
-Output
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[3]
-Output
-
-======>[procConsensusMsg]Consesus message type:[Output] from Node[3]
-Output
-======>[Output]Current Output Message from Node[3]
-
-======>[procConsensusMsg]Consesus message type:[Output] from Node[6]
-Output
-======>[Output]Current Output Message from Node[6]
-
-======>[procConsensusMsg]Consesus message type:[Output] from Node[0]
-Output
-======>[Output]Current Output Message from Node[0]
-
-======>[procConsensusMsg]Consesus message type:[Output] from Node[5]
-Output
-======>[Output]Current Output Message from Node[5]
-[Output]new output is 7103247865355974358306489073332585414848843270724790106363804231325955697384
-
-======>[procConsensusMsg]Consesus message type:[Output] from Node[1]
-Collect
-
-======>[procConsensusMsg]Consesus message type:[Output] from Node[2]
-Collect
-Aliases:
-map[string]string{}
-Override:
-map[string]interface {}{"previousoutput":"7103247865355974358306489073332585414848843270724790106363804231325955697384"}
-PFlags:
-map[string]viper.FlagValue{}
-Env:
-map[string][]string{}
-Key/Value Store:
-map[string]interface {}{}
-Config:
-map[string]interface {}{"previousoutput":"37261464134944237112367233596608751536390500692672174181942417996417750833590"}
-Defaults:
-map[string]interface {}{}
-Write output
-2022-11-03 11:29:44.0247624 +0800 CST m=+555.664301401
-Config Change
-output change 7103247865355974358306489073332585414848843270724790106363804231325955697384
-2022-11-03 11:29:44.0258066 +0800 CST m=+555.665345601
-Config Change
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-======>[NewEntropyMsg]Verify success
-===>Entropy message from Node[6],time commitment is:107782990603512857993641852067491150443497358027092095214476397292564587945627
-======>[VRFresult]Verify success
-===>Entropy message from Node[1],time commitment is:113698612037048879378427930712474558460581916007313016538219181528672801816751
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[4],time commitment is:112848050415913908807562600239831882412859608521845118997221561515050471374174
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[8],time commitment is:22945790656671431258953129437518235876441304895576334544596440633228318212463
-2022-11-03 11:29:49.0259099 +0800 CST m=+560.665448901
-======>[Node4]Stop Receive messages
-key is Ö.%ƒ¬rN48¼9lğõ8§8`v*09ÒöY\
-value is 112848050415913908807562600239831882412859608521845118997221561515050471374174
-key is % õä´EÈ7¿ò÷>¼‰6²1/+»•îÎs ë{\qÜ_
-value is 22945790656671431258953129437518235876441304895576334544596440633228318212463
-key is şKì²sìıö”üÊSB­˜ø©éLÂ$(ƒ€9[L·
-value is 107782990603512857993641852067491150443497358027092095214476397292564587945627
-key is }„øh’çIĞ–îyæ}o9Ï¹Ìö4ı!ò¹¾Zá.—
-value is 113698612037048879378427930712474558460581916007313016538219181528672801816751
-
-======>[procConsensusMsg]Consesus message type:[Submit] from Node[5]
-Submit
-======>[Union]Current Union Message from Node[5]
-submit &{[113698612037048879378427930712474558460581916007313016538219181528672801816751 107782990603512857993641852067491150443497358027092095214476397292564587945627 112848050415913908807562600239831882412859608521845118997221561515050471374174 22945790656671431258953129437518235876441304895576334544596440633228318212463]}
-Union Message from Node[5],length is 4
-
-======>[procConsensusMsg]Consesus message type:[Submit] from Node[2]
-Submit
-======>[Union]Current Union Message from Node[2]
-submit &{[113698612037048879378427930712474558460581916007313016538219181528672801816751 107782990603512857993641852067491150443497358027092095214476397292564587945627 112848050415913908807562600239831882412859608521845118997221561515050471374174 22945790656671431258953129437518235876441304895576334544596440633228318212463]}
-Union Message from Node[2],length is 4
-
-======>[procConsensusMsg]Consesus message type:[Submit] from Node[6]
-Submit
-======>[Union]Current Union Message from Node[6]
-submit &{[113698612037048879378427930712474558460581916007313016538219181528672801816751 112848050415913908807562600239831882412859608521845118997221561515050471374174 22945790656671431258953129437518235876441304895576334544596440633228318212463 107782990603512857993641852067491150443497358027092095214476397292564587945627]}
-Union Message from Node[6],length is 4
-
-======>[procConsensusMsg]Consesus message type:[Submit] from Node[3]
-Submit
-======>[Union]Current Union Message from Node[3]
-submit &{[113698612037048879378427930712474558460581916007313016538219181528672801816751 107782990603512857993641852067491150443497358027092095214476397292564587945627 112848050415913908807562600239831882412859608521845118997221561515050471374174 22945790656671431258953129437518235876441304895576334544596440633228318212463]}
-Union Message from Node[3],length is 4
-
-======>[procConsensusMsg]Consesus message type:[Submit] from Node[1]
-Submit
-======>[Union]Current Union Message from Node[1]
-submit &{[107782990603512857993641852067491150443497358027092095214476397292564587945627 113698612037048879378427930712474558460581916007313016538219181528672801816751 112848050415913908807562600239831882412859608521845118997221561515050471374174 22945790656671431258953129437518235876441304895576334544596440633228318212463]}
-Union Message from Node[1],length is 4
-
-======>[procConsensusMsg]Consesus message type:[Submit] from Node[0]
-Submit
-I'm crazy!!!!!
-======>[Union]Send approve message success
-======>[Union]Current Union Message from Node[0]
-submit &{[107782990603512857993641852067491150443497358027092095214476397292564587945627 113698612037048879378427930712474558460581916007313016538219181528672801816751 112848050415913908807562600239831882412859608521845118997221561515050471374174 22945790656671431258953129437518235876441304895576334544596440633228318212463]}
-Union Message from Node[0],length is 4
-======>[Node4]Time is out and view change starts
-======>[ViewChange] Current view is(11).....
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[6]
-======>[ViewChange]Current Approve Message from Node[6]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[5] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[2]
-======>[ViewChange]Current Approve Message from Node[2]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[5] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[5]
-======>[ViewChange]Current Approve Message from Node[5]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[5] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[0]
-======>[ViewChange]Current Approve Message from Node[0]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[5] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[1]
-======>[ViewChange]Current Approve Message from Node[1]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[5] primary node
-
-======>[procConsensusMsg]Manage message type:[ViewChange] from Node[3]
-======>[ViewChange]Current Approve Message from Node[3]
-======>[ViewChange]Verify success
-I'm Node[4] not the new[5] primary node
-
-======>[procConsensusMsg]Manage message type:[NewView] from Node[5]
-======>[NewView]Current Approve Message from Node[5]
-======>[NewView]Verify success
-======>[NewView] New primary is(5).....
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[5]
-Approve
-======>[Approve]Current Approve Message from Node[5]
-approve &{[107782990603512857993641852067491150443497358027092095214476397292564587945627 112848050415913908807562600239831882412859608521845118997221561515050471374174 22945790656671431258953129437518235876441304895576334544596440633228318212463 113698612037048879378427930712474558460581916007313016538219181528672801816751]}
-Approve Message from Node[5],length is 4
-[UnionTC] value is 107782990603512857993641852067491150443497358027092095214476397292564587945627
-[UnionTC] value is 112848050415913908807562600239831882412859608521845118997221561515050471374174
-[UnionTC] value is 22945790656671431258953129437518235876441304895576334544596440633228318212463
-[UnionTC] value is 113698612037048879378427930712474558460581916007313016538219181528672801816751
-======>[Approve]Send confirm message success
+after xor all resolved tc,result is: 16503557790935650186000169641423531130647361154670180413869880519254970111548
 
 ======>[procConsensusMsg]Consesus message type:[Confirm] from Node[1]
-Confirm
-======>[Confirm]Current Confirm Message from Node[1]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
-Confirm
-======>[Confirm]Current Confirm Message from Node[6]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[2]
-Confirm
-======>[Confirm]Current Confirm Message from Node[2]
-[Confirm]Confirm success
-after xor all resolved tc,result is: 100786701378359350159512743696567196882595586506477389343671195414736614728197
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[3]
 Collect
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[0]
-Collect
-2022-11-03 11:30:21.9900691 +0800 CST m=+593.629608001
-Config Change
-output change 100786701378359350159512743696567196882595586506477389343671195414736614728197
-2022-11-03 11:30:21.9906102 +0800 CST m=+593.630149201
-Config Change
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[2],time commitment is:101659673133784772388891840573688723423319727755144480534606951243742441006788
-======>[NewEntropyMsg]Verify success
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[7],time commitment is:36477990059132527873855207634974354557346261093425031986690856404940023672710
-===>Entropy message from Node[1],time commitment is:57659918884469530253990943294831717048707220818209547442914643780435051706364
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[9],time commitment is:42762363551740009679375819156603357831206278285949393793087096756882393816290
-===>Entropy message from Node[0],time commitment is:27313529529386813336718095270285152732098495018986876112295015978665694724412
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[4],time commitment is:53821125147300045091938780821257399233893440469191737873523708942995575962155
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[5],time commitment is:25595284136942200776651229857793685533390432742088241707738191822847253592389
-2022-11-03 11:30:26.9908721 +0800 CST m=+598.630411101
-======>[Node4]Stop Receive messages
-key is ¥¨Y¾•Yr]H°ŞQAš:;  d‘k²°Ï­aK¡
-value is 25595284136942200776651229857793685533390432742088241707738191822847253592389
-key is °
-]şï3/ªØ¢¾7ş=@ÄÔOj4€1¯^ ß¶¤²-½
-value is 101659673133784772388891840573688723423319727755144480534606951243742441006788
-key is ñÃy=-äâ*²ÅS½“MøAÈ[¯Ş»_ÖßW´¨{¯
-value is 36477990059132527873855207634974354557346261093425031986690856404940023672710
-key is ã«wµŠì¿Ù˜í±aí¶ÅOƒ0AÁ„X¤Nô
-value is 57659918884469530253990943294831717048707220818209547442914643780435051706364
-key is !¦£šCÊİÍ‚t¥'B6^fj÷ ibÆÄ
-value is 42762363551740009679375819156603357831206278285949393793087096756882393816290
-key is DÇ}q9@]7#:bá¦õ9âCŞ)ı"°Ğóf"
-value is 27313529529386813336718095270285152732098495018986876112295015978665694724412
-key is H«R]€4šğY1ªØ@]˜ò8Jİ¶
-È»"öÏ;Ó
-value is 53821125147300045091938780821257399233893440469191737873523708942995575962155
-
-======>[procConsensusMsg]Consesus message type:[Approve] from Node[5]
-Approve
-======>[Approve]Current Approve Message from Node[5]
-approve &{[57659918884469530253990943294831717048707220818209547442914643780435051706364 27313529529386813336718095270285152732098495018986876112295015978665694724412 53821125147300045091938780821257399233893440469191737873523708942995575962155 101659673133784772388891840573688723423319727755144480534606951243742441006788 25595284136942200776651229857793685533390432742088241707738191822847253592389 42762363551740009679375819156603357831206278285949393793087096756882393816290 36477990059132527873855207634974354557346261093425031986690856404940023672710]}
-Approve Message from Node[5],length is 7
-[UnionTC] value is 57659918884469530253990943294831717048707220818209547442914643780435051706364
-[UnionTC] value is 27313529529386813336718095270285152732098495018986876112295015978665694724412
-[UnionTC] value is 53821125147300045091938780821257399233893440469191737873523708942995575962155
-[UnionTC] value is 101659673133784772388891840573688723423319727755144480534606951243742441006788
-[UnionTC] value is 25595284136942200776651229857793685533390432742088241707738191822847253592389
-[UnionTC] value is 42762363551740009679375819156603357831206278285949393793087096756882393816290
-[UnionTC] value is 36477990059132527873855207634974354557346261093425031986690856404940023672710
-======>[Approve]Send confirm message success
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[6]
-Confirm
-======>[Confirm]Current Confirm Message from Node[6]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[1]
-Confirm
-======>[Confirm]Current Confirm Message from Node[1]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[3]
-Confirm
-======>[Confirm]Current Confirm Message from Node[3]
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[2]
-Confirm
-======>[Confirm]Current Confirm Message from Node[2]
-[Confirm]Confirm success
-after xor all resolved tc,result is: 102952953744110264311385258243707585624289473383784605716810415413923558236174
-
-======>[procConsensusMsg]Consesus message type:[Confirm] from Node[0]
-Collect
-2022-11-03 11:30:42.3205262 +0800 CST m=+613.960065101
-Config Change
-output change 102952953744110264311385258243707585624289473383784605716810415413923558236174
-2022-11-03 11:30:42.3214772 +0800 CST m=+613.961016201
-Config Change
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[6],time commitment is:96657028170742299482898450857261623326367325500644172905927642732914188352167
-======>[NewEntropyMsg]Verify success
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[1],time commitment is:88991509753875811293182745767059167533636042408073647586424130008877516107453
-===>Entropy message from Node[4],time commitment is:43621271959627698601518373126070730485027022055439815547900438482716593202881
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[3],time commitment is:83088589904224857994652436740155076616346864341350460551597225378558913669124
-======>[NewEntropyMsg]Verify success
-======>[VRFresult]Verify success
-===>Entropy message from Node[7],time commitment is:103734365219933422570095175016475866631368344647411629103178213327734764733187
 ===>P2p network capture data err:EOF
 ===>[Node4] Remove peer node[0]127.0.0.1:30000
-===>P2p network capture data err:EOF
-===>[Node4] Remove peer node[1]127.0.0.1:30001
 ===>P2p network capture data err:EOF
 ===>[Node4] Remove peer node[2]127.0.0.1:30002
 ===>P2p network capture data err:EOF

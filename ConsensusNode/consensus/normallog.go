@@ -10,12 +10,12 @@ type NormalLog struct {
 	Commit     map[int64]*message.Commit `json:"Commit"`
 }
 
-// func NewNormalLog() *NormalLog {
-// 	nl := &NormalLog{
-// 		Stage:      Idle,
-// 		PrePrepare: nil,
-// 		Prepare:    make(message.PrepareMsg),
-// 		Commit:     make(map[int64]*message.Commit),
-// 	}
-// 	return nl
-// }
+func NewNormalLog() *NormalLog {
+	nl := &NormalLog{
+		Stage:      Error,
+		PrePrepare: nil,
+		Prepare:    make(message.PrepareMsg),
+		Commit:     make(map[int64]*message.Commit),
+	}
+	return nl
+}

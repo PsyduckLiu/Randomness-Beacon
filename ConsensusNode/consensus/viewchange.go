@@ -51,8 +51,12 @@ func (s *StateEngine) ViewChange() {
 	// s.nodeStatus = ViewChanging
 	// s.CollectTimer.tack()
 
+	s.CurViewID++
+	s.msgLogs = make(map[int64]*NormalLog)
+	s.sCache = NewVCCache()
+
 	vc := &message.ViewChange{
-		NewViewID: s.CurViewID + 1,
+		NewViewID: s.CurViewID,
 		NodeID:    s.NodeID,
 	}
 
@@ -63,18 +67,15 @@ func (s *StateEngine) ViewChange() {
 
 	sk := s.P2pWire.GetMySecretkey()
 	consMsg := message.CreateConMsg(message.MTViewChange, vc, sk, s.NodeID)
-	// locker := &sync.RWMutex{}
 	if err := s.P2pWire.BroadCast(consMsg); err != nil {
 		fmt.Println(err)
 		return
 	}
-	s.CurViewID++
-	s.msgLogs = make(map[int64]*NormalLog)
 }
 
 // invoked by state.go when received a viewchage message
 func (s *StateEngine) procViewChange(msg *message.ConMessage) error {
-	fmt.Printf("======>[ViewChange]Current Approve Message from Node[%d]\n", msg.From)
+	fmt.Printf("======>[ViewChange]Current ViewChange Message from Node[%d]\n", msg.From)
 
 	nodeConfig := config.GetConsensusNode()
 	// get specified curve
@@ -97,7 +98,7 @@ func (s *StateEngine) procViewChange(msg *message.ConMessage) error {
 	// verify signature
 	verify := signature.VerifySig(msg.Payload, msg.Sig, newPublicKey)
 	if !verify {
-		panic(fmt.Errorf("===>[ApproveERROR]Verify new public key Signature failed, From Node[%d]", msg.From))
+		panic(fmt.Errorf("===>[ViewChangeERROR]Verify new public key Signature failed, From Node[%d]", msg.From))
 	}
 	fmt.Printf("======>[ViewChange]Verify success\n")
 
@@ -114,7 +115,7 @@ func (s *StateEngine) procViewChange(msg *message.ConMessage) error {
 	}
 
 	s.sCache.pushVC(vc)
-	if len(s.sCache.vcMsg) < 2*util.MaxFaultyNode {
+	if len(s.sCache.vcMsg) < 2*util.MaxFaultyNode+1 {
 		return nil
 	}
 	if s.sCache.hasNewViewYet(vc.NewViewID) {
@@ -142,11 +143,12 @@ func (s *StateEngine) createNewViewMsg(newVID int64) error {
 	if err := s.P2pWire.BroadCast(msg); err != nil {
 		return err
 	}
-
-	s.cleanLogandRequest()
 	fmt.Printf("======>[ViewChange]Send NewView message success\n")
 
-	go s.reSendApproveMsg()
+	s.cleanLogandRequest()
+	s.stage = Submit
+	s.SubmitTimer.tick(10 * time.Second)
+	// go s.reSendApproveMsg()
 	return nil
 }
 
@@ -194,6 +196,7 @@ func (s *StateEngine) didChangeView(msg *message.ConMessage) error {
 	fmt.Printf("======>[NewView] New primary is(%d).....\n", s.PrimaryID)
 
 	s.cleanLogandRequest()
+	go s.reSendSubmitMsg()
 	return nil
 }
 
@@ -223,4 +226,27 @@ func (s *StateEngine) reSendApproveMsg() {
 
 	s.ConfirmNum++
 	fmt.Printf("======>[Union]Send approve message success\n")
+}
+
+func (s *StateEngine) reSendSubmitMsg() {
+	time.Sleep(5 * time.Second)
+
+	// new submit message
+	// send submit message to primary node
+	var tc []string
+	for _, value := range s.TimeCommitment {
+		tc = append(tc, value)
+	}
+	submit := &message.Submit{
+		CollectTC: tc,
+	}
+	sk := s.P2pWire.GetMySecretkey()
+	sMsg := message.CreateConMsg(message.MTSubmit, submit, sk, s.NodeID)
+	conn := s.P2pWire.GetPrimaryConn(s.PrimaryID)
+	if err := s.P2pWire.SendUniqueNode(conn, sMsg); err != nil {
+		panic(err)
+	}
+
+	s.stage = Approve
+	fmt.Printf("======>[Submit]Send submit message success\n")
 }
