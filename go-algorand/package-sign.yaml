@@ -1,0 +1,30 @@
+agents:
+  - name: deb
+    dockerFilePath: docker/build/cicd.ubuntu.Dockerfile
+    image: algorand/go-algorand-ci-linux-ubuntu
+    version: scripts/configure_dev-deps.sh
+    buildArgs:
+      - GOLANG_VERSION=`./scripts/get_golang_version.sh`
+    env:
+      - AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+      - GPG_DIR=$GPG_DIR
+      - NETWORK=$NETWORK
+      - S3_SOURCE=$S3_SOURCE
+      - VERSION=$VERSION
+    volumes:
+      - $XDG_RUNTIME_DIR/gnupg/S.gpg-agent:/root/.gnupg/S.gpg-agent
+      - $HOME/.gnupg/pubring.kbx:/root/.gnupg/pubring.kbx
+    workDir: $HOME/projects/go-algorand
+
+tasks:
+  - task: docker.Make
+    name: package-sign
+    agent: deb
+    target: mule-sign
+
+jobs:
+  package-sign:
+    tasks:
+      - docker.Make.package-sign
+

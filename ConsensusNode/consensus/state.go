@@ -21,6 +21,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/algorand/go-algorand/crypto"
+	"github.com/algorand/go-algorand/protocol"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 )
@@ -112,6 +114,14 @@ func (es EngineStatus) String() string {
 		return "Changing views......"
 	}
 	return "Unknown"
+}
+
+type TestingHashable struct {
+	data []byte
+}
+
+func (s TestingHashable) ToBeHashed() (protocol.HashID, []byte) {
+	return "test", s.data
 }
 
 type StateEngine struct {
@@ -372,26 +382,31 @@ func (s *StateEngine) WaitTC(sig chan interface{}) {
 		}
 
 		// get entropy node's public key and verify signature
-		pub, err := x509.ParsePKIXPublicKey(entropyMsg.PublicKey)
-		if err != nil {
-			fmt.Printf("===>[ERROR]Key message parse err:%s", err)
-			continue
-		}
-		entropyPK := pub.(*ecdsa.PublicKey)
-		verify := signature.VerifySig(msgFromEntropyNode.Payload, msgFromEntropyNode.Sig, entropyPK)
-		if !verify {
-			fmt.Printf("===>[ERROR]Verify new entropy message Signature failed, From Entropy Node[%d]\n", entropyMsg.ClientID)
-			continue
-		}
-		fmt.Printf("======>[NewEntropyMsg]Verify success\n")
+		// pub, err := x509.ParsePKIXPublicKey(entropyMsg.PublicKey)
+		// if err != nil {
+		// 	fmt.Printf("===>[ERROR]Key message parse err:%s", err)
+		// 	continue
+		// }
+		// entropyPK := pub.(*ecdsa.PublicKey)
+		// verify := signature.VerifySig(msgFromEntropyNode.Payload, msgFromEntropyNode.Sig, entropyPK)
+		// if !verify {
+		// 	fmt.Printf("===>[ERROR]Verify new entropy message Signature failed, From Entropy Node[%d]\n", entropyMsg.ClientID)
+		// 	continue
+		// }
+		// fmt.Printf("======>[NewEntropyMsg]Verify success\n")
 
 		// verify the VRF result
-		previousOutput := config.GetPreviousOutput()
-		verify = signature.VerifySig([]byte(previousOutput), entropyMsg.VRFResult, entropyPK)
+		// previousOutput := config.GetPreviousOutput()
+		msg := TestingHashable{
+			data: entropyMsg.Msg,
+		}
+		var pk crypto.VrfPubkey = entropyMsg.PublicKey
+		verify, output := pk.Verify(entropyMsg.VRFResult, msg)
 		if !verify {
 			fmt.Printf("===>[ERROR]Verify new VRF result failed, From Entropy Node[%d]\n", entropyMsg.ClientID)
 			continue
 		}
+		fmt.Println("VRF Output is", output)
 		fmt.Printf("======>[VRFresult]Verify success\n")
 
 		// verify the VRF and difficuly

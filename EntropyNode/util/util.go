@@ -2,11 +2,22 @@ package util
 
 import (
 	"bytes"
+
+	"github.com/algorand/go-algorand/crypto"
+
 	"fmt"
 )
 
 // transfer []bytes to string
-func BytesToBinaryString(bs []byte) string {
+// func BytesToBinaryString(bs []byte) string {
+// 	buf := bytes.NewBuffer([]byte{})
+// 	for _, v := range bs {
+// 		buf.WriteString(fmt.Sprintf("%08b", v))
+// 	}
+// 	return buf.String()
+// }
+
+func BytesToBinaryString(bs crypto.VrfProof) string {
 	buf := bytes.NewBuffer([]byte{})
 	for _, v := range bs {
 		buf.WriteString(fmt.Sprintf("%08b", v))

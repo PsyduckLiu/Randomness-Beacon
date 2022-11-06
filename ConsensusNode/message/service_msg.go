@@ -43,11 +43,12 @@ func (mt MType) String() string {
 
 // message type for entropy node
 type EntropyMessage struct {
-	PublicKey      []byte `json:"pk"`
-	VRFResult      []byte `json:"vrfresult"`
-	TimeStamp      int64  `json:"timestamp"`
-	ClientID       int64  `json:"clientID"`
-	TimeCommitment string `json:"timecommitment"`
+	PublicKey      [32]byte `json:"pk"`
+	VRFResult      [80]byte `json:"vrfresult"`
+	TimeStamp      int64    `json:"timestamp"`
+	ClientID       int64    `json:"clientID"`
+	TimeCommitment string   `json:"timecommitment"`
+	Msg            []byte   `json:"timecommitmentmsg"`
 }
 
 // message type from client
