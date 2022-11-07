@@ -124,9 +124,24 @@ func WatchConfig(sk *ecdsa.PrivateKey, privateKey crypto.VrfPrivkey, id int, sig
 			}
 			if vrfResultTail == difficulty {
 				fmt.Println("yes!!!!!!!!!!")
-				timeCommitment := commitment.GenerateTimeCommitment()
-				sendTCMsg(sk, privateKey, vrfResult, msg.data, int64(id), timeCommitment.String(), sig)
-				fmt.Printf("Time commitment(now random number) is:%v\n", timeCommitment)
+
+				// generate commit
+				groupLength := 2048
+				c, h, rKSubOne, rK := commitment.GenerateTimeCommitment(groupLength)
+				fmt.Println("[TC]c is", c)
+				fmt.Println("[TC]h is", h)
+				fmt.Println("[TC]rKSubOne is", rKSubOne)
+				fmt.Println("[TC]rK is", rK)
+
+				cMarshal, _ := c.MarshalJSON()
+				hMarshal, _ := h.MarshalJSON()
+				rKSubOneMarshal, _ := rKSubOne.MarshalJSON()
+				rKMarshal, _ := rK.MarshalJSON()
+				// timeCommitment := [4][]byte{cMarshal, hMarshal, rKSubOneMarshal, rKMarshal}
+				sendVRFMsg(sk, privateKey, vrfResult, msg.data, int64(id), sig)
+
+				sendTCMsg(sk, int64(id), cMarshal, hMarshal, rKSubOneMarshal, rKMarshal, sig)
+				fmt.Printf("Time commitment is:%v,%v,%v,%v\n", cMarshal, hMarshal, rKSubOneMarshal, rKMarshal)
 			}
 		}
 
@@ -137,16 +152,50 @@ func WatchConfig(sk *ecdsa.PrivateKey, privateKey crypto.VrfPrivkey, id int, sig
 	})
 }
 
-func sendTCMsg(sk *ecdsa.PrivateKey, privateKey crypto.VrfPrivkey, vrfResult crypto.VRFProof, msg []byte, id int64, tc string, sig chan interface{}) {
+func sendVRFMsg(sk *ecdsa.PrivateKey, privateKey crypto.VrfPrivkey, vrfResult crypto.VRFProof, msg []byte, id int64, sig chan interface{}) {
 	// new time commitment message
 	// send time commitment message to origin nodes
-	tcMsg := &message.EntropyMessage{
-		PublicKey:      privateKey.Pubkey(),
-		VRFResult:      vrfResult,
-		TimeStamp:      time.Now().Unix(),
-		ClientID:       id,
-		TimeCommitment: tc,
-		Msg:            msg,
+	vrfMsg := &message.EntropyVRFMessage{
+		PublicKey: privateKey.Pubkey(),
+		VRFResult: vrfResult,
+		ClientID:  id,
+		Msg:       msg,
+	}
+
+	fmt.Println(privateKey.Pubkey())
+	fmt.Println(msg)
+	fmt.Println(vrfResult)
+
+	// get consensus nodes' information
+	nodeConfig := config.GetConsensusNode()
+	for i := 0; i < len(nodeConfig); i++ {
+		conn, err := net.DialTCP("tcp", nil, &net.TCPAddr{Port: util.EntropyPortByID(i)})
+		if err != nil {
+			fmt.Println(time.Now())
+			fmt.Printf("dial tcp err:%s\n", err)
+			continue
+		}
+
+		cMsg := message.CreateConMsg(message.MTVRFVerify, vrfMsg, sk, id)
+		bs, err := json.Marshal(cMsg)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(len(bs))
+
+		go WriteTCP(conn, bs)
+	}
+}
+
+func sendTCMsg(sk *ecdsa.PrivateKey, id int64, cMarshal []byte, hMarshal []byte, rKSubOneMarshal []byte, rKMarshal []byte, sig chan interface{}) {
+	// new time commitment message
+	// send time commitment message to origin nodes
+	tcMsg := &message.EntropyTCMessage{
+		ClientID:               id,
+		TimeCommitmentC:        string(cMarshal),
+		TimeCommitmentH:        string(hMarshal),
+		TimeCommitmentrKSubOne: string(rKSubOneMarshal),
+		TimeCommitmentrK:       string(rKMarshal),
 	}
 
 	// get consensus nodes' information
@@ -164,104 +213,11 @@ func sendTCMsg(sk *ecdsa.PrivateKey, privateKey crypto.VrfPrivkey, vrfResult cry
 		if err != nil {
 			panic(err)
 		}
+		fmt.Println(len(bs))
 
 		go WriteTCP(conn, bs)
 	}
 }
-
-// func WatchConfig(privateKey *ecdsa.PrivateKey, id int, sig chan interface{}) {
-// 	previousOutput := string(config.GetPreviousOutput())
-// 	fmt.Println("init output", previousOutput)
-
-// 	myViper := viper.New()
-// 	// set config file
-// 	myViper.SetConfigFile("../output.yml")
-// 	myViper.WatchConfig()
-// 	myViper.OnConfigChange(func(e fsnotify.Event) {
-// 		// lock file
-// 		f, err := os.Open("../lock")
-// 		if err != nil {
-// 			panic(err)
-// 		}
-// 		// if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
-// 		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_SH); err != nil {
-// 			log.Println("add share lock in no block failed", err)
-// 		}
-// 		fmt.Println(time.Now())
-// 		fmt.Println("Config Change")
-
-// 		// config.ReadConfig()
-// 		if err := myViper.ReadInConfig(); err != nil {
-// 			panic(fmt.Errorf("fatal error config file: %w", err))
-// 		}
-
-// 		newOutput := string(config.GetPreviousOutput())
-// 		if previousOutput != newOutput && newOutput != "" {
-// 			fmt.Println("output change", newOutput)
-
-// 			// calculate VRF result
-// 			previousOutput = newOutput
-// 			vrfResult := calVRF([]byte(newOutput), privateKey)
-// 			vrfResultBinary := util.BytesToBinaryString(vrfResult)
-// 			fmt.Printf("VRF result is:%v\n", util.BytesToBinaryString(vrfResult))
-// 			fmt.Printf("VRF result last bit is:%v\n", vrfResultBinary[len(vrfResultBinary)-1:])
-
-// 			// match VRF result with difficulty
-// 			difficulty := config.GetDifficulty()
-// 			vrfResultTail, err := strconv.Atoi(vrfResultBinary[len(vrfResultBinary)-1:])
-// 			if err != nil {
-// 				panic(err)
-// 			}
-// 			if vrfResultTail == difficulty {
-// 				fmt.Println("yes!!!!!!!!!!")
-// 				timeCommitment := commitment.GenerateTimeCommitment()
-// 				sendTCMsg(privateKey, vrfResult, int64(id), timeCommitment.String(), sig)
-// 				fmt.Printf("Time commitment(now random number) is:%v\n", timeCommitment)
-// 			}
-// 		}
-
-// 		// unlock file
-// 		if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {
-// 			log.Println("unlock share lock failed", err)
-// 		}
-// 	})
-// }
-
-// send time commitment message
-// func sendTCMsg(sk *ecdsa.PrivateKey, vrfResult []byte, id int64, tc string, sig chan interface{}) {
-// 	// new time commitment message
-// 	// send time commitment message to origin nodes
-// 	marshalledKey, err := x509.MarshalPKIXPublicKey(&sk.PublicKey)
-// 	if err != nil {
-// 		panic(fmt.Errorf("setup conf curve(marshalled Key) failed, err:%s", err))
-// 	}
-// 	tcMsg := &message.EntropyMessage{
-// 		PublicKey:      marshalledKey,
-// 		VRFResult:      vrfResult,
-// 		TimeStamp:      time.Now().Unix(),
-// 		ClientID:       id,
-// 		TimeCommitment: tc,
-// 	}
-
-// 	// get consensus nodes' information
-// 	nodeConfig := config.GetConsensusNode()
-// 	for i := 0; i < len(nodeConfig); i++ {
-// 		conn, err := net.DialTCP("tcp", nil, &net.TCPAddr{Port: util.EntropyPortByID(i)})
-// 		if err != nil {
-// 			fmt.Println(time.Now())
-// 			fmt.Printf("dial tcp err:%s\n", err)
-// 			continue
-// 		}
-
-// 		cMsg := message.CreateConMsg(message.MTCollect, tcMsg, sk, id)
-// 		bs, err := json.Marshal(cMsg)
-// 		if err != nil {
-// 			panic(err)
-// 		}
-
-// 		go WriteTCP(conn, bs)
-// 	}
-// }
 
 func WriteTCP(conn *net.TCPConn, v []byte) {
 	_, err := conn.Write(v)
@@ -271,12 +227,3 @@ func WriteTCP(conn *net.TCPConn, v []byte) {
 	}
 	fmt.Println("Send request success!:=>")
 }
-
-// calculate VRF output
-// func calVRF(previousOutput []byte, sk *ecdsa.PrivateKey) []byte {
-// 	vrfRes := signature.GenerateSig(previousOutput, sk)
-
-// 	valid := signature.VerifySig(previousOutput, vrfRes, &sk.PublicKey)
-// 	fmt.Printf("Verify result is:%v\n", valid)
-// 	return vrfRes
-// }

@@ -50,17 +50,19 @@ func CreateConMsg(t MType, msg interface{}, sk *ecdsa.PrivateKey, id int64) *Con
 
 // RequestRecord type in Consensus
 type Submit struct {
-	CollectTC []string
+	CollectTC [4]string
 }
 
 // RequestRecord type in Consensus
 type Approve struct {
-	UnionTC []string
+	UnionTC [4]string
+	Length  int
 }
 
 // RequestRecord type in Consensus
 type Confirm struct {
-	ConfirmTC []string
+	// ConfirmTC [4]string
+	Length int
 }
 
 // RequestRecord type in Consensus

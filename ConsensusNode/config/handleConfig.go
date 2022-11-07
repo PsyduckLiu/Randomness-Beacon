@@ -67,12 +67,17 @@ func SetupConfig() {
 	configViper.SetConfigFile("../config.yml")
 	outputViper := viper.New()
 	outputViper.SetConfigFile("../output.yml")
+	tcViper := viper.New()
+	tcViper.SetConfigFile("../TC.yml")
 
 	// read config and keep origin settings
 	if err := configViper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
 	if err := outputViper.ReadInConfig(); err != nil {
+		panic(fmt.Errorf("fatal error config file: %w", err))
+	}
+	if err := tcViper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
 
@@ -107,11 +112,41 @@ func SetupConfig() {
 		randomNum := signature.Digest(message)
 		outputViper.Set("PreviousOutput", string(randomNum))
 
+		// group parameter contains prime numbers p,q and a large number n=p*q of groupLength bits
+		groupLength := 2048
+		groupParameter, err := GenerateGroupParameter(rand.Reader, groupLength)
+		if err != nil {
+			fmt.Println("generate group parameter wrong", groupParameter)
+		}
+		fmt.Println("[Setup]N is", groupParameter.N)
+		fmt.Println("[Setup]primes are", groupParameter.Primes)
+		fmt.Println("[Setup]", groupParameter.Primes[0].ProbablyPrime(20))
+		fmt.Println("[Setup]", groupParameter.Primes[1].ProbablyPrime(20))
+
+		// generator g
+		timeParameter := 10
+		g, mArray := GeneratePublicParameter(groupParameter, groupLength, timeParameter)
+		fmt.Println("[Setup]G is", g)
+		fmt.Println("[Setup]Length of m array is", len(mArray))
+
+		// m array
+		var mArrayString []string
+		for _, m := range mArray {
+			mArrayString = append(mArrayString, m.String())
+		}
+
+		tcViper.Set("g", g.String())
+		tcViper.Set("N", groupParameter.N.String())
+		tcViper.Set("mArray", mArrayString)
+
 		// write new settings
 		if err := configViper.WriteConfig(); err != nil {
 			panic(fmt.Errorf("setup conf failed, err:%s", err))
 		}
 		if err := outputViper.WriteConfig(); err != nil {
+			panic(fmt.Errorf("setup conf failed, err:%s", err))
+		}
+		if err := tcViper.WriteConfig(); err != nil {
 			panic(fmt.Errorf("setup conf failed, err:%s", err))
 		}
 

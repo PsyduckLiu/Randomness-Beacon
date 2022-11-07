@@ -168,7 +168,7 @@ func (sp *SimpleP2p) monitor(id int64) {
 
 // remove old node AND deliver consensus mseeage by [MsgChan]
 func (sp *SimpleP2p) waitData(conn *net.TCPConn) {
-	buf := make([]byte, 2048)
+	buf := make([]byte, 4096)
 	for {
 		n, err := conn.Read(buf)
 

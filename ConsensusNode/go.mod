@@ -2,9 +2,13 @@ module consensusNode
 
 go 1.19
 
-replace github.com/algorand/go-algorand => /home/psyduck/go-algorand
+replace github.com/algorand/go-algorand => /home/psyduckliu/go-algorand
 
-require github.com/algorand/go-algorand v0.0.0-20221104232023-0eae1c0cf258
+require (
+	github.com/algorand/go-algorand v0.0.0-20221104232023-0eae1c0cf258
+	github.com/fsnotify/fsnotify v1.5.4
+	github.com/spf13/viper v1.13.0
+)
 
 require (
 	github.com/algorand/falcon v0.0.0-20220727072124-02a2a64c4414 // indirect
@@ -15,7 +19,6 @@ require (
 	github.com/aws/aws-sdk-go v1.16.5 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/davidlazar/go-crypto v0.0.0-20170701192655-dcfb0a7ac018 // indirect
-	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -33,7 +36,6 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.13.0 // indirect
 	github.com/stretchr/testify v1.8.0 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect

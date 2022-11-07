@@ -9,7 +9,8 @@ type MType int16
 
 // number different kinds of message types
 const (
-	MTCollect MType = iota
+	MTVRFVerify MType = iota
+	MTCollect
 	MTSubmit
 	MTApprove
 	MTViewChange
@@ -20,6 +21,8 @@ const (
 // MType.String()
 func (mt MType) String() string {
 	switch mt {
+	case MTVRFVerify:
+		return "VRFVerify"
 	case MTCollect:
 		return "Collect"
 	case MTSubmit:
@@ -37,13 +40,19 @@ func (mt MType) String() string {
 }
 
 // message type for entropy node
-type EntropyMessage struct {
-	PublicKey      [32]byte `json:"pk"`
-	VRFResult      [80]byte `json:"vrfresult"`
-	TimeStamp      int64    `json:"timestamp"`
-	ClientID       int64    `json:"clientID"`
-	TimeCommitment string   `json:"timecommitment"`
-	Msg            []byte   `json:"timecommitmentmsg"`
+type EntropyVRFMessage struct {
+	PublicKey [32]byte `json:"pk"`
+	VRFResult [80]byte `json:"vrfresult"`
+	ClientID  int64    `json:"clientID"`
+	Msg       []byte   `json:"timecommitmentmsg"`
+}
+
+type EntropyTCMessage struct {
+	ClientID               int64  `json:"clientID"`
+	TimeCommitmentC        string `json:"timecommitmentC"`
+	TimeCommitmentH        string `json:"timecommitmentH"`
+	TimeCommitmentrKSubOne string `json:"timecommitmentrKSubOne"`
+	TimeCommitmentrK       string `json:"timecommitmentrK"`
 }
 
 // Hash message v, SHA256

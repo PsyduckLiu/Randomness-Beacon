@@ -1,29 +1,19 @@
-package commitment
+package tc
 
 import (
 	"crypto/rand"
-	"entropyNode/config"
 	"fmt"
 	"math/big"
+	"tc/config"
 )
 
-// func GenerateTimeCommitment() *big.Int {
-// 	var upper, e = big.NewInt(2), big.NewInt(256)
-// 	upper.Exp(upper, e, nil)
-
-// 	// generate random number
-// 	tc, err := rand.Int(rand.Reader, upper)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// 	return tc
-// }
-
-func GenerateTimeCommitment(bits int) (*big.Int, *big.Int, *big.Int, *big.Int) {
+func GenerateCommit(bits int) (*big.Int, *big.Int, *big.Int, *big.Int) {
 	mArray := config.GetMArray()
+	fmt.Println("[Commit]Length of m array is", len(mArray))
 	g := config.GetG()
+	fmt.Println("[Commit]Get g is", g)
 	N := config.GetN()
+	fmt.Println("[Commit]Get N is", N)
 
 	nSqrt := new(big.Int)
 	upperBound := new(big.Int)
@@ -46,6 +36,9 @@ func GenerateTimeCommitment(bits int) (*big.Int, *big.Int, *big.Int, *big.Int) {
 	rKSubOne.Exp(mArray[len(mArray)-3], alpha, N)
 	rK.Exp(mArray[len(mArray)-2], alpha, N)
 	r.Exp(mArray[len(mArray)-1], alpha, N)
+	fmt.Println("[Commit]h is", h)
+	fmt.Println("[Commit]rKSubOne is", rKSubOne)
+	fmt.Println("[Commit]rK is", rK)
 	fmt.Println("[Commit]r is", r)
 
 	c := new(big.Int)
@@ -60,6 +53,7 @@ func GenerateTimeCommitment(bits int) (*big.Int, *big.Int, *big.Int, *big.Int) {
 
 	c.Xor(msg, r)
 	fmt.Println("[Commit]msg is", msg)
+	fmt.Println("[Commit]c is", c)
 
 	return c, h, rKSubOne, rK
 }

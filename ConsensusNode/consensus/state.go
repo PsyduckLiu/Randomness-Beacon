@@ -5,6 +5,7 @@ import (
 	"consensusNode/message"
 	"consensusNode/p2pnetwork"
 	"consensusNode/signature"
+	tc "consensusNode/timedCommitment"
 	"consensusNode/util"
 	"crypto/ecdsa"
 	"crypto/elliptic"
@@ -140,17 +141,20 @@ type StateEngine struct {
 	MsgChan  <-chan *message.ConMessage
 	nodeChan chan<- *message.RequestRecord
 
-	SubmitNum      int64
-	ConfirmNum     int64
-	OutputNum      int64
-	stage          Stage
-	Result         *big.Int
-	Mutex          sync.Mutex
-	MiniSeq        int64 `json:"miniSeq"`
-	MaxSeq         int64 `json:"maxSeq"`
-	msgLogs        map[int64]*NormalLog
-	TimeCommitment map[string]string
-	sCache         *VCCache
+	SubmitNum             int64
+	ConfirmNum            int64
+	OutputNum             int64
+	ApproveNum            int
+	stage                 Stage
+	Result                *big.Int
+	Mutex                 sync.Mutex
+	MiniSeq               int64 `json:"miniSeq"`
+	MaxSeq                int64 `json:"maxSeq"`
+	entropyNode           map[int64]bool
+	msgLogs               map[int64]*NormalLog
+	TimeCommitment        map[string][4]string
+	TimeCommitmentApprove map[string]bool
+	sCache                *VCCache
 }
 
 func InitConsensus(id int64, cChan chan<- *message.RequestRecord) *StateEngine {
@@ -165,6 +169,7 @@ func InitConsensus(id int64, cChan chan<- *message.RequestRecord) *StateEngine {
 		SubmitNum:    0,
 		OutputNum:    0,
 		ConfirmNum:   0,
+		ApproveNum:   0,
 		stage:        Collect,
 		Result:       big.NewInt(0),
 		Mutex:        sync.Mutex{},
@@ -176,10 +181,12 @@ func InitConsensus(id int64, cChan chan<- *message.RequestRecord) *StateEngine {
 		P2pWire:      p2p,
 		MsgChan:      ch,
 		nodeChan:     cChan,
+		entropyNode:  make(map[int64]bool),
 		msgLogs:      make(map[int64]*NormalLog),
 		sCache:       NewVCCache(),
 		// SrvHub:         new(net.TCPListener),
-		TimeCommitment: make(map[string]string),
+		TimeCommitment:        make(map[string][4]string),
+		TimeCommitmentApprove: make(map[string]bool),
 	}
 	se.PrimaryID = se.CurViewID % util.TotalNodeNum
 
@@ -214,7 +221,6 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 			s.CollectTimer.tack()
 			s.stage = Submit
 			if s.NodeID != s.PrimaryID {
-				// time.Sleep(100 * time.Millisecond)
 				go s.sendUnionMsg()
 			}
 
@@ -230,28 +236,34 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 
 				// new approve message
 				// send approve message to backup nodes
-				var tc []string
-				for _, value := range s.TimeCommitment {
-					tc = append(tc, value)
-				}
-
 				approve := &message.Approve{}
 				result, _ := rand.Int(rand.Reader, big.NewInt(2))
+				fmt.Println(result)
 				if result.Cmp(big.NewInt(0)) == 0 {
 					fmt.Println("I'm crazy!!!!!")
+					sk := s.P2pWire.GetMySecretkey()
+					aMsg := message.CreateConMsg(message.MTApprove, approve, sk, s.NodeID)
+					if err := s.P2pWire.BroadCast(aMsg); err != nil {
+						panic(err)
+					}
 				} else {
-					approve = &message.Approve{
-						UnionTC: tc,
+					var tc [4]string
+					for _, value := range s.TimeCommitment {
+						tc = value
+						approve = &message.Approve{
+							Length:  len(s.TimeCommitment),
+							UnionTC: tc,
+						}
+						sk := s.P2pWire.GetMySecretkey()
+						aMsg := message.CreateConMsg(message.MTApprove, approve, sk, s.NodeID)
+						if err := s.P2pWire.BroadCast(aMsg); err != nil {
+							panic(err)
+						}
+						time.Sleep(100 * time.Millisecond)
 					}
 				}
 
-				sk := s.P2pWire.GetMySecretkey()
-				aMsg := message.CreateConMsg(message.MTApprove, approve, sk, s.NodeID)
-				if err := s.P2pWire.BroadCast(aMsg); err != nil {
-					panic(err)
-				}
 				s.stage = Confirm
-
 				s.ConfirmNum++
 				fmt.Printf("======>[Union]Send approve message success\n")
 			}
@@ -315,7 +327,9 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 			s.OutputNum = 0
 			s.ConfirmNum = 0
 			s.SubmitNum = 0
-			s.TimeCommitment = make(map[string]string)
+			s.ApproveNum = 0
+			s.TimeCommitment = make(map[string][4]string)
+			s.TimeCommitmentApprove = make(map[string]bool)
 
 			if s.SrvHub == nil {
 				locAddr := net.TCPAddr{
@@ -331,9 +345,9 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 
 			go s.WaitTC(sig)
 			previousOutput = newOutput
-			s.GlobalTimer.tick(25 * time.Second)
+			s.GlobalTimer.tick(35 * time.Second)
 			s.CollectTimer.tick(5 * time.Second)
-			s.SubmitTimer.tick(10 * time.Second)
+			s.SubmitTimer.tick(20 * time.Second)
 		}
 
 		// unlock file
@@ -351,7 +365,7 @@ func (s *StateEngine) WaitTC(sig chan interface{}) {
 		}
 	}()
 
-	buf := make([]byte, 2048)
+	buf := make([]byte, 4096)
 	for {
 		conn, err := s.SrvHub.AcceptTCP()
 		if err != nil {
@@ -370,15 +384,77 @@ func (s *StateEngine) WaitTC(sig chan interface{}) {
 			fmt.Printf("===>[ERROR]Service message parse err:%s\n", err)
 			continue
 		}
-		if msgFromEntropyNode.Typ != message.MTCollect {
+		// fmt.Println(msgFromEntropyNode)
+		if msgFromEntropyNode.Typ != message.MTCollect && msgFromEntropyNode.Typ != message.MTVRFVerify {
 			fmt.Printf("===>[ERROR]Not collect message:%s\n", err)
 			continue
 		}
 
-		entropyMsg := &message.EntropyMessage{}
-		if err := json.Unmarshal(msgFromEntropyNode.Payload, entropyMsg); err != nil {
-			fmt.Printf("===>[ERROR] Invalid[%s] Entropy message[%s]", err, msgFromEntropyNode)
-			continue
+		// handle vrf verify message
+		if msgFromEntropyNode.Typ == message.MTVRFVerify {
+			fmt.Printf("===>[WaitTC]new vrf verify message from Node[%d]\n", msgFromEntropyNode.From)
+
+			entropyVRFMsg := &message.EntropyVRFMessage{}
+			if err := json.Unmarshal(msgFromEntropyNode.Payload, entropyVRFMsg); err != nil {
+				fmt.Printf("===>[ERROR] Invalid[%s] Entropy message[%s]", err, msgFromEntropyNode)
+				continue
+			}
+
+			// verify the VRF result
+			msg := TestingHashable{
+				data: entropyVRFMsg.Msg,
+			}
+			var pk crypto.VrfPubkey = entropyVRFMsg.PublicKey
+			verify, output := pk.Verify(entropyVRFMsg.VRFResult, msg)
+			if !verify {
+				fmt.Printf("===>[ERROR]Verify new VRF result failed, From Entropy Node[%d]\n", entropyVRFMsg.ClientID)
+				continue
+			}
+			fmt.Println("VRF Output is", output)
+			fmt.Printf("======>[VRFresult]Verify success\n")
+
+			// verify the VRF and difficuly
+			difficulty := config.GetDifficulty()
+			vrfResultBinary := util.BytesToBinaryString(entropyVRFMsg.VRFResult)
+			vrfResultTail, err := strconv.Atoi(vrfResultBinary[len(vrfResultBinary)-1:])
+			if err != nil {
+				fmt.Printf("===>[ERROR]Get vrfResultTail, From Entropy Node[%d]\n", entropyVRFMsg.ClientID)
+				continue
+			}
+			if vrfResultTail != difficulty {
+				fmt.Println("Cheater!!!!")
+				fmt.Printf("===>[ERROR]Verify difficulty failed, From Entropy Node[%d]\n", entropyVRFMsg.ClientID)
+				continue
+			}
+
+			s.Mutex.Lock()
+			s.entropyNode[entropyVRFMsg.ClientID] = true
+			s.Mutex.Unlock()
+		}
+
+		// handle vrf verify message
+		if msgFromEntropyNode.Typ == message.MTCollect {
+			fmt.Println("===>[WaitTC]new collect message")
+
+			entropyTCMsg := &message.EntropyTCMessage{}
+			if err := json.Unmarshal(msgFromEntropyNode.Payload, entropyTCMsg); err != nil {
+				fmt.Printf("===>[ERROR] Invalid[%s] Entropy TC message[%s]", err, msgFromEntropyNode)
+				continue
+			}
+
+			value, ok := s.entropyNode[entropyTCMsg.ClientID]
+			if !value || !ok {
+				fmt.Printf("===>[ERROR]Not verified")
+				continue
+			}
+
+			s.Mutex.Lock()
+			timedCommitment := [4]string{entropyTCMsg.TimeCommitmentC, entropyTCMsg.TimeCommitmentH, entropyTCMsg.TimeCommitmentrKSubOne, entropyTCMsg.TimeCommitmentrK}
+			s.TimeCommitment[string(util.Digest(timedCommitment))] = timedCommitment
+			s.TimeCommitmentApprove[string(util.Digest(timedCommitment))] = false
+			s.Mutex.Unlock()
+
+			fmt.Printf("===>Entropy message from Node[%d]\n", entropyTCMsg.ClientID)
 		}
 
 		// get entropy node's public key and verify signature
@@ -395,39 +471,7 @@ func (s *StateEngine) WaitTC(sig chan interface{}) {
 		// }
 		// fmt.Printf("======>[NewEntropyMsg]Verify success\n")
 
-		// verify the VRF result
-		// previousOutput := config.GetPreviousOutput()
-		msg := TestingHashable{
-			data: entropyMsg.Msg,
-		}
-		var pk crypto.VrfPubkey = entropyMsg.PublicKey
-		verify, output := pk.Verify(entropyMsg.VRFResult, msg)
-		if !verify {
-			fmt.Printf("===>[ERROR]Verify new VRF result failed, From Entropy Node[%d]\n", entropyMsg.ClientID)
-			continue
-		}
-		fmt.Println("VRF Output is", output)
-		fmt.Printf("======>[VRFresult]Verify success\n")
-
-		// verify the VRF and difficuly
-		difficulty := config.GetDifficulty()
-		vrfResultBinary := util.BytesToBinaryString(entropyMsg.VRFResult)
-		vrfResultTail, err := strconv.Atoi(vrfResultBinary[len(vrfResultBinary)-1:])
-		if err != nil {
-			fmt.Printf("===>[ERROR]Get vrfResultTail, From Entropy Node[%d]\n", entropyMsg.ClientID)
-			continue
-		}
-		if vrfResultTail != difficulty {
-			fmt.Println("Cheater!!!!")
-			fmt.Printf("===>[ERROR]Verify difficulty failed, From Entropy Node[%d]\n", entropyMsg.ClientID)
-			continue
-		}
-
-		s.Mutex.Lock()
-		s.TimeCommitment[string(util.Digest(entropyMsg.TimeCommitment))] = entropyMsg.TimeCommitment
-		s.Mutex.Unlock()
-
-		fmt.Printf("===>Entropy message from Node[%d],time commitment is:%s\n", entropyMsg.ClientID, entropyMsg.TimeCommitment)
+		// fmt.Printf("===>Entropy message from Node[%d],time commitment is:%s\n", entropyMsg.ClientID, entropyMsg.TimeCommitment)
 	}
 }
 
@@ -435,18 +479,19 @@ func (s *StateEngine) WaitTC(sig chan interface{}) {
 func (s *StateEngine) sendUnionMsg() {
 	// new submit message
 	// send submit message to primary node
-	var tc []string
+	var tc [4]string
 	for _, value := range s.TimeCommitment {
-		tc = append(tc, value)
-	}
-	submit := &message.Submit{
-		CollectTC: tc,
-	}
-	sk := s.P2pWire.GetMySecretkey()
-	sMsg := message.CreateConMsg(message.MTSubmit, submit, sk, s.NodeID)
-	conn := s.P2pWire.GetPrimaryConn(s.PrimaryID)
-	if err := s.P2pWire.SendUniqueNode(conn, sMsg); err != nil {
-		panic(err)
+		tc = value
+		submit := &message.Submit{
+			CollectTC: tc,
+		}
+		sk := s.P2pWire.GetMySecretkey()
+		sMsg := message.CreateConMsg(message.MTSubmit, submit, sk, s.NodeID)
+		conn := s.P2pWire.GetPrimaryConn(s.PrimaryID)
+		if err := s.P2pWire.SendUniqueNode(conn, sMsg); err != nil {
+			panic(err)
+		}
+		time.Sleep(100 * time.Millisecond)
 	}
 
 	s.stage = Approve
@@ -488,14 +533,22 @@ func (s *StateEngine) unionTC(msg *message.ConMessage) (err error) {
 
 	fmt.Println("submit", submit)
 	fmt.Printf("Union Message from Node[%d],length is %d\n", msg.From, len(submit.CollectTC))
-	for _, value := range submit.CollectTC {
-		key := string(util.Digest(value))
-		if _, ok := s.TimeCommitment[key]; !ok {
-			fmt.Println("new key is", key)
-			fmt.Println("new value is", value)
-			s.TimeCommitment[key] = value
-		}
+
+	key := string(util.Digest(submit.CollectTC))
+	if _, ok := s.TimeCommitment[key]; !ok {
+		fmt.Println("new key is", key)
+		// fmt.Println("new value is", value)
+		s.TimeCommitment[key] = submit.CollectTC
+		s.TimeCommitmentApprove[key] = false
 	}
+	// for _, value := range submit.CollectTC {
+	// 	key := string(util.Digest(value))
+	// 	if _, ok := s.TimeCommitment[key]; !ok {
+	// 		fmt.Println("new key is", key)
+	// 		fmt.Println("new value is", value)
+	// 		s.TimeCommitment[key] = value
+	// 	}
+	// }
 
 	s.SubmitNum++
 
@@ -539,38 +592,56 @@ func (s *StateEngine) approveTC(msg *message.ConMessage) (err error) {
 	}
 
 	fmt.Println("approve", approve)
-	fmt.Printf("Approve Message from Node[%d],length is %d\n", msg.From, len(approve.UnionTC))
+	fmt.Printf("Approve Message from Node[%d],length is %d\n", msg.From, approve.Length)
+	if approve.Length == 0 {
+		return fmt.Errorf("===>[ApproveERROR]are you sure????")
+	}
 	for _, value := range approve.UnionTC {
 		fmt.Println("[UnionTC] value is", value)
 	}
 
 	// generate an union tc set
-	unionTC := make(map[string]string)
-	for _, value := range approve.UnionTC {
-		key := string(util.Digest(value))
-		unionTC[key] = value
-	}
+	// unionTC := make(map[string][4]string)
+	// for _, value := range approve.UnionTC {
+	// 	key := string(util.Digest(value))
+	// 	unionTC[key] = value
+	// }
 
 	// check union tc set
-	for key := range s.TimeCommitment {
-		if _, ok := unionTC[key]; !ok {
-			s.stage = Error
-			return fmt.Errorf("===>[ApproveERROR]where is my tc????")
-		}
+	key := string(util.Digest(approve.UnionTC))
+	if _, ok := s.TimeCommitment[key]; !ok {
+		fmt.Println("new key is", key)
+		s.TimeCommitment[key] = approve.UnionTC
 	}
+	s.TimeCommitmentApprove[key] = true
+	// for key := range s.TimeCommitment {
+	// 	if _, ok := unionTC[key]; !ok {
+	// 		s.stage = Error
+	// 		return fmt.Errorf("===>[ApproveERROR]where is my tc????")
+	// 	}
+	// }
 
 	// get new union tc set
-	for key, value := range unionTC {
-		if _, ok := s.TimeCommitment[key]; !ok {
-			fmt.Println("new key is", key)
-			fmt.Println("new value is", value)
-			s.TimeCommitment[key] = value
+	// for key, value := range unionTC {
+	// 	if _, ok := s.TimeCommitment[key]; !ok {
+	// 		fmt.Println("new key is", key)
+	// 		fmt.Println("new value is", value)
+	// 		s.TimeCommitment[key] = value
+	// 	}
+	// }
+
+	s.ApproveNum++
+	if s.ApproveNum == approve.Length {
+		for _, flag := range s.TimeCommitmentApprove {
+			if !flag {
+				s.stage = Error
+				return fmt.Errorf("===>[ApproveERROR]where is my tc????")
+			}
 		}
+		s.ConfirmNum++
+		s.sendConfirmMsg()
 	}
 
-	s.ConfirmNum++
-	// time.Sleep(100 * time.Millisecond)
-	s.sendConfirmMsg()
 	// go s.handleTC()
 	return
 }
@@ -578,12 +649,16 @@ func (s *StateEngine) approveTC(msg *message.ConMessage) (err error) {
 // backups broadcast confirm message
 func (s *StateEngine) sendConfirmMsg() {
 	// new confirm message
-	var tc []string
-	for _, value := range s.TimeCommitment {
-		tc = append(tc, value)
-	}
+	// var tc [][4]string
+	// for _, value := range s.TimeCommitment {
+	// 	tc = append(tc, value)
+	// }
+	// confirm := &message.Confirm{
+	// 	ConfirmTC: tc,
+	// }
+
 	confirm := &message.Confirm{
-		ConfirmTC: tc,
+		Length: len(s.TimeCommitment),
 	}
 
 	sk := s.P2pWire.GetMySecretkey()
@@ -636,20 +711,25 @@ func (s *StateEngine) confirmTC(msg *message.ConMessage) (err error) {
 		panic(fmt.Errorf("======>[Confirm]Invalid[%s] Confirm message[%s]", err, msg))
 	}
 
-	if len(confirm.ConfirmTC) != len(s.TimeCommitment) {
+	// if len(confirm.ConfirmTC) != len(s.TimeCommitment) {
+	// 	fmt.Printf("======>[Confirm]Invalid tc set\n")
+	// 	return
+	// }
+
+	// confirmTC := make(map[string][4]string)
+	// for _, value := range confirm.ConfirmTC {
+	// 	key := string(util.Digest(value))
+	// 	confirmTC[key] = value
+	// }
+	// for key := range s.TimeCommitment {
+	// 	if _, ok := confirmTC[key]; !ok {
+	// 		panic(fmt.Errorf("======>[Confirm]Invalid tc set"))
+	// 	}
+	// }
+
+	if confirm.Length != len(s.TimeCommitment) {
 		fmt.Printf("======>[Confirm]Invalid tc set\n")
 		return
-	}
-
-	confirmTC := make(map[string]string)
-	for _, value := range confirm.ConfirmTC {
-		key := string(util.Digest(value))
-		confirmTC[key] = value
-	}
-	for key := range s.TimeCommitment {
-		if _, ok := confirmTC[key]; !ok {
-			panic(fmt.Errorf("======>[Confirm]Invalid tc set"))
-		}
 	}
 
 	s.ConfirmNum++
@@ -664,20 +744,27 @@ func (s *StateEngine) confirmTC(msg *message.ConMessage) (err error) {
 
 // resolve tc and compute F
 func (s *StateEngine) handleTC() (err error) {
-	var resolvedTC []string
+	var resolvedTC []*big.Int
 	for _, value := range s.TimeCommitment {
 		// TODO:resolve tc
-		resolvedTC = append(resolvedTC, value)
+		timeParameter := 10
+		c := new(big.Int)
+		c.UnmarshalJSON([]byte(value[0]))
+		h := new(big.Int)
+		h.UnmarshalJSON([]byte(value[1]))
+		rKSubOne := new(big.Int)
+		rKSubOne.UnmarshalJSON([]byte(value[2]))
+		rK := new(big.Int)
+		rK.UnmarshalJSON([]byte(value[3]))
+
+		result := tc.ForcedOpen(c, h, rKSubOne, rK, timeParameter)
+		resolvedTC = append(resolvedTC, result)
 	}
 
 	// Xor all resolved tc
 	result := big.NewInt(0)
 	for _, value := range resolvedTC {
-		n, ok := new(big.Int).SetString(value, 10)
-		if !ok {
-			panic(fmt.Errorf("SetString: error"))
-		}
-		result.Xor(result, n)
+		result.Xor(result, value)
 	}
 
 	s.Result = result

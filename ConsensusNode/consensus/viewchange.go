@@ -147,7 +147,7 @@ func (s *StateEngine) createNewViewMsg(newVID int64) error {
 
 	s.cleanLogandRequest()
 	s.stage = Submit
-	s.SubmitTimer.tick(10 * time.Second)
+	s.SubmitTimer.tick(20 * time.Second)
 	// go s.reSendApproveMsg()
 	return nil
 }
@@ -208,22 +208,22 @@ func (s *StateEngine) reSendApproveMsg() {
 	time.Sleep(5 * time.Second)
 	// new approve message
 	// send approve message to backup nodes
-	var tc []string
+	var tc [4]string
 	for _, value := range s.TimeCommitment {
-		tc = append(tc, value)
+		tc = value
+		approve := &message.Approve{
+			Length:  len(s.TimeCommitment),
+			UnionTC: tc,
+		}
+		sk := s.P2pWire.GetMySecretkey()
+		aMsg := message.CreateConMsg(message.MTApprove, approve, sk, s.NodeID)
+		if err := s.P2pWire.BroadCast(aMsg); err != nil {
+			panic(err)
+		}
+		time.Sleep(100 * time.Millisecond)
 	}
 
-	approve := &message.Approve{
-		UnionTC: tc,
-	}
-
-	sk := s.P2pWire.GetMySecretkey()
-	aMsg := message.CreateConMsg(message.MTApprove, approve, sk, s.NodeID)
-	if err := s.P2pWire.BroadCast(aMsg); err != nil {
-		panic(err)
-	}
 	s.stage = Confirm
-
 	s.ConfirmNum++
 	fmt.Printf("======>[Union]Send approve message success\n")
 }
@@ -233,18 +233,19 @@ func (s *StateEngine) reSendSubmitMsg() {
 
 	// new submit message
 	// send submit message to primary node
-	var tc []string
+	var tc [4]string
 	for _, value := range s.TimeCommitment {
-		tc = append(tc, value)
-	}
-	submit := &message.Submit{
-		CollectTC: tc,
-	}
-	sk := s.P2pWire.GetMySecretkey()
-	sMsg := message.CreateConMsg(message.MTSubmit, submit, sk, s.NodeID)
-	conn := s.P2pWire.GetPrimaryConn(s.PrimaryID)
-	if err := s.P2pWire.SendUniqueNode(conn, sMsg); err != nil {
-		panic(err)
+		tc = value
+		submit := &message.Submit{
+			CollectTC: tc,
+		}
+		sk := s.P2pWire.GetMySecretkey()
+		sMsg := message.CreateConMsg(message.MTSubmit, submit, sk, s.NodeID)
+		conn := s.P2pWire.GetPrimaryConn(s.PrimaryID)
+		if err := s.P2pWire.SendUniqueNode(conn, sMsg); err != nil {
+			panic(err)
+		}
+		time.Sleep(100 * time.Millisecond)
 	}
 
 	s.stage = Approve

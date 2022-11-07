@@ -2,7 +2,7 @@ module entropyNode
 
 go 1.19
 
-replace github.com/algorand/go-algorand => /home/psyduck/go-algorand
+replace github.com/algorand/go-algorand => /home/psyduckliu/go-algorand
 
 require (
 	github.com/fsnotify/fsnotify v1.5.4
