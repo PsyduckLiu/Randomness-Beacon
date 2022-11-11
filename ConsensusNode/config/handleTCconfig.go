@@ -1,6 +1,7 @@
 package config
 
 import (
+	"consensusNode/util"
 	"crypto/rand"
 	"errors"
 	"fmt"
@@ -87,7 +88,7 @@ NextSetOfPrimes:
 	return groupP, nil
 }
 
-func GeneratePublicParameter(groupP *GroupParameter, bits int, k int) (*big.Int, []*big.Int) {
+func GeneratePublicParameter(groupP *GroupParameter, bits int, k int) (*big.Int, []*big.Int, [][3]string) {
 	var mArray []*big.Int
 	primesUnder128 := []int64{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127}
 
@@ -139,7 +140,75 @@ func GeneratePublicParameter(groupP *GroupParameter, bits int, k int) (*big.Int,
 	}
 	fmt.Println("[Setup]Length of m array is", len(mArray))
 
-	return g, mArray
+	var proofSet [][3]string
+	for i := 0; i < k; i++ {
+		alpha, _ := rand.Int(rand.Reader, phiN)
+		z := new(big.Int)
+		z.Exp(g, alpha, groupP.N)
+		w := new(big.Int)
+		w.Exp(mArray[i], alpha, groupP.N)
+
+		gHash := new(big.Int).SetBytes(util.Digest((g)))
+		nHash := new(big.Int).SetBytes(util.Digest(groupP.N))
+		biHash := new(big.Int).SetBytes(util.Digest(mArray[i]))
+		biPlusHash := new(big.Int).SetBytes(util.Digest(mArray[i+1]))
+		zHash := new(big.Int).SetBytes(util.Digest(z))
+		wHash := new(big.Int).SetBytes(util.Digest(w))
+
+		c := big.NewInt(0)
+		c.Xor(c, gHash)
+		c.Xor(c, nHash)
+		c.Xor(c, biHash)
+		c.Xor(c, biPlusHash)
+		c.Xor(c, zHash)
+		c.Xor(c, wHash)
+		// fmt.Println("random number is", c)
+
+		y := new(big.Int).Set(c)
+		power3 := new(big.Int)
+		power4 := new(big.Int)
+		power3.Exp(bigTwo, big.NewInt(int64(i)), nil)
+		power4.Exp(bigTwo, power3, phiN)
+		y.Mul(y, power4)
+		y.Add(y, alpha)
+		y.Mod(y, phiN)
+		// fmt.Println("commiter proof", y)
+
+		inverseC := new(big.Int).Set(c)
+		inverseC.Sub(big.NewInt(0), inverseC)
+
+		result1 := new(big.Int).Set(g)
+		result1.Exp(result1, y, groupP.N)
+		result2 := new(big.Int).Set(mArray[i])
+		result2.Exp(result2, inverseC, groupP.N)
+		result1.Mul(result1, result2)
+		result1.Mod(result1, groupP.N)
+
+		result3 := new(big.Int).Set(mArray[i])
+		result3.Exp(result3, y, groupP.N)
+		result4 := new(big.Int).Set(mArray[i+1])
+		result4.Exp(result4, inverseC, groupP.N)
+		result3.Mul(result3, result4)
+		result3.Mod(result3, groupP.N)
+
+		// fmt.Println(result1)
+		// fmt.Println(result1.Cmp(z))
+		// fmt.Println(result3)
+		// fmt.Println(result3.Cmp(w))
+		if result1.Cmp(z) != 0 {
+			fmt.Println("test1 error")
+		}
+		if result3.Cmp(w) != 0 {
+			fmt.Println("test2 error")
+		}
+
+		localProofSet := [3]string{z.String(), w.String(), y.String()}
+		proofSet = append(proofSet, localProofSet)
+	}
+
+	fmt.Println("[Setup]pass all tests!")
+
+	return g, mArray, proofSet
 }
 
 // get g from config

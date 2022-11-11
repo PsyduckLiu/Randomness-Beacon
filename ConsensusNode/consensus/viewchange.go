@@ -46,14 +46,15 @@ func (vcc *VCCache) addNewView(nv *message.NewView) {
 
 // invoked by state.go when timeout
 func (s *StateEngine) ViewChange() {
-	// fmt.Printf("======>[ViewChange] (%d, %d).....\n", s.CurViewID, s.lastCP.Seq)
 	fmt.Printf("======>[ViewChange] Current view is(%d).....\n", s.CurViewID)
-	// s.nodeStatus = ViewChanging
 	// s.CollectTimer.tack()
 
+	s.SubmitTimer.tack()
 	s.CurViewID++
+	s.SubmitNum = 0
 	s.msgLogs = make(map[int64]*NormalLog)
-	s.sCache = NewVCCache()
+	s.sCache.nvMsg = make(map[int64]*message.NewView)
+	// s.sCache = NewVCCache()
 
 	vc := &message.ViewChange{
 		NewViewID: s.CurViewID,
@@ -61,6 +62,12 @@ func (s *StateEngine) ViewChange() {
 	}
 
 	nextPrimaryID := vc.NewViewID % util.TotalNodeNum
+	for key, value := range s.sCache.vcMsg {
+		if value.NewViewID%util.TotalNodeNum != nextPrimaryID {
+			delete(s.sCache.vcMsg, key)
+		}
+	}
+	fmt.Println("Current viewchange length is", len(s.sCache.vcMsg))
 	if s.NodeID == nextPrimaryID {
 		s.sCache.pushVC(vc) //[vc.NodeID] = vc
 	}
@@ -147,7 +154,12 @@ func (s *StateEngine) createNewViewMsg(newVID int64) error {
 
 	s.cleanLogandRequest()
 	s.stage = Submit
+	s.nodeStatus = Serving
+	s.SubmitNum = 0
+	s.TimeCommitmentSubmit = make(map[int64]int)
+	s.TimeCommitmentApprove = make(map[string]bool)
 	s.SubmitTimer.tick(20 * time.Second)
+	s.GlobalTimer.tick(35 * time.Second)
 	// go s.reSendApproveMsg()
 	return nil
 }
@@ -187,11 +199,13 @@ func (s *StateEngine) didChangeView(msg *message.ConMessage) error {
 		panic(fmt.Errorf("======>[NewView]Invalid[%s] Approve message[%s]", err, msg))
 	}
 
+	s.GlobalTimer.tick(35 * time.Second)
 	s.CurViewID = nv.NewViewID
 	s.sCache.vcMsg = nv.VMsg
 	s.sCache.addNewView(nv)
 	s.CurSequence = 0
 	s.PrimaryID = s.CurViewID % util.TotalNodeNum
+	s.nodeStatus = Serving
 	s.stage = Approve
 	fmt.Printf("======>[NewView] New primary is(%d).....\n", s.PrimaryID)
 
@@ -201,6 +215,7 @@ func (s *StateEngine) didChangeView(msg *message.ConMessage) error {
 }
 
 func (s *StateEngine) cleanLogandRequest() {
+	s.sCache = NewVCCache()
 	s.msgLogs = make(map[int64]*NormalLog)
 }
 
@@ -220,7 +235,7 @@ func (s *StateEngine) reSendApproveMsg() {
 		if err := s.P2pWire.BroadCast(aMsg); err != nil {
 			panic(err)
 		}
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(150 * time.Millisecond)
 	}
 
 	s.stage = Confirm
@@ -237,6 +252,7 @@ func (s *StateEngine) reSendSubmitMsg() {
 	for _, value := range s.TimeCommitment {
 		tc = value
 		submit := &message.Submit{
+			Length:    len(s.TimeCommitment),
 			CollectTC: tc,
 		}
 		sk := s.P2pWire.GetMySecretkey()
@@ -245,7 +261,7 @@ func (s *StateEngine) reSendSubmitMsg() {
 		if err := s.P2pWire.SendUniqueNode(conn, sMsg); err != nil {
 			panic(err)
 		}
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(150 * time.Millisecond)
 	}
 
 	s.stage = Approve

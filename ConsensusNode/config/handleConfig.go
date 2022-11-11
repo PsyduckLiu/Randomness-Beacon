@@ -125,7 +125,7 @@ func SetupConfig() {
 
 		// generator g
 		timeParameter := 10
-		g, mArray := GeneratePublicParameter(groupParameter, groupLength, timeParameter)
+		g, mArray, proofSet := GeneratePublicParameter(groupParameter, groupLength, timeParameter)
 		fmt.Println("[Setup]G is", g)
 		fmt.Println("[Setup]Length of m array is", len(mArray))
 
@@ -137,7 +137,10 @@ func SetupConfig() {
 
 		tcViper.Set("g", g.String())
 		tcViper.Set("N", groupParameter.N.String())
+		tcViper.Set("prime0", groupParameter.Primes[0].String())
+		tcViper.Set("prime1", groupParameter.Primes[1].String())
 		tcViper.Set("mArray", mArrayString)
+		tcViper.Set("proofSet", proofSet)
 
 		// write new settings
 		if err := configViper.WriteConfig(); err != nil {

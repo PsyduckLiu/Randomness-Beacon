@@ -53,6 +53,10 @@ type EntropyTCMessage struct {
 	TimeCommitmentH        string `json:"timecommitmentH"`
 	TimeCommitmentrKSubOne string `json:"timecommitmentrKSubOne"`
 	TimeCommitmentrK       string `json:"timecommitmentrK"`
+	TimeCommitmentA1       string `json:"timecommitmentA1"`
+	TimeCommitmentA2       string `json:"timecommitmentA2"`
+	TimeCommitmentA3       string `json:"timecommitmentrKSubOnA3"`
+	TimeCommitmentZ        string `json:"timecommitmentrZ"`
 }
 
 // Hash message v, SHA256

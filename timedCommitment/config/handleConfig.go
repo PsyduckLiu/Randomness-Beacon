@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func SetupConfig(g string, N string, mArray []string) {
+func SetupConfig(g string, N string, mArray []string, proofSet [][3]string) {
 	// lock file
 	f, err := os.Open("../lock")
 	if err != nil {
@@ -35,6 +35,7 @@ func SetupConfig(g string, N string, mArray []string) {
 	outputViper.Set("g", g)
 	outputViper.Set("N", N)
 	outputViper.Set("mArray", mArray)
+	outputViper.Set("proofSet", proofSet)
 
 	// write new settings
 	if err := outputViper.WriteConfig(); err != nil {

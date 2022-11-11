@@ -1,6 +1,8 @@
 package tc
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"io"
 	"sync"
 )
@@ -29,4 +31,13 @@ func MaybeReadByte(r io.Reader) {
 		var buf [1]byte
 		r.Read(buf[:])
 	}
+}
+
+// Hash message v, SHA256
+func Digest(v interface{}) []byte {
+	h := sha256.New()
+	h.Write([]byte(fmt.Sprintf("%v", v)))
+	digest := h.Sum(nil)
+
+	return digest
 }

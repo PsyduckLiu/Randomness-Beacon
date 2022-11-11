@@ -39,6 +39,27 @@ func GetN() *big.Int {
 	return N
 }
 
+// get primes from config
+func GetPrimes() []*big.Int {
+	// set config file
+	configViper := viper.New()
+	configViper.SetConfigFile("../TC.yml")
+
+	if err := configViper.ReadInConfig(); err != nil {
+		panic(fmt.Errorf("fatal error config file: %w", err))
+	}
+
+	var primes []*big.Int
+	prime0 := new(big.Int)
+	prime0.SetString(configViper.GetString("prime0"), 10)
+	primes = append(primes, prime0)
+	prime1 := new(big.Int)
+	prime1.SetString(configViper.GetString("prime1"), 10)
+	primes = append(primes, prime1)
+
+	return primes
+}
+
 // get N from config
 func GetMArray() []*big.Int {
 	// set config file

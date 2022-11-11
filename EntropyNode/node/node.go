@@ -127,20 +127,28 @@ func WatchConfig(sk *ecdsa.PrivateKey, privateKey crypto.VrfPrivkey, id int, sig
 
 				// generate commit
 				groupLength := 2048
-				c, h, rKSubOne, rK := commitment.GenerateTimeCommitment(groupLength)
+				c, h, rKSubOne, rK, a1, a2, a3, z := commitment.GenerateTimeCommitment(groupLength)
 				fmt.Println("[TC]c is", c)
 				fmt.Println("[TC]h is", h)
 				fmt.Println("[TC]rKSubOne is", rKSubOne)
 				fmt.Println("[TC]rK is", rK)
+				fmt.Println("[TC]a1 is", a1)
+				fmt.Println("[TC]a2 is", a2)
+				fmt.Println("[TC]a3 is", a3)
+				fmt.Println("[TC]z is", z)
 
 				cMarshal, _ := c.MarshalJSON()
 				hMarshal, _ := h.MarshalJSON()
 				rKSubOneMarshal, _ := rKSubOne.MarshalJSON()
 				rKMarshal, _ := rK.MarshalJSON()
+				a1Marshal, _ := a1.MarshalJSON()
+				a2Marshal, _ := a2.MarshalJSON()
+				a3Marshal, _ := a3.MarshalJSON()
+				zMarshal, _ := z.MarshalJSON()
 				// timeCommitment := [4][]byte{cMarshal, hMarshal, rKSubOneMarshal, rKMarshal}
 				sendVRFMsg(sk, privateKey, vrfResult, msg.data, int64(id), sig)
-
-				sendTCMsg(sk, int64(id), cMarshal, hMarshal, rKSubOneMarshal, rKMarshal, sig)
+				time.Sleep(100 * time.Millisecond)
+				sendTCMsg(sk, int64(id), cMarshal, hMarshal, rKSubOneMarshal, rKMarshal, a1Marshal, a2Marshal, a3Marshal, zMarshal, sig)
 				fmt.Printf("Time commitment is:%v,%v,%v,%v\n", cMarshal, hMarshal, rKSubOneMarshal, rKMarshal)
 			}
 		}
@@ -187,7 +195,7 @@ func sendVRFMsg(sk *ecdsa.PrivateKey, privateKey crypto.VrfPrivkey, vrfResult cr
 	}
 }
 
-func sendTCMsg(sk *ecdsa.PrivateKey, id int64, cMarshal []byte, hMarshal []byte, rKSubOneMarshal []byte, rKMarshal []byte, sig chan interface{}) {
+func sendTCMsg(sk *ecdsa.PrivateKey, id int64, cMarshal []byte, hMarshal []byte, rKSubOneMarshal []byte, rKMarshal []byte, a1Marshal []byte, a2Marshal []byte, a3Marshal []byte, zMarshal []byte, sig chan interface{}) {
 	// new time commitment message
 	// send time commitment message to origin nodes
 	tcMsg := &message.EntropyTCMessage{
@@ -196,6 +204,10 @@ func sendTCMsg(sk *ecdsa.PrivateKey, id int64, cMarshal []byte, hMarshal []byte,
 		TimeCommitmentH:        string(hMarshal),
 		TimeCommitmentrKSubOne: string(rKSubOneMarshal),
 		TimeCommitmentrK:       string(rKMarshal),
+		TimeCommitmentA1:       string(a1Marshal),
+		TimeCommitmentA2:       string(a2Marshal),
+		TimeCommitmentA3:       string(a3Marshal),
+		TimeCommitmentZ:        string(zMarshal),
 	}
 
 	// get consensus nodes' information

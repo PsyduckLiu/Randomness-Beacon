@@ -3,27 +3,18 @@ package commitment
 import (
 	"crypto/rand"
 	"entropyNode/config"
+	"entropyNode/util"
 	"fmt"
 	"math/big"
 )
 
-// func GenerateTimeCommitment() *big.Int {
-// 	var upper, e = big.NewInt(2), big.NewInt(256)
-// 	upper.Exp(upper, e, nil)
+var bigOne = big.NewInt(1)
 
-// 	// generate random number
-// 	tc, err := rand.Int(rand.Reader, upper)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// 	return tc
-// }
-
-func GenerateTimeCommitment(bits int) (*big.Int, *big.Int, *big.Int, *big.Int) {
+func GenerateTimeCommitment(bits int) (*big.Int, *big.Int, *big.Int, *big.Int, *big.Int, *big.Int, *big.Int, *big.Int) {
 	mArray := config.GetMArray()
 	g := config.GetG()
 	N := config.GetN()
+	primes := config.GetPrimes()
 
 	nSqrt := new(big.Int)
 	upperBound := new(big.Int)
@@ -61,5 +52,45 @@ func GenerateTimeCommitment(bits int) (*big.Int, *big.Int, *big.Int, *big.Int) {
 	c.Xor(msg, r)
 	fmt.Println("[Commit]msg is", msg)
 
-	return c, h, rKSubOne, rK
+	phiN := new(big.Int).Set(bigOne)
+	for _, prime := range primes {
+		primeSubOne := new(big.Int)
+		primeSubOne.Sub(prime, bigOne)
+		fmt.Println(primeSubOne)
+		phiN.Mul(phiN, primeSubOne)
+	}
+	fmt.Println("[Commit]Phi N is", phiN)
+
+	w, _ := rand.Int(rand.Reader, phiN)
+	a1 := new(big.Int)
+	a1.Exp(g, w, N)
+	a2 := new(big.Int)
+	a2.Exp(mArray[len(mArray)-3], w, N)
+	a3 := new(big.Int)
+	a3.Exp(mArray[len(mArray)-2], w, N)
+
+	nHash := new(big.Int).SetBytes(util.Digest(N))
+	gHash := new(big.Int).SetBytes(util.Digest((g)))
+	mSubOneHash := new(big.Int).SetBytes(util.Digest(mArray[len(mArray)-3]))
+	mHash := new(big.Int).SetBytes(util.Digest(mArray[len(mArray)-2]))
+	a1Hash := new(big.Int).SetBytes(util.Digest(a1))
+	a2Hash := new(big.Int).SetBytes(util.Digest(a2))
+	a3Hash := new(big.Int).SetBytes(util.Digest(a3))
+
+	e = big.NewInt(0)
+	e.Xor(e, gHash)
+	e.Xor(e, nHash)
+	e.Xor(e, mSubOneHash)
+	e.Xor(e, mHash)
+	e.Xor(e, a1Hash)
+	e.Xor(e, a2Hash)
+	e.Xor(e, a3Hash)
+
+	z := new(big.Int).Set(w)
+	alphaE := new(big.Int).Set(e)
+	alphaE.Mul(alphaE, alpha)
+	z.Sub(z, alphaE)
+	z.Mod(z, phiN)
+
+	return c, h, rKSubOne, rK, a1, a2, a3, z
 }

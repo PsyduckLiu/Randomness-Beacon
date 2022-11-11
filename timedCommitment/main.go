@@ -23,8 +23,8 @@ func main() {
 	fmt.Println("[Main]", groupParameter.Primes[1].ProbablyPrime(20))
 
 	// generator g
-	timeParameter := 25
-	g, mArray := tc.GeneratePublicParameter(groupParameter, groupLength, timeParameter)
+	timeParameter := 10
+	g, mArray, proofSet := tc.GeneratePublicParameter(groupParameter, groupLength, timeParameter)
 	fmt.Println("[Main]G is", g)
 	fmt.Println("[Main]Length of m array is", len(mArray))
 
@@ -35,10 +35,10 @@ func main() {
 	}
 
 	// write pp to config
-	config.SetupConfig(g.String(), groupParameter.N.String(), mArrayString)
+	config.SetupConfig(g.String(), groupParameter.N.String(), mArrayString, proofSet)
 
 	// generate commit
-	c, h, rKSubOne, rK := tc.GenerateCommit(groupLength)
+	c, h, rKSubOne, rK := tc.GenerateCommit(groupLength, groupParameter)
 	fmt.Println("[Main]c is", c)
 	fmt.Println("[Main]h is", h)
 	fmt.Println("[Main]rKSubOne is", rKSubOne)
