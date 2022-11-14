@@ -22,7 +22,7 @@ func (cm *ConMessage) String() string {
 		"\nsig:%s"+
 		"\nFrom:%s"+
 		"\npayload:%d"+
-		"\n<------------------>",
+		"\n--------------------",
 		cm.Typ.String(),
 		cm.Sig,
 		string(rune(cm.From)),
@@ -31,9 +31,9 @@ func (cm *ConMessage) String() string {
 
 // create consensus message
 func CreateConMsg(t MType, msg interface{}, sk *ecdsa.PrivateKey, id int64) *ConMessage {
-	data, e := json.Marshal(msg)
-	if e != nil {
-		return nil
+	data, err := json.Marshal(msg)
+	if err != nil {
+		panic(fmt.Errorf("===>[ERROR from CreateConMsg]Generate consensus message failed:%s", err))
 	}
 
 	// sign message.Payload

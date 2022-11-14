@@ -20,6 +20,7 @@ type GroupParameter struct {
 	Primes []*big.Int
 }
 
+// generate group parameters for timed commitment
 func GenerateGroupParameter(random io.Reader, bits int) (*GroupParameter, error) {
 	MaybeReadByte(random)
 	groupP := new(GroupParameter)
@@ -88,25 +89,28 @@ NextSetOfPrimes:
 	return groupP, nil
 }
 
+// generate public parameters for timed commitment
 func GeneratePublicParameter(groupP *GroupParameter, bits int, k int) (*big.Int, []*big.Int, [][3]string) {
 	var mArray []*big.Int
 	primesUnder128 := []int64{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127}
 
+	// generate h
 	h, err := rand.Int(rand.Reader, groupP.N)
 	if err != nil {
-		fmt.Println("[Setup]generate h wrong", err)
+		panic(fmt.Errorf("===>[ERROR from GeneratePublicParameter]Generate h failed:%s", err))
 	}
-	fmt.Println("[Setup]H is", h)
+	fmt.Println("===>[Setup]H is", h)
 
+	// calculate phiN
 	phiN := new(big.Int).Set(bigOne)
 	for _, prime := range groupP.Primes {
 		primeSubOne := new(big.Int)
 		primeSubOne.Sub(prime, bigOne)
-		fmt.Println(primeSubOne)
 		phiN.Mul(phiN, primeSubOne)
 	}
-	fmt.Println("[Setup]Phi N is", phiN)
+	fmt.Println("===>[Setup]PhiN is", phiN)
 
+	// calculate g
 	power := new(big.Int).Set(bigOne)
 	for _, p := range primesUnder128 {
 		q := new(big.Int)
@@ -116,18 +120,16 @@ func GeneratePublicParameter(groupP *GroupParameter, bits int, k int) (*big.Int,
 	}
 	g := new(big.Int)
 	g.Exp(h, power, groupP.N)
-	fmt.Println("[Setup]G is", g)
+	fmt.Println("===>[Setup]G is", g)
 
+	// calculate mArray
 	for i := 0; i <= k; i++ {
-		// fmt.Println("Number", i)
 		power1 := new(big.Int)
 		power2 := new(big.Int)
 		m := new(big.Int)
 		power1.Exp(bigTwo, big.NewInt(int64(i)), nil)
 		power2.Exp(bigTwo, power1, phiN)
 		m.Exp(g, power2, groupP.N)
-		// fmt.Println("Power is", power2)
-		// fmt.Println("M is", m)
 		mArray = append(mArray, m)
 
 		if i == k {
@@ -138,8 +140,9 @@ func GeneratePublicParameter(groupP *GroupParameter, bits int, k int) (*big.Int,
 			mArray = append(mArray, mFirst)
 		}
 	}
-	fmt.Println("[Setup]Length of m array is", len(mArray))
+	fmt.Println("===>[Setup]Length of m array is", len(mArray))
 
+	// calculate proofSet
 	var proofSet [][3]string
 	for i := 0; i < k; i++ {
 		alpha, _ := rand.Int(rand.Reader, phiN)
@@ -162,7 +165,6 @@ func GeneratePublicParameter(groupP *GroupParameter, bits int, k int) (*big.Int,
 		c.Xor(c, biPlusHash)
 		c.Xor(c, zHash)
 		c.Xor(c, wHash)
-		// fmt.Println("random number is", c)
 
 		y := new(big.Int).Set(c)
 		power3 := new(big.Int)
@@ -172,7 +174,6 @@ func GeneratePublicParameter(groupP *GroupParameter, bits int, k int) (*big.Int,
 		y.Mul(y, power4)
 		y.Add(y, alpha)
 		y.Mod(y, phiN)
-		// fmt.Println("commiter proof", y)
 
 		inverseC := new(big.Int).Set(c)
 		inverseC.Sub(big.NewInt(0), inverseC)
@@ -191,34 +192,60 @@ func GeneratePublicParameter(groupP *GroupParameter, bits int, k int) (*big.Int,
 		result3.Mul(result3, result4)
 		result3.Mod(result3, groupP.N)
 
-		// fmt.Println(result1)
-		// fmt.Println(result1.Cmp(z))
-		// fmt.Println(result3)
-		// fmt.Println(result3.Cmp(w))
 		if result1.Cmp(z) != 0 {
-			fmt.Println("test1 error")
+			panic(fmt.Errorf("===>[ERROR from GeneratePublicParameter]test1 error"))
 		}
 		if result3.Cmp(w) != 0 {
-			fmt.Println("test2 error")
+			panic(fmt.Errorf("===>[ERROR from GeneratePublicParameter]test2 error"))
 		}
 
 		localProofSet := [3]string{z.String(), w.String(), y.String()}
 		proofSet = append(proofSet, localProofSet)
 	}
 
-	fmt.Println("[Setup]pass all tests!")
+	fmt.Println("===>[Setup]pass all Proof tests!")
 
 	return g, mArray, proofSet
 }
 
-// get g from config
+// get timeParameter T from config file
+func GetT() int {
+	// set config file
+	configViper := viper.New()
+	configViper.SetConfigFile("../Configuration/TC.yml")
+
+	if err := configViper.ReadInConfig(); err != nil {
+		panic(fmt.Errorf("===>[ERROR from GetG]Read config file failed:%s", err))
+	}
+
+	t := configViper.GetInt("timeParameter")
+
+	return t
+}
+
+// get groupLength L from config file
+func GetL() int {
+	// set config file
+	configViper := viper.New()
+	configViper.SetConfigFile("../Configuration/TC.yml")
+
+	if err := configViper.ReadInConfig(); err != nil {
+		panic(fmt.Errorf("===>[ERROR from GetG]Read config file failed:%s", err))
+	}
+
+	l := configViper.GetInt("groupLength")
+
+	return l
+}
+
+// get g from config file
 func GetG() *big.Int {
 	// set config file
 	configViper := viper.New()
-	configViper.SetConfigFile("../TC.yml")
+	configViper.SetConfigFile("../Configuration/TC.yml")
 
 	if err := configViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from GetG]Read config file failed:%s", err))
 	}
 
 	g := new(big.Int)
@@ -227,14 +254,14 @@ func GetG() *big.Int {
 	return g
 }
 
-// get N from config
+// get N from config file
 func GetN() *big.Int {
 	// set config file
 	configViper := viper.New()
-	configViper.SetConfigFile("../TC.yml")
+	configViper.SetConfigFile("../Configuration/TC.yml")
 
 	if err := configViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from GetN]Read config file failed:%s", err))
 	}
 
 	N := new(big.Int)
@@ -243,14 +270,14 @@ func GetN() *big.Int {
 	return N
 }
 
-// get N from config
+// get N from config file
 func GetMArray() []*big.Int {
 	// set config file
 	configViper := viper.New()
-	configViper.SetConfigFile("../TC.yml")
+	configViper.SetConfigFile("../Configuration/TC.yml")
 
 	if err := configViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from GetMArray]Read config file failed:%s", err))
 	}
 
 	var mArray []*big.Int
@@ -258,9 +285,7 @@ func GetMArray() []*big.Int {
 	for _, m := range mArrayString {
 		mBigint, _ := new(big.Int).SetString(m, 10)
 		mArray = append(mArray, mBigint)
-		// fmt.Println(mBigint)
 	}
-	fmt.Println("Length of m array is", len(mArray))
 
 	return mArray
 }

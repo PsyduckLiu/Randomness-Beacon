@@ -1,10 +1,5 @@
 package message
 
-import (
-	"crypto/sha256"
-	"fmt"
-)
-
 type MType int16
 
 // number different kinds of message types
@@ -13,6 +8,8 @@ const (
 	MTCollect
 	MTSubmit
 	MTApprove
+	MTConfirm
+	MTOutput
 	MTViewChange
 	MTNewView
 	MTIdentity
@@ -29,6 +26,10 @@ func (mt MType) String() string {
 		return "Submit"
 	case MTApprove:
 		return "Approve"
+	case MTConfirm:
+		return "Confirm"
+	case MTOutput:
+		return "Output"
 	case MTViewChange:
 		return "ViewChange"
 	case MTNewView:
@@ -39,7 +40,7 @@ func (mt MType) String() string {
 	return "Unknown"
 }
 
-// message type for entropy node
+// VRF message type for entropy node
 type EntropyVRFMessage struct {
 	PublicKey [32]byte `json:"pk"`
 	VRFResult [80]byte `json:"vrfresult"`
@@ -47,6 +48,7 @@ type EntropyVRFMessage struct {
 	Msg       []byte   `json:"timecommitmentmsg"`
 }
 
+// TC message type for entropy node
 type EntropyTCMessage struct {
 	ClientID               int64  `json:"clientID"`
 	TimeCommitmentC        string `json:"timecommitmentC"`
@@ -57,13 +59,4 @@ type EntropyTCMessage struct {
 	TimeCommitmentA2       string `json:"timecommitmentA2"`
 	TimeCommitmentA3       string `json:"timecommitmentrKSubOnA3"`
 	TimeCommitmentZ        string `json:"timecommitmentrZ"`
-}
-
-// Hash message v, SHA256
-func Digest(v interface{}) []byte {
-	h := sha256.New()
-	h.Write([]byte(fmt.Sprintf("%v", v)))
-	digest := h.Sum(nil)
-
-	return digest
 }

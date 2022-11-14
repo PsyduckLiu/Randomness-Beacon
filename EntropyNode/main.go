@@ -11,12 +11,12 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		panic("usage: input id")
+		panic("[Command line arguments]Usage: input id")
 	}
 
+	// start entropy node[id]
 	id, _ := strconv.Atoi(os.Args[1])
-
-	node.StartEntropyNode(id)
+	go node.StartEntropyNode(id)
 
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh,
@@ -26,8 +26,8 @@ func main() {
 		syscall.SIGQUIT)
 
 	pid := strconv.Itoa(os.Getpid())
-	fmt.Printf("===>Entropy Node is running at PID[%s]\n", pid)
+	fmt.Printf("===>[Start]Entropy Node[%d] is running at PID[%s]\n", id, pid)
 
 	sig := <-sigCh
-	fmt.Printf("===>Finish by signal[%s]\n", sig.String())
+	fmt.Printf("===>[Finish]Entropy Node[%d] is finished by signal[%s]\n", id, sig.String())
 }

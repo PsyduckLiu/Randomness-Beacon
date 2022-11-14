@@ -15,15 +15,7 @@ import (
 const MaxFaultyNode = 2
 const TotalNodeNum = 3*MaxFaultyNode + 1
 
-// transfer []bytes to string
-//
-//	func BytesToBinaryString(bs []byte) string {
-//		buf := bytes.NewBuffer([]byte{})
-//		for _, v := range bs {
-//			buf.WriteString(fmt.Sprintf("%08b", v))
-//		}
-//		return buf.String()
-//	}
+// convert crypto.VrfProof([80]byte) to binary string
 func BytesToBinaryString(bs crypto.VrfProof) string {
 	buf := bytes.NewBuffer([]byte{})
 	for _, v := range bs {
@@ -37,12 +29,12 @@ func PortByID(id int64) int {
 	return 30000 + int(id)
 }
 
-// Get listening Entropy Port(10000 + id)
+// Get listening Entropy Port(20000 + id)
 func EntropyPortByID(id int64) int {
 	return 20000 + int(id)
 }
 
-// Hash message v, SHA256
+// Hash message v, using SHA256
 func Digest(v interface{}) []byte {
 	h := sha256.New()
 	h.Write([]byte(fmt.Sprintf("%v", v)))
@@ -51,6 +43,7 @@ func Digest(v interface{}) []byte {
 	return digest
 }
 
+// wriete output to output.txt
 func WriteResult(output string) {
 	filePath := "../output.txt"
 	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_APPEND, 0666)

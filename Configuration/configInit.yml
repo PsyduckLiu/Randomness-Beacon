@@ -1,0 +1,21 @@
+node0_ip: "0"
+node0_pk: "0"
+node1_ip: "0"
+node1_pk: "0"
+node2_ip: "0"
+node2_pk: "0"
+node3_ip: "0"
+node3_pk: "0"
+node4_ip: "0"
+node4_pk: "0"
+node5_ip: "0"
+node5_pk: "0"
+node6_ip: "0"
+node6_pk: "0"
+ellipticcurve:
+ftype: 0
+running: false
+tctype: 0
+version: v6.0
+vrftype: 0
+difficulty: 0

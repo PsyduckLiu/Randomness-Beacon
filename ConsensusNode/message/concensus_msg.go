@@ -22,7 +22,7 @@ func (cm *ConMessage) String() string {
 		"\nsig:%s"+
 		"\nFrom:%s"+
 		"\npayload:%d"+
-		"\n<------------------>",
+		"\n--------------------",
 		cm.Typ.String(),
 		cm.Sig,
 		string(rune(cm.From)),
@@ -31,9 +31,9 @@ func (cm *ConMessage) String() string {
 
 // create consensus message
 func CreateConMsg(t MType, msg interface{}, sk *ecdsa.PrivateKey, id int64) *ConMessage {
-	data, e := json.Marshal(msg)
-	if e != nil {
-		return nil
+	data, err := json.Marshal(msg)
+	if err != nil {
+		panic(fmt.Errorf("===>[ERROR from CreateConMsg]Generate consensus message failed:%s", err))
 	}
 
 	// sign message.Payload
@@ -48,58 +48,23 @@ func CreateConMsg(t MType, msg interface{}, sk *ecdsa.PrivateKey, id int64) *Con
 	return consMsg
 }
 
-// RequestRecord type in Consensus
+// Submit type in Consensus
 type Submit struct {
 	Length    int
 	CollectTC [4]string
+	TCProof   [4]string
 }
 
-// RequestRecord type in Consensus
+// Approve type in Consensus
 type Approve struct {
 	UnionTC [4]string
 	Length  int
 }
 
-// RequestRecord type in Consensus
+// Confirm type in Consensus
 type Confirm struct {
 	// ConfirmTC [4]string
 	Length int
-}
-
-// RequestRecord type in Consensus
-type RequestRecord struct {
-	*PrePrepare
-	*Request
-}
-
-// PrePrepare type in Consensus
-type PrePrepare struct {
-	// TimeStamp  int64  `json:"timestamp"`
-	// ClientID   string `json:"clientID"`
-	// Operation  string `json:"operation"`
-	ViewID     int64  `json:"viewID"`
-	SequenceID int64  `json:"sequenceID"`
-	Digest     []byte `json:"digest"`
-}
-
-// Prepare array
-// index is node ID
-type PrepareMsg map[int64]*Prepare
-
-// Prepare type in Consensus
-type Prepare struct {
-	ViewID     int64  `json:"viewID"`
-	SequenceID int64  `json:"sequenceID"`
-	Digest     []byte `json:"digest"`
-	NodeID     int64  `json:"nodeID"`
-}
-
-// Commit type in Consensus
-type Commit struct {
-	ViewID     int64  `json:"viewID"`
-	SequenceID int64  `json:"sequenceID"`
-	Digest     []byte `json:"digest"`
-	NodeID     int64  `json:"nodeID"`
 }
 
 // ViewChange array

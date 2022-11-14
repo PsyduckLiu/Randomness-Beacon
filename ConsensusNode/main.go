@@ -12,16 +12,14 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		panic("usage: input id")
+		panic("[Command line arguments]Usage: input id")
 	}
 
+	// start consensus node[id]
 	id, _ := strconv.Atoi(os.Args[1])
-
 	config.SetupConfig()
 	node := node.NewNode(int64(id))
 	go node.Run()
-
-	// entropyNode.StartEntropyNode()
 
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh,
@@ -31,13 +29,8 @@ func main() {
 		syscall.SIGQUIT)
 
 	pid := strconv.Itoa(os.Getpid())
-	fmt.Printf("===>Randomness Beacon is running at PID[%s]\n", pid)
-	fmt.Println("===============================================")
-	fmt.Println("*                                             *")
-	fmt.Println("*             Randomness Beacon               *")
-	fmt.Println("*                                             *")
-	fmt.Println("===============================================")
+	fmt.Printf("\n===>[Start]Consensus Node[%d] is running at PID[%s]\n", id, pid)
 
 	sig := <-sigCh
-	fmt.Printf("===>Finish by signal[%s]\n", sig.String())
+	fmt.Printf("===>[Finish]Consensus Node[%d] is finished by signal[%s]\n", id, sig.String())
 }

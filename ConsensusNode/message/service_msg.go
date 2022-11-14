@@ -1,9 +1,5 @@
 package message
 
-import (
-	"fmt"
-)
-
 type MType int16
 
 // number different kinds of message types
@@ -44,7 +40,7 @@ func (mt MType) String() string {
 	return "Unknown"
 }
 
-// message type for entropy node
+// VRF message type for entropy node
 type EntropyVRFMessage struct {
 	PublicKey [32]byte `json:"pk"`
 	VRFResult [80]byte `json:"vrfresult"`
@@ -52,6 +48,7 @@ type EntropyVRFMessage struct {
 	Msg       []byte   `json:"timecommitmentmsg"`
 }
 
+// TC message type for entropy node
 type EntropyTCMessage struct {
 	ClientID               int64  `json:"clientID"`
 	TimeCommitmentC        string `json:"timecommitmentC"`
@@ -62,41 +59,4 @@ type EntropyTCMessage struct {
 	TimeCommitmentA2       string `json:"timecommitmentA2"`
 	TimeCommitmentA3       string `json:"timecommitmentrKSubOnA3"`
 	TimeCommitmentZ        string `json:"timecommitmentrZ"`
-}
-
-// message type from client
-type ClientMessage struct {
-	Sig       []byte `json:"sig"`
-	TimeStamp int64  `json:"timestamp"`
-	ClientID  string `json:"clientID"`
-	Operation string `json:"operation"`
-	PublicKey []byte `json:"pk"`
-}
-
-// request type in consensus
-type Request struct {
-	SeqID     int64  `json:"sequenceID"`
-	TimeStamp int64  `json:"timestamp"`
-	ClientID  string `json:"clientID"`
-	Operation string `json:"operation"`
-}
-
-// request.String()
-func (r *Request) String() string {
-	return fmt.Sprintf("\n clientID:%s"+
-		"\n time:%d"+
-		"\n operation:%s",
-		r.ClientID,
-		r.TimeStamp,
-		r.Operation)
-}
-
-// reply type in consensus
-type Reply struct {
-	SeqID     int64  `json:"sequenceID"`
-	ViewID    int64  `json:"viewID"`
-	Timestamp int64  `json:"timestamp"`
-	ClientID  string `json:"clientID"`
-	NodeID    int64  `json:"nodeID"`
-	Result    string `json:"result"`
 }

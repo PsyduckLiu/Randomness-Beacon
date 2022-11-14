@@ -6,7 +6,7 @@ import (
 	"crypto/sha256"
 )
 
-// hash the input message, SHA256
+// hash the input message, using sSHA256
 func Digest(msg []byte) []byte {
 	h := sha256.New()
 	h.Write(msg)

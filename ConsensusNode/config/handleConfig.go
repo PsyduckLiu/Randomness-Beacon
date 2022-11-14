@@ -1,25 +1,16 @@
 package config
 
 import (
-	"consensusNode/signature"
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
-	"crypto/x509"
 	"fmt"
-	"log"
-	"math/big"
 	"os"
-	"strconv"
 	"syscall"
 
 	"github.com/spf13/viper"
 )
 
 type Configurations struct {
-	Running bool   `mapstructure:"running"`
-	Version string `mapstructure:"version"`
-	// PreviousOutput string `mapstructure:"previousOutput"`
+	Running       bool   `mapstructure:"running"`
+	Version       string `mapstructure:"version"`
 	EllipticCurve string `mapstructure:"ellipticCurve"`
 	VRFType       int    `mapstructure:"vrfType"`
 	TCType        int    `mapstructure:"tcType"`
@@ -50,191 +41,77 @@ type NodeConfig struct {
 	Pk string
 }
 
-// config file Setup
-// assign curve,previous output,VRF type,Time Commitment Type,F Function Type
-func SetupConfig() {
-	// lock file
-	f, err := os.Open("../lock")
-	if err != nil {
-		panic(err)
-	}
-	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
-		log.Println("add share lock in no block failed", err)
-	}
-
-	// set config file
-	configViper := viper.New()
-	configViper.SetConfigFile("../config.yml")
-	outputViper := viper.New()
-	outputViper.SetConfigFile("../output.yml")
-	tcViper := viper.New()
-	tcViper.SetConfigFile("../TC.yml")
-
-	// read config and keep origin settings
-	if err := configViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
-	}
-	if err := outputViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
-	}
-	if err := tcViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
-	}
-
-	// first time setup
-	if !configViper.GetBool("Running") {
-		fmt.Println("First time Setup")
-
-		// generate elliptic curve
-		privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-		if err != nil {
-			panic(fmt.Errorf("setup conf curve(private Key) failed, err:%s", err))
-		}
-		marshalledKey, err := x509.MarshalPKIXPublicKey(&privateKey.PublicKey)
-		if err != nil {
-			panic(fmt.Errorf("setup conf curve(marshalled Key) failed, err:%s", err))
-		}
-		configViper.Set("EllipticCurve", string(marshalledKey))
-
-		// generate random difficulty
-		selectBigInt, _ := rand.Int(rand.Reader, big.NewInt(2))
-		selectInt, err := strconv.Atoi(selectBigInt.String())
-		if err != nil {
-			panic(err)
-		}
-		configViper.Set("Difficulty", selectInt)
-
-		configViper.Set("Running", true)
-		// TODO: VRF type,Time Commitment Type,F Function Type
-
-		// generate random init input
-		message := []byte("asdkjhdk")
-		randomNum := signature.Digest(message)
-		outputViper.Set("PreviousOutput", string(randomNum))
-
-		// group parameter contains prime numbers p,q and a large number n=p*q of groupLength bits
-		groupLength := 2048
-		groupParameter, err := GenerateGroupParameter(rand.Reader, groupLength)
-		if err != nil {
-			fmt.Println("generate group parameter wrong", groupParameter)
-		}
-		fmt.Println("[Setup]N is", groupParameter.N)
-		fmt.Println("[Setup]primes are", groupParameter.Primes)
-		fmt.Println("[Setup]", groupParameter.Primes[0].ProbablyPrime(20))
-		fmt.Println("[Setup]", groupParameter.Primes[1].ProbablyPrime(20))
-
-		// generator g
-		timeParameter := 10
-		g, mArray, proofSet := GeneratePublicParameter(groupParameter, groupLength, timeParameter)
-		fmt.Println("[Setup]G is", g)
-		fmt.Println("[Setup]Length of m array is", len(mArray))
-
-		// m array
-		var mArrayString []string
-		for _, m := range mArray {
-			mArrayString = append(mArrayString, m.String())
-		}
-
-		tcViper.Set("g", g.String())
-		tcViper.Set("N", groupParameter.N.String())
-		tcViper.Set("prime0", groupParameter.Primes[0].String())
-		tcViper.Set("prime1", groupParameter.Primes[1].String())
-		tcViper.Set("mArray", mArrayString)
-		tcViper.Set("proofSet", proofSet)
-
-		// write new settings
-		if err := configViper.WriteConfig(); err != nil {
-			panic(fmt.Errorf("setup conf failed, err:%s", err))
-		}
-		if err := outputViper.WriteConfig(); err != nil {
-			panic(fmt.Errorf("setup conf failed, err:%s", err))
-		}
-		if err := tcViper.WriteConfig(); err != nil {
-			panic(fmt.Errorf("setup conf failed, err:%s", err))
-		}
-
-		fmt.Println("Finish time Setup")
-	}
-
-	// unlock file
-	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {
-		log.Println("unlock share lock failed", err)
-	}
-}
-
 // write new previousputput
 func WriteOutput(output string) {
 	// lock file
 	f, err := os.Open("../lock")
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("===>[ERROR from WriteOutput]Open lock failed:%s", err))
 	}
+	// share lock, concurrently read
 	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
-		log.Println("add share lock in no block failed", err)
+		panic(fmt.Errorf("===>[ERROR from WriteOutput]Add share lock failed:%s", err))
 	}
 
 	// set config file
 	outputViper := viper.New()
-	outputViper.SetConfigFile("../output.yml")
+	outputViper.SetConfigFile("../Configuration/output.yml")
 
 	// read config and keep origin settings
 	if err := outputViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from WriteOutput]Read config file failed:%s", err))
 	}
-
-	// oldConfig := outputViper.AllSettings()
-	// fmt.Printf("All settings #1 %+v\n\n", oldConfig)
 
 	outputViper.Set("PreviousOutput", output)
 
 	// write new settings
 	if err := outputViper.WriteConfig(); err != nil {
-		panic(fmt.Errorf("setup conf failed, err:%s", err))
+		panic(fmt.Errorf("===>[ERROR from WriteOutput]Write config file failed:%s", err))
 	}
-	outputViper.Debug()
+	// outputViper.Debug()
 
-	fmt.Println("Write output")
+	fmt.Println("\n===>[Write Output]Write output success")
 
 	// unlock file
 	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {
-		log.Println("unlock share lock failed", err)
+		panic(fmt.Errorf("===>[ERROR from SetupConfig]Unlock share lock failed:%s", err))
 	}
 }
 
-// get difficulty from config
+// get difficulty from config file
 func GetDifficulty() int {
 	// set config file
 	configViper := viper.New()
-	configViper.SetConfigFile("../config.yml")
+	configViper.SetConfigFile("../Configuration/config.yml")
 
 	if err := configViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from GetDifficulty]Read config file failed:%s", err))
 	}
 
 	return configViper.GetInt("Difficulty")
 }
 
-// get curve from config
+// get curve from config file
 func GetCurve() string {
 	// set config file
 	configViper := viper.New()
-	configViper.SetConfigFile("../config.yml")
+	configViper.SetConfigFile("../Configuration/config.yml")
 
 	if err := configViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from GetCurve]Read config file failed:%s", err))
 	}
 
 	return configViper.GetString("EllipticCurve")
 }
 
-// get previous output from config
+// get previous output from config file
 func GetPreviousOutput() string {
 	// set config file
 	outputViper := viper.New()
-	outputViper.SetConfigFile("../output.yml")
+	outputViper.SetConfigFile("../Configuration/output.yml")
 
 	if err := outputViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from GetPreviousOutput]Read config file failed:%s", err))
 	}
 
 	return outputViper.GetString("PreviousOutput")
@@ -245,19 +122,20 @@ func NewConsensusNode(id int64, ip string, pk string) {
 	// lock file
 	f, err := os.Open("../lock")
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("===>[ERROR from NewConsensusNode]Open lock failed:%s", err))
 	}
+	// share lock, concurrently read
 	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
-		log.Println("add share lock in no block failed", err)
+		panic(fmt.Errorf("===>[ERROR from NewConsensusNode]Add share lock failed:%s", err))
 	}
 
 	// set config file
 	configViper := viper.New()
-	configViper.SetConfigFile("../config.yml")
+	configViper.SetConfigFile("../Configuration/config.yml")
 
 	// read config and keep origin settings
 	if err := configViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from NewConsensusNode]Read config file failed:%s", err))
 	}
 
 	switch id {
@@ -286,33 +164,35 @@ func NewConsensusNode(id int64, ip string, pk string) {
 
 	// write new settings
 	if err := configViper.WriteConfig(); err != nil {
-		panic(fmt.Errorf("setup conf failed, err:%s", err))
+		panic(fmt.Errorf("===>[ERROR from NewConsensusNode]Write config file failed:%s", err))
 	}
-	fmt.Println("new consensus node")
+	fmt.Printf("\n===>[NewConsensusNode]Add new consensus node[%d] success\n", id)
 
 	// unlock file
 	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {
-		log.Println("unlock share lock failed", err)
+		panic(fmt.Errorf("===>[ERROR from NewConsensusNode]Unlock share lock failed:%s", err))
 	}
 }
 
+// remove consensus node from config file
 func RemoveConsensusNode(id int64) {
 	// lock file
 	f, err := os.Open("../lock")
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("===>[ERROR from RemoveConsensusNode]Open lock failed:%s", err))
 	}
+	// share lock, concurrently read
 	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
-		log.Println("add share lock in no block failed", err)
+		panic(fmt.Errorf("===>[ERROR from RemoveConsensusNode]Add share lock failed:%s", err))
 	}
 
 	// set config file
 	configViper := viper.New()
-	configViper.SetConfigFile("../config.yml")
+	configViper.SetConfigFile("../Configuration/config.yml")
 
 	// read config and keep origin settings
 	if err := configViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from RemoveConsensusNode]Read config file failed:%s", err))
 	}
 
 	// handle new id-ip-pk
@@ -356,30 +236,30 @@ func RemoveConsensusNode(id int64) {
 
 	// write new settings
 	if err := configViper.WriteConfig(); err != nil {
-		panic(fmt.Errorf("setup conf failed, err:%s", err))
+		panic(fmt.Errorf("===>[ERROR from RemoveConsensusNode]Write config file failed:%s", err))
 	}
-	fmt.Println("remove consensus node")
+	fmt.Println("===>[RemoveConsensusNode]remove consensus node success")
 
 	// unlock file
 	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {
-		log.Println("unlock share lock failed", err)
+		panic(fmt.Errorf("===>[ERROR from RemoveConsensusNode]Unlock share lock failed:%s", err))
 	}
 }
 
-// get consensus nodes from config
+// get consensus nodes from config file
 func GetConsensusNode() []NodeConfig {
 	var nodeConfig []NodeConfig
 	var configuration = new(Configurations)
 
 	// set config file
 	configViper := viper.New()
-	configViper.SetConfigFile("../config.yml")
+	configViper.SetConfigFile("../Configuration/config.yml")
 
 	if err := configViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from GetConsensusNode]Read config file failed:%s", err))
 	}
 	if err := configViper.Unmarshal(configuration); err != nil {
-		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
+		panic(fmt.Errorf("===>[ERROR from GetConsensusNode]Unmarshal conf failed:%s", err))
 	}
 
 	for i := 0; i < 7; i++ {
@@ -419,24 +299,24 @@ func GetConsensusNode() []NodeConfig {
 	return nodeConfig
 }
 
-// get messages from config file
+// read configurations from config file
 func ReadConfig() {
 	var configuration = new(Configurations)
 
 	// set config file
 	configViper := viper.New()
-	configViper.SetConfigFile("../config.yml")
+	configViper.SetConfigFile("../Configuration/config.yml")
 	outputViper := viper.New()
-	outputViper.SetConfigFile("../output.yml")
+	outputViper.SetConfigFile("../Configuration/output.yml")
 
 	if err := configViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from ReadConfig]Read config file failed:%s", err))
 	}
 	if err := configViper.Unmarshal(configuration); err != nil {
-		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
+		panic(fmt.Errorf("===>[ERROR from ReadConfig]Unmarshal conf failed:%s", err))
 	}
 
-	fmt.Printf("Reading using model:\n")
+	fmt.Printf("\nReading Configuration:\n")
 	fmt.Printf("Running:%v\n", configuration.Running)
 	fmt.Printf("Version:%s\n", configuration.Version)
 	fmt.Printf("PreviousOutput:%s\n", outputViper.GetString("PreviousOutput"))

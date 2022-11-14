@@ -7,14 +7,29 @@ import (
 	"github.com/spf13/viper"
 )
 
-// get g from config
+// get groupLength L from config file
+func GetL() int {
+	// set config file
+	configViper := viper.New()
+	configViper.SetConfigFile("../Configuration/TC.yml")
+
+	if err := configViper.ReadInConfig(); err != nil {
+		panic(fmt.Errorf("===>[ERROR from GetG]Read config file failed:%s", err))
+	}
+
+	l := configViper.GetInt("groupLength")
+
+	return l
+}
+
+// get g from config file
 func GetG() *big.Int {
 	// set config file
 	configViper := viper.New()
-	configViper.SetConfigFile("../TC.yml")
+	configViper.SetConfigFile("../Configuration/TC.yml")
 
 	if err := configViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from GetG]Read config file failed:%s", err))
 	}
 
 	g := new(big.Int)
@@ -23,14 +38,14 @@ func GetG() *big.Int {
 	return g
 }
 
-// get N from config
+// get N from config file
 func GetN() *big.Int {
 	// set config file
 	configViper := viper.New()
-	configViper.SetConfigFile("../TC.yml")
+	configViper.SetConfigFile("../Configuration/TC.yml")
 
 	if err := configViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from GetN]Read config file failed:%s", err))
 	}
 
 	N := new(big.Int)
@@ -39,14 +54,14 @@ func GetN() *big.Int {
 	return N
 }
 
-// get primes from config
+// get primes from config file
 func GetPrimes() []*big.Int {
 	// set config file
 	configViper := viper.New()
-	configViper.SetConfigFile("../TC.yml")
+	configViper.SetConfigFile("../Configuration/TC.yml")
 
 	if err := configViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from GetPrimes]Read config file failed:%s", err))
 	}
 
 	var primes []*big.Int
@@ -60,14 +75,14 @@ func GetPrimes() []*big.Int {
 	return primes
 }
 
-// get N from config
+// get N from config file
 func GetMArray() []*big.Int {
 	// set config file
 	configViper := viper.New()
-	configViper.SetConfigFile("../TC.yml")
+	configViper.SetConfigFile("../Configuration/TC.yml")
 
 	if err := configViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from GetMArray]Read config file failed:%s", err))
 	}
 
 	var mArray []*big.Int
@@ -75,9 +90,7 @@ func GetMArray() []*big.Int {
 	for _, m := range mArrayString {
 		mBigint, _ := new(big.Int).SetString(m, 10)
 		mArray = append(mArray, mBigint)
-		// fmt.Println(mBigint)
 	}
-	fmt.Println("Length of m array is", len(mArray))
 
 	return mArray
 }

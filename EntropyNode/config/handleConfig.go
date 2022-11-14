@@ -7,9 +7,8 @@ import (
 )
 
 type Configurations struct {
-	Running bool   `mapstructure:"running"`
-	Version string `mapstructure:"version"`
-	// PreviousOutput string `mapstructure:"previousOutput"`
+	Running       bool   `mapstructure:"running"`
+	Version       string `mapstructure:"version"`
 	EllipticCurve string `mapstructure:"ellipticCurve"`
 	VRFType       int    `mapstructure:"vrfType"`
 	TCType        int    `mapstructure:"tcType"`
@@ -40,59 +39,59 @@ type NodeConfig struct {
 	Pk string
 }
 
-// get difficulty from config
+// get difficulty from config file
 func GetDifficulty() int {
 	// set config file
 	configViper := viper.New()
-	configViper.SetConfigFile("../config.yml")
+	configViper.SetConfigFile("../Configuration/config.yml")
 
 	if err := configViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from GetDifficulty]Read config file failed:%s", err))
 	}
 
 	return configViper.GetInt("Difficulty")
 }
 
-// get curve from config
+// get curve from config file
 func GetCurve() string {
 	// set config file
 	configViper := viper.New()
-	configViper.SetConfigFile("../config.yml")
+	configViper.SetConfigFile("../Configuration/config.yml")
 
 	if err := configViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from GetCurve]Read config file failed:%s", err))
 	}
 
 	return configViper.GetString("EllipticCurve")
 }
 
-// get previous output from config
+// get previous output from config file
 func GetPreviousOutput() string {
 	// set config file
 	outputViper := viper.New()
-	outputViper.SetConfigFile("../output.yml")
+	outputViper.SetConfigFile("../Configuration/output.yml")
 
 	if err := outputViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from GetPreviousOutput]Read config file failed:%s", err))
 	}
 
 	return outputViper.GetString("PreviousOutput")
 }
 
-// get consensus nodes from config
+// get consensus nodes from config file
 func GetConsensusNode() []NodeConfig {
 	var nodeConfig []NodeConfig
 	var configuration = new(Configurations)
 
 	// set config file
 	configViper := viper.New()
-	configViper.SetConfigFile("../config.yml")
+	configViper.SetConfigFile("../Configuration/config.yml")
 
 	if err := configViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from GetConsensusNode]Read config file failed:%s", err))
 	}
 	if err := configViper.Unmarshal(configuration); err != nil {
-		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
+		panic(fmt.Errorf("===>[ERROR from GetConsensusNode]Unmarshal conf failed:%s", err))
 	}
 
 	for i := 0; i < 7; i++ {
@@ -132,24 +131,24 @@ func GetConsensusNode() []NodeConfig {
 	return nodeConfig
 }
 
-// get messages from config file
+// read configurations from config file
 func ReadConfig() {
 	var configuration = new(Configurations)
 
 	// set config file
 	configViper := viper.New()
-	configViper.SetConfigFile("../config.yml")
+	configViper.SetConfigFile("../Configuration/config.yml")
 	outputViper := viper.New()
-	outputViper.SetConfigFile("../output.yml")
+	outputViper.SetConfigFile("../Configuration/output.yml")
 
 	if err := configViper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("===>[ERROR from ReadConfig]Read config file failed:%s", err))
 	}
 	if err := configViper.Unmarshal(configuration); err != nil {
-		panic(fmt.Errorf("unmarshal conf failed, err:%s", err))
+		panic(fmt.Errorf("===>[ERROR from ReadConfig]Unmarshal conf failed:%s", err))
 	}
 
-	fmt.Printf("Reading using model:\n")
+	fmt.Printf("\nReading Configuration:\n")
 	fmt.Printf("Running:%v\n", configuration.Running)
 	fmt.Printf("Version:%s\n", configuration.Version)
 	fmt.Printf("PreviousOutput:%s\n", outputViper.GetString("PreviousOutput"))

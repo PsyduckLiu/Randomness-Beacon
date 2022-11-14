@@ -1,0 +1,75 @@
+package tc
+
+import (
+	"consensusNode/config"
+	"consensusNode/util"
+	"fmt"
+	"math/big"
+)
+
+// verify TC
+func VerifyTC(A1 string, A2 string, A3 string, Z string, H string, RKSubOne string, RK string) bool {
+	mArray := config.GetMArray()
+	g := config.GetG()
+	N := config.GetN()
+	a1, _ := new(big.Int).SetString(A1, 10)
+	a2, _ := new(big.Int).SetString(A2, 10)
+	a3, _ := new(big.Int).SetString(A3, 10)
+	z, _ := new(big.Int).SetString(Z, 10)
+	h, _ := new(big.Int).SetString(H, 10)
+	rKSubOne, _ := new(big.Int).SetString(RKSubOne, 10)
+	rK, _ := new(big.Int).SetString(RK, 10)
+
+	nHash := new(big.Int).SetBytes(util.Digest(N))
+	gHash := new(big.Int).SetBytes(util.Digest((g)))
+	mSubOneHash := new(big.Int).SetBytes(util.Digest(mArray[len(mArray)-3]))
+	mHash := new(big.Int).SetBytes(util.Digest(mArray[len(mArray)-2]))
+	a1Hash := new(big.Int).SetBytes(util.Digest(a1))
+	a2Hash := new(big.Int).SetBytes(util.Digest(a2))
+	a3Hash := new(big.Int).SetBytes(util.Digest(a3))
+
+	e := big.NewInt(0)
+	e.Xor(e, gHash)
+	e.Xor(e, nHash)
+	e.Xor(e, mSubOneHash)
+	e.Xor(e, mHash)
+	e.Xor(e, a1Hash)
+	e.Xor(e, a2Hash)
+	e.Xor(e, a3Hash)
+
+	result1 := new(big.Int).Set(g)
+	result1.Exp(result1, z, N)
+	result2 := new(big.Int).Set(h)
+	result2.Exp(result2, e, N)
+	result1.Mul(result1, result2)
+	result1.Mod(result1, N)
+
+	result3 := new(big.Int).Set(mArray[len(mArray)-3])
+	result3.Exp(result3, z, N)
+	result4 := new(big.Int).Set(rKSubOne)
+	result4.Exp(result4, e, N)
+	result3.Mul(result3, result4)
+	result3.Mod(result3, N)
+
+	result5 := new(big.Int).Set(mArray[len(mArray)-2])
+	result5.Exp(result5, z, N)
+	result6 := new(big.Int).Set(rK)
+	result6.Exp(result6, e, N)
+	result5.Mul(result5, result6)
+	result5.Mod(result5, N)
+
+	if a1.Cmp(result1) != 0 {
+		fmt.Println("===>[VerifyTC]test1 error")
+		return false
+	}
+	if a2.Cmp(result3) != 0 {
+		fmt.Println("===>[VerifyTC]test2 error")
+		return false
+	}
+	if a3.Cmp(result5) != 0 {
+		fmt.Println("===>[VerifyTC]test3 error")
+		return false
+	}
+
+	return true
+}
