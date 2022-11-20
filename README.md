@@ -1,23 +1,28 @@
 # Randomness-Beacon
 VRF,PBFT,Time Commitment
 
-
-
+## Golang
 ```
-$ export GO111MODULE=on
-$ export GOPROXY=https://goproxy.cn
-go env -w GOSUMDB=sum.golang.google.cn
-```
+wget -c https://dl.google.com/go/go1.19.3.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
+export PATH=$PATH:/usr/local/go/bin
+source ~/.profile
 
-```
+sudo vim /etc/profile
+最后一行加入 export PATH=$PATH:/usr/local/go/bin
+
 sudo vim /etc/sudoers
 在这行加入go的/usr/local/go/bin路径：
 保存退出后，再次使用sudo go 
+
+export GO111MODULE=on
+export GOPROXY=https://goproxy.cn
 ```
 
+![add config](pics/1.png)
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/202103251115420.png)
 
-Initial environment setup:
+## Go-Algorand
+### Initial environment setup:
 
 ```
 git clone https://github.com/algorand/go-algorand
@@ -26,93 +31,14 @@ sudo ./scripts/configure_dev.sh
 sudo ./scripts/buildtools/install_buildtools.sh
 ```
 
-#### build
+### build
 
 ```
 sudo make install
 ```
 
-
-
-
-
-scripts/local_install.sh
-
+## Randomness Beacon
 ```
-#!/usr/bin/env bash
-
-set -e
-
-export CHANNEL="dev"
-
-TARGETBINDIR=""
-DATADIRSPEC=""
-NOINSTALL=0
-ADDITIONALFLAGS=""
-
-while [ "$1" != "" ]; do
-    case "$1" in
-        -p)
-            shift
-            TARGETBINDIR="$1"
-            ;;
-        -c)
-            shift
-            export CHANNEL="$1"
-            ;;
-        -d)
-            shift
-            DATADIRSPEC+="-d $1 "
-            ;;
-        -n)
-            NOINSTALL=1
-            ;;
-        -f)
-            shift
-            ADDITIONALFLAGS="$1"
-            ;;
-        *)
-            echo "Unknown option" "$1"
-            exit 1
-            ;;
-    esac
-    shift
-done
-
-if [ ${NOINSTALL} -eq 0 ]; then
-    if [ "${TARGETBINDIR}" = "" ]; then
-        echo "Target path not specified.  Please specify the target path for binaries with -p <path>"
-        exit 1
-    fi
-
-    if [ "${DATADIRSPEC}" = "" ]; then
-        if [ "${CHANNEL}" = "dev" ]; then
-            DATADIRSPEC="-d ${HOME}/.algorand"
-        else
-            DATADIRSPEC="-d ${HOME}/.algorand-testnet"
-        fi
-    fi
-fi
-
-# Build install package into ~/dev_pkg
-if [ -z "${PKG_ROOT}" ]; then
-    export PKG_ROOT=$(pwd)/tmp/dev_pkg
-    # rm -rf ${PKG_ROOT}
-fi
-# mkdir -p ${PKG_ROOT}
-
-# Generate the install package
-echo "Generating update package..."
-./scripts/build_package.sh $(./scripts/ostype.sh) $(./scripts/archtype.sh) ${PKG_ROOT}
-
-echo "Running update script from install package..."
-cd ${PKG_ROOT}/bin
-./update.sh -i -r -p ${TARGETBINDIR} -c ${CHANNEL} -n ${DATADIRSPEC} ${ADDITIONALFLAGS}
-
-# if [ ${NOINSTALL} -eq 0 ]; then
-#     echo "Running update script from install package..."
-    # ${PKG_ROOT}/bin/update.sh -i -r -p ${TARGETBINDIR} -c ${CHANNEL} -n ${DATADIRSPEC} ${ADDITIONALFLAGS}
-# fi
-
+sudo git clone https://github.com/PsyduckLiu/Randomness-Beacon.git
+cd Randomness-Beacon
 ```
-
