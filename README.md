@@ -41,4 +41,5 @@ sudo make install
 ```
 sudo git clone https://github.com/PsyduckLiu/Randomness-Beacon.git
 cd Randomness-Beacon
+cd Command
 ```
