@@ -238,7 +238,7 @@ func (s *StateEngine) reSendSubmitMsg() {
 		if err := s.P2pWire.SendUniqueNode(conn, sMsg); err != nil {
 			panic(fmt.Errorf("===>[ERROR from reSendSubmitMsg]Send message error:%s", err))
 		}
-		time.Sleep(150 * time.Millisecond)
+		time.Sleep(1500 * time.Millisecond)
 	}
 
 	s.stage = Approve
