@@ -174,7 +174,7 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 						if err := s.P2pWire.BroadCast(aMsg); err != nil {
 							panic(fmt.Errorf("===>[ERROR from StartConsensus]Broadcast failed:%s", err))
 						}
-						time.Sleep(300 * time.Millisecond)
+						time.Sleep(150 * time.Millisecond)
 					}
 				}
 
@@ -392,7 +392,7 @@ func (s *StateEngine) WaitTC(sig chan interface{}) {
 
 // handle different kinds of consensus messages
 func (s *StateEngine) procConsensusMsg(msg *message.ConMessage) (err error) {
-	// time.Sleep(200 * time.Millisecond)
+	time.Sleep(200 * time.Millisecond)
 
 	fmt.Printf("\n===>[procConsensusMsg]Consesus message type:[%s] from Node[%d]\n", msg.Typ, msg.From)
 	fmt.Println("===>[procConsensusMsg]Stage is", s.stage)
@@ -422,7 +422,7 @@ func (s *StateEngine) procConsensusMsg(msg *message.ConMessage) (err error) {
 
 // handle different kinds of manage messages
 func (s *StateEngine) procManageMsg(msg *message.ConMessage) (err error) {
-	// time.Sleep(200 * time.Millisecond)
+	time.Sleep(200 * time.Millisecond)
 
 	fmt.Printf("\n===>[procConsensusMsg]Manage message type:[%s] from Node[%d]\n", msg.Typ, msg.From)
 	fmt.Println("===>[procConsensusMsg]Stage is", s.stage)
