@@ -9,24 +9,24 @@ import (
 
 func GenerateCommit(bits int, groupParameter *GroupParameter) (*big.Int, *big.Int, *big.Int, *big.Int) {
 	mArray := config.GetMArray()
-	fmt.Println("[Commit]Length of m array is", len(mArray))
+	// fmt.Println("[Commit]Length of m array is", len(mArray))
 	g := config.GetG()
-	fmt.Println("[Commit]Get g is", g)
+	// fmt.Println("[Commit]Get g is", g)
 	N := config.GetN()
-	fmt.Println("[Commit]Get N is", N)
+	// fmt.Println("[Commit]Get N is", N)
 
 	nSqrt := new(big.Int)
 	upperBound := new(big.Int)
 	nSqrt.Sqrt(N)
 	nSqrt.Add(nSqrt, nSqrt)
 	upperBound.Sub(N, nSqrt)
-	fmt.Println("[Commit]upper bound is", upperBound)
+	// fmt.Println("[Commit]upper bound is", upperBound)
 
 	alpha, err := rand.Int(rand.Reader, upperBound)
 	if err != nil {
 		fmt.Println("[Commit]generate alpha wrong", err)
 	}
-	fmt.Println("[Commit]alpha is", alpha)
+	// fmt.Println("[Commit]alpha is", alpha)
 
 	h := new(big.Int)
 	rKSubOne := new(big.Int)
@@ -36,10 +36,10 @@ func GenerateCommit(bits int, groupParameter *GroupParameter) (*big.Int, *big.In
 	rKSubOne.Exp(mArray[len(mArray)-3], alpha, N)
 	rK.Exp(mArray[len(mArray)-2], alpha, N)
 	r.Exp(mArray[len(mArray)-1], alpha, N)
-	fmt.Println("[Commit]h is", h)
-	fmt.Println("[Commit]rKSubOne is", rKSubOne)
-	fmt.Println("[Commit]rK is", rK)
-	fmt.Println("[Commit]r is", r)
+	// fmt.Println("[Commit]h is", h)
+	// fmt.Println("[Commit]rKSubOne is", rKSubOne)
+	// fmt.Println("[Commit]rK is", rK)
+	// fmt.Println("[Commit]r is", r)
 
 	c := new(big.Int)
 	upper, e := big.NewInt(2), big.NewInt(int64(bits))
@@ -52,17 +52,17 @@ func GenerateCommit(bits int, groupParameter *GroupParameter) (*big.Int, *big.In
 	}
 
 	c.Xor(msg, r)
-	fmt.Println("[Commit]msg is", msg)
-	fmt.Println("[Commit]c is", c)
+	// fmt.Println("[Commit]msg is", msg)
+	// fmt.Println("[Commit]c is", c)
 
 	phiN := new(big.Int).Set(bigOne)
 	for _, prime := range groupParameter.Primes {
 		primeSubOne := new(big.Int)
 		primeSubOne.Sub(prime, bigOne)
-		fmt.Println(primeSubOne)
+		// fmt.Println(primeSubOne)
 		phiN.Mul(phiN, primeSubOne)
 	}
-	fmt.Println("[Commit]Phi N is", phiN)
+	// fmt.Println("[Commit]Phi N is", phiN)
 
 	w, _ := rand.Int(rand.Reader, phiN)
 	a1 := new(big.Int)

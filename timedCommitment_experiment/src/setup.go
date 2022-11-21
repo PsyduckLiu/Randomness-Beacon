@@ -99,16 +99,16 @@ func GeneratePublicParameter(groupP *GroupParameter, bits int, k int) (*big.Int,
 	if err != nil {
 		fmt.Println("[Setup]generate h wrong", err)
 	}
-	fmt.Println("[Setup]H is", h)
+	// fmt.Println("[Setup]H is", h)
 
 	phiN := new(big.Int).Set(bigOne)
 	for _, prime := range groupP.Primes {
 		primeSubOne := new(big.Int)
 		primeSubOne.Sub(prime, bigOne)
-		fmt.Println(primeSubOne)
+		// fmt.Println(primeSubOne)
 		phiN.Mul(phiN, primeSubOne)
 	}
-	fmt.Println("[Setup]Phi N is", phiN)
+	// fmt.Println("[Setup]Phi N is", phiN)
 
 	power := new(big.Int).Set(bigOne)
 	for _, p := range primesUnder128 {
@@ -119,7 +119,7 @@ func GeneratePublicParameter(groupP *GroupParameter, bits int, k int) (*big.Int,
 	}
 	g := new(big.Int)
 	g.Exp(h, power, groupP.N)
-	fmt.Println("[Setup]G is", g)
+	// fmt.Println("[Setup]G is", g)
 
 	for i := 0; i <= k; i++ {
 		// fmt.Println("Number", i)
@@ -141,7 +141,7 @@ func GeneratePublicParameter(groupP *GroupParameter, bits int, k int) (*big.Int,
 			mArray = append(mArray, mFirst)
 		}
 	}
-	fmt.Println("[Setup]Length of m array is", len(mArray))
+	// fmt.Println("[Setup]Length of m array is", len(mArray))
 
 	var proofSet [][3]string
 	for i := 0; i < k; i++ {

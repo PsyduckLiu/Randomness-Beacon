@@ -100,7 +100,7 @@ func GetMArray() []*big.Int {
 		mArray = append(mArray, mBigint)
 		// fmt.Println(mBigint)
 	}
-	fmt.Println("Length of m array is", len(mArray))
+	// fmt.Println("Length of m array is", len(mArray))
 
 	return mArray
 }
