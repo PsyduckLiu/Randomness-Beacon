@@ -263,10 +263,10 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 			go s.WaitTC(sig)
 
 			// start 3 timers for a new round
-			s.GlobalTimer.tick(45 * time.Second)
+			s.GlobalTimer.tick(40 * time.Second)
 			s.CollectTimer.tick(5 * time.Second)
 			if s.NodeID == s.PrimaryID {
-				s.SubmitTimer.tick(30 * time.Second)
+				s.SubmitTimer.tick(25 * time.Second)
 			}
 		}
 

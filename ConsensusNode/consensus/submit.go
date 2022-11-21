@@ -34,7 +34,7 @@ func (s *StateEngine) sendUnionMsg() {
 		if err := s.P2pWire.SendUniqueNode(conn, sMsg); err != nil {
 			panic(fmt.Errorf("===>[ERROR from sendUnionMsg]send message error:%s", err))
 		}
-		time.Sleep(800 * time.Millisecond)
+		time.Sleep(500 * time.Millisecond)
 	}
 
 	s.stage = Approve
