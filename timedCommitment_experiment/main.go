@@ -17,7 +17,7 @@ func main() {
 	var timeTotal []float64
 	var timeAverage []float64
 
-	timeParameters := [...]int{15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27}
+	timeParameters := [...]int{15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28}
 	for _, timeParameter := range timeParameters {
 		time := 0.0
 

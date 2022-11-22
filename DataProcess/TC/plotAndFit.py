@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-# data = np.loadtxt(open("resultCloud1.csv","rb"),delimiter=",",usecols=[0,1])
-data = np.loadtxt(open("resultWSL1.csv","rb"),delimiter=",",usecols=[0,1])
+# data = np.loadtxt(open("resultCloud2.csv","rb"),delimiter=",",usecols=[0,1])
+data = np.loadtxt(open("resultASUSWSL1.csv","rb"),delimiter=",",usecols=[0,1])
 
 x = data[:,1]
 x = x.astype('int')
