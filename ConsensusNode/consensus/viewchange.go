@@ -161,8 +161,8 @@ func (s *StateEngine) createNewViewMsg(newVID int64) error {
 	s.SubmitNum = 0
 	s.TimeCommitmentSubmit = make(map[int64]int)
 	s.TimeCommitmentApprove = make(map[string]bool)
-	s.SubmitTimer.tick(20 * time.Second)
-	s.GlobalTimer.tick(35 * time.Second)
+	s.SubmitTimer.tick(1 * time.Second)
+	s.GlobalTimer.tick(60 * time.Second)
 
 	return nil
 }

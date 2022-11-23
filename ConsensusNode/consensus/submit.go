@@ -16,6 +16,8 @@ import (
 
 // backups send union message
 func (s *StateEngine) sendUnionMsg() {
+	time.Sleep(100 * time.Millisecond)
+
 	// new submit message
 	// send submit message to primary node
 	for key, value := range s.TimeCommitment {
@@ -33,7 +35,7 @@ func (s *StateEngine) sendUnionMsg() {
 		if err := s.P2pWire.SendUniqueNode(conn, sMsg); err != nil {
 			panic(fmt.Errorf("===>[ERROR from sendUnionMsg]send message error:%s", err))
 		}
-		time.Sleep(150 * time.Millisecond)
+		time.Sleep(300 * time.Millisecond)
 	}
 
 	s.stage = Approve

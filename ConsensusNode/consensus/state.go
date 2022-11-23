@@ -95,7 +95,7 @@ func InitConsensus(id int64) *StateEngine {
 
 // To start randomness beacon, primary writes a random output into output.yml
 func (s *StateEngine) WriteRandomOutput() {
-	time.Sleep(30 * time.Second)
+	time.Sleep(40 * time.Second)
 	fmt.Println("\n===>[WriteRandomOutput]start wirte config")
 
 	// generate random init input
@@ -141,12 +141,17 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 				fmt.Println("===>[Collect]value is", value)
 			}
 
+			if s.NodeID == s.PrimaryID {
+				s.SubmitTimer.tick(1 * time.Second)
+			}
+
 		// Submit timer out
 		// primary checks [SubmitNum] and decides whether to send Approve message
 		case <-s.SubmitTimer.C:
 			fmt.Println("\n===>[Union]submit timer out,submit number is", s.SubmitNum)
 			if s.SubmitNum >= 2*util.MaxFaultyNode+1 {
 				s.SubmitTimer.tack()
+				s.stage = Submit
 
 				// new approve message
 				// send approve message to backup nodes
@@ -181,6 +186,8 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 				s.stage = Confirm
 				s.ConfirmNum++
 				fmt.Printf("===>[Union]Send approve message success\n")
+			} else {
+				s.SubmitTimer.tick(1 * time.Second)
 			}
 
 		// handle consensus message received from other consensus nodes
@@ -263,11 +270,11 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 			go s.WaitTC(sig)
 
 			// start 3 timers for a new round
-			s.GlobalTimer.tick(35 * time.Second)
+			s.GlobalTimer.tick(60 * time.Second)
 			s.CollectTimer.tick(5 * time.Second)
-			if s.NodeID == s.PrimaryID {
-				s.SubmitTimer.tick(20 * time.Second)
-			}
+			// if s.NodeID == s.PrimaryID {
+			// 	s.SubmitTimer.tick(1 * time.Second)
+			// }
 		}
 
 		// unlock file
@@ -392,7 +399,7 @@ func (s *StateEngine) WaitTC(sig chan interface{}) {
 
 // handle different kinds of consensus messages
 func (s *StateEngine) procConsensusMsg(msg *message.ConMessage) (err error) {
-	time.Sleep(200 * time.Millisecond)
+	// time.Sleep(200 * time.Millisecond)
 
 	fmt.Printf("\n===>[procConsensusMsg]Consesus message type:[%s] from Node[%d]\n", msg.Typ, msg.From)
 	fmt.Println("===>[procConsensusMsg]Stage is", s.stage)
@@ -422,7 +429,7 @@ func (s *StateEngine) procConsensusMsg(msg *message.ConMessage) (err error) {
 
 // handle different kinds of manage messages
 func (s *StateEngine) procManageMsg(msg *message.ConMessage) (err error) {
-	time.Sleep(200 * time.Millisecond)
+	// time.Sleep(200 * time.Millisecond)
 
 	fmt.Printf("\n===>[procConsensusMsg]Manage message type:[%s] from Node[%d]\n", msg.Typ, msg.From)
 	fmt.Println("===>[procConsensusMsg]Stage is", s.stage)

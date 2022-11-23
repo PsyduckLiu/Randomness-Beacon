@@ -130,6 +130,7 @@ func WatchConfig(ecdsaSK *ecdsa.PrivateKey, vrfSK crypto.VrfPrivkey, id int, sig
 
 				// send VRF messages and TC messages
 				fmt.Println()
+				time.Sleep(100 * time.Millisecond)
 				sendVRFMsg(ecdsaSK, vrfSK, vrfResult, msg.Data, int64(id), sig)
 				time.Sleep(100 * time.Millisecond)
 				fmt.Println()

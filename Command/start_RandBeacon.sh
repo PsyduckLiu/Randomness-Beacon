@@ -13,7 +13,7 @@ done
 sleep 5
 
 cd ../EntropyNode
-for i in $(seq 0 9)
+for i in $(seq 0 19)
 do
 go run main.go $i > result/result$i.txt &
 sleep 1
