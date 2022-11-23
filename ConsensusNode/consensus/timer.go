@@ -5,6 +5,10 @@ import "time"
 // timer
 const StateTimerOut = 5 * time.Second
 
+var timeArray []float64
+var lastTime time.Time
+var outputNum int = 0
+
 type RequestTimer struct {
 	*time.Ticker
 	IsOk bool

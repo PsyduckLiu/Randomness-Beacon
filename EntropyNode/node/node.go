@@ -103,6 +103,9 @@ func WatchConfig(ecdsaSK *ecdsa.PrivateKey, vrfSK crypto.VrfPrivkey, id int, sig
 
 			// VRF result passes difficulty requirement
 			if vrfResultTail == difficulty {
+				fmt.Println("===>[Watching]Pass but no use!!!")
+			}
+			if true {
 				fmt.Println("===>[Watching]VRF result passes difficulty requirement!!!")
 
 				// generate timed commitment

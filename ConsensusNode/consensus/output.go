@@ -8,8 +8,12 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/x509"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"log"
+	"os"
+	"strconv"
 	"time"
 )
 
@@ -62,10 +66,42 @@ func (s *StateEngine) outputTC(msg *message.ConMessage) (err error) {
 			s.GlobalTimer.tack()
 			util.WriteResult(s.Result.String())
 			s.stage = Collect
+
+			outputNum++
+			if outputNum != 1 {
+				currentTime := time.Now()
+				timeArray = append(timeArray, float64(currentTime.Sub(lastTime).Seconds()))
+			}
+			lastTime = time.Now()
+			if outputNum == 10 {
+				writeDataFile(timeArray)
+			}
+
 			time.Sleep(5 * time.Second)
 			config.WriteOutput(s.Result.String())
 		}
 	}
 
 	return
+}
+
+func writeDataFile(timeArray []float64) {
+	// create a file
+	file, err := os.Create("time.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	// initialize csv writer
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	var data []string
+	for index, _ := range timeArray {
+		data = append(data, string(strconv.FormatFloat(timeArray[index], 'f', 5, 32)))
+	}
+
+	// write all rows at once
+	writer.Write(data)
 }

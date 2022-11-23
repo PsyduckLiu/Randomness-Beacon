@@ -101,7 +101,8 @@ func (s *StateEngine) handleTC() (err error) {
 		sk := s.P2pWire.GetMySecretkey()
 		oMsg := message.CreateConMsg(message.MTOutput, s.Result.String(), sk, s.NodeID)
 		conn := s.P2pWire.GetPrimaryConn(s.PrimaryID)
-		time.Sleep(200 * time.Millisecond)
+
+		time.Sleep(500 * time.Millisecond)
 		if err := s.P2pWire.SendUniqueNode(conn, oMsg); err != nil {
 			panic(fmt.Errorf("===>[ERROR from handleTC]send message error:%s", err))
 		}

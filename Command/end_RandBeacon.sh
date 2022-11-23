@@ -12,7 +12,7 @@ cat configInit.yml > config.yml
 cat outputInit.yml > output.yml
 cat TCInit.yml > TC.yml
 # kill -9 `ps -ef |grep main|awk '{print $2}'`
-for i in $(seq 0 19)
+for i in $(seq 0 59)
 do
 kill -9 `ps -ef |grep exe/main\ $i|awk '{print $2}'`
 done

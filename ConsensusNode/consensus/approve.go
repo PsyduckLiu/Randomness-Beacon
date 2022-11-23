@@ -10,6 +10,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // backups check union tc sent by primary
@@ -60,6 +61,8 @@ func (s *StateEngine) approveTC(msg *message.ConMessage) (err error) {
 	}
 	s.TimeCommitmentApprove[key] = true
 	s.ApproveNum++
+	fmt.Printf("===>[Approve]Current length is %d\n", s.ApproveNum)
+
 	if s.ApproveNum == approve.Length {
 		// check whether local TC is a subset of Approve.UnionTC
 		for _, flag := range s.TimeCommitmentApprove {
@@ -69,6 +72,7 @@ func (s *StateEngine) approveTC(msg *message.ConMessage) (err error) {
 			}
 		}
 		s.ConfirmNum++
+		s.stage = Confirm
 		s.sendConfirmMsg()
 	}
 
@@ -77,6 +81,8 @@ func (s *StateEngine) approveTC(msg *message.ConMessage) (err error) {
 
 // backups broadcast confirm message
 func (s *StateEngine) sendConfirmMsg() {
+	time.Sleep(200 * time.Millisecond)
+
 	confirm := &message.Confirm{
 		Length: len(s.TimeCommitment),
 	}
@@ -88,6 +94,5 @@ func (s *StateEngine) sendConfirmMsg() {
 		panic(fmt.Errorf("===>[ERROR from sendConfirmMsg]send message error:%s", err))
 	}
 
-	s.stage = Confirm
 	fmt.Printf("===>[Approve]Send confirm message success\n")
 }
