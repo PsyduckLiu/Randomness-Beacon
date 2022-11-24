@@ -12,7 +12,7 @@ import (
 )
 
 // to be modified
-const MaxFaultyNode = 6
+const MaxFaultyNode = 2
 const TotalNodeNum = 3*MaxFaultyNode + 1
 
 type MessageHashable struct {

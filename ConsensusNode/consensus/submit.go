@@ -16,11 +16,14 @@ import (
 
 // backups send union message
 func (s *StateEngine) sendUnionMsg() {
-	time.Sleep(500 * time.Millisecond)
+	// time.Sleep(500 * time.Millisecond)
 
 	// new submit message
 	// send submit message to primary node
 	for key, value := range s.TimeCommitment {
+		// time.Sleep(500 * time.Millisecond)
+		time.Sleep(1500 * time.Millisecond)
+
 		tc := value
 		tcProof := s.TimeCommitmentProof[key]
 		submit := &message.Submit{
@@ -36,7 +39,7 @@ func (s *StateEngine) sendUnionMsg() {
 			panic(fmt.Errorf("===>[ERROR from sendUnionMsg]send message error:%s", err))
 		}
 		// time.Sleep(500 * time.Millisecond)
-		time.Sleep(1 * time.Second)
+		// time.Sleep(1500 * time.Millisecond)
 	}
 
 	s.stage = Approve
@@ -97,16 +100,17 @@ func (s *StateEngine) unionTC(msg *message.ConMessage) (err error) {
 	}
 
 	// Count SubmitNum
+	s.Mutex.Lock()
 	if _, ok := s.TimeCommitmentSubmit[msg.From]; !ok {
 		fmt.Printf("===>[Union]node[%d]Starts sending submit messages\n", msg.From)
-		s.Mutex.Lock()
 		s.TimeCommitmentSubmit[msg.From] = 0
-		s.Mutex.Unlock()
+
 	}
 	s.TimeCommitmentSubmit[msg.From]++
 	if s.TimeCommitmentSubmit[msg.From] == submit.Length {
 		s.SubmitNum++
 	}
+	s.Mutex.Unlock()
 
 	return
 }

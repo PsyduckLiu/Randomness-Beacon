@@ -95,7 +95,7 @@ func InitConsensus(id int64) *StateEngine {
 
 // To start randomness beacon, primary writes a random output into output.yml
 func (s *StateEngine) WriteRandomOutput() {
-	time.Sleep(40 * time.Second)
+	time.Sleep(30 * time.Second)
 	fmt.Println("\n===>[WriteRandomOutput]start wirte config")
 
 	// generate random init input
@@ -166,11 +166,12 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 						panic(fmt.Errorf("===>[ERROR from StartConsensus]Broadcast failed:%s", err))
 					}
 				} else {
-					time.Sleep(500 * time.Millisecond)
+					// time.Sleep(500 * time.Millisecond)
 
 					// send right approve message
 					var tc [4]string
 					for _, value := range s.TimeCommitment {
+						time.Sleep(500 * time.Millisecond)
 						tc = value
 						approve = &message.Approve{
 							Length:  len(s.TimeCommitment),
@@ -181,7 +182,8 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 						if err := s.P2pWire.BroadCast(aMsg); err != nil {
 							panic(fmt.Errorf("===>[ERROR from StartConsensus]Broadcast failed:%s", err))
 						}
-						time.Sleep(150 * time.Millisecond)
+						// time.Sleep(150 * time.Millisecond)
+						// time.Sleep(300 * time.Millisecond)
 					}
 				}
 

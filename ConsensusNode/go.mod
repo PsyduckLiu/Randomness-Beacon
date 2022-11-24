@@ -2,7 +2,7 @@ module consensusNode
 
 go 1.19
 
-replace github.com/algorand/go-algorand => /home/psyduck/go-algorand
+replace github.com/algorand/go-algorand => /home/psyduckliu/go-algorand
 
 require (
 	github.com/algorand/go-algorand v0.0.0-20221104232023-0eae1c0cf258
