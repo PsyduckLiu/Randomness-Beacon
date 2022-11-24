@@ -11,6 +11,10 @@ import (
 	"fmt"
 )
 
+// to be modified
+const MaxFaultyNode = 6
+const TotalNodeNum = 3*MaxFaultyNode + 1
+
 type MessageHashable struct {
 	Data []byte
 }
