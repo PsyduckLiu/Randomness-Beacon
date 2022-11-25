@@ -66,19 +66,25 @@ func (s *StateEngine) outputTC(msg *message.ConMessage) (err error) {
 			s.GlobalTimer.tack()
 			util.WriteResult(s.Result.String())
 			s.stage = Collect
+			s.quit <- true
+
+			time.Sleep(5 * time.Second)
+			config.WriteOutput(s.Result.String())
 
 			outputNum++
-			if outputNum != 1 {
+			if outputNum > 1 {
 				currentTime := time.Now()
 				timeArray = append(timeArray, float64(currentTime.Sub(lastTime).Seconds()))
 			}
 			lastTime = time.Now()
-			if outputNum == 10 {
+			if outputNum == 11 {
 				writeDataFile(timeArray)
 			}
 
-			time.Sleep(5 * time.Second)
-			config.WriteOutput(s.Result.String())
+			// fmt.Println("the number of goroutines: ", runtime.NumGoroutine())
+			// buf := make([]byte, 64*1024)
+			// runtime.Stack(buf, true)
+			// fmt.Println("the detail of goroutines: ", string(buf))
 		}
 	}
 

@@ -11,6 +11,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"runtime"
 	"time"
 )
 
@@ -21,8 +22,7 @@ func (s *StateEngine) sendUnionMsg() {
 	// new submit message
 	// send submit message to primary node
 	for key, value := range s.TimeCommitment {
-		// time.Sleep(500 * time.Millisecond)
-		time.Sleep(1500 * time.Millisecond)
+		time.Sleep(500 * time.Millisecond)
 
 		tc := value
 		tcProof := s.TimeCommitmentProof[key]
@@ -48,6 +48,7 @@ func (s *StateEngine) sendUnionMsg() {
 
 // primary union received TC
 func (s *StateEngine) unionTC(msg *message.ConMessage) (err error) {
+	start := time.Now()
 	fmt.Printf("\n===>[Union]Current Submit(Union) Message from Node[%d]\n", msg.From)
 	nodeConfig := config.GetConsensusNode()
 
@@ -100,17 +101,19 @@ func (s *StateEngine) unionTC(msg *message.ConMessage) (err error) {
 	}
 
 	// Count SubmitNum
-	s.Mutex.Lock()
+	// s.Mutex.Lock()
 	if _, ok := s.TimeCommitmentSubmit[msg.From]; !ok {
 		fmt.Printf("===>[Union]node[%d]Starts sending submit messages\n", msg.From)
 		s.TimeCommitmentSubmit[msg.From] = 0
-
 	}
 	s.TimeCommitmentSubmit[msg.From]++
 	if s.TimeCommitmentSubmit[msg.From] == submit.Length {
 		s.SubmitNum++
 	}
-	s.Mutex.Unlock()
+	// s.Mutex.Unlock()
 
+	end := time.Now()
+	fmt.Println("===>[Union]passed time", end.Sub(start).Seconds())
+	fmt.Println("===>[Union]the number of goroutines: ", runtime.NumGoroutine())
 	return
 }

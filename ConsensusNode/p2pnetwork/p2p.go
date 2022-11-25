@@ -13,6 +13,8 @@ import (
 	"fmt"
 	"io"
 	"net"
+	_ "net/http/pprof"
+	"runtime"
 	"sync"
 	"time"
 )
@@ -188,11 +190,12 @@ func (sp *SimpleP2p) waitData(conn *net.TCPConn) {
 
 		// handle a consensus message
 		conMsg := &message.ConMessage{}
+		fmt.Println("read from", conn.RemoteAddr().String(), time.Now())
 		if err := json.Unmarshal(buf[:n], conMsg); err != nil {
 			fmt.Println(string(buf[:n]))
 			panic(fmt.Errorf("===>[ERROR from waitData]Unmarshal data err:%s", err))
 		}
-		time.Sleep(100 * time.Millisecond)
+		// time.Sleep(100 * time.Millisecond)
 
 		switch conMsg.Typ {
 		// handle new identity message from backups
@@ -283,7 +286,9 @@ func WriteTCP(conn *net.TCPConn, v []byte, name string) {
 		panic(err)
 	}
 
+	fmt.Println(time.Now())
 	fmt.Printf("===>[Sending]Send request to Address[%s] success\n", conn.RemoteAddr().String())
+	runtime.Goexit()
 }
 
 // Get Peer Publickey

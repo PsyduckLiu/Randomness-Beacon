@@ -5,13 +5,18 @@ import (
 	"consensusNode/util"
 	"fmt"
 	"math/big"
+	"runtime"
+	"time"
 )
 
 // verify TC
 func VerifyTC(A1 string, A2 string, A3 string, Z string, H string, RKSubOne string, RK string) bool {
+	fmt.Println("the number of goroutines: ", runtime.NumGoroutine())
+
 	mArray := config.GetMArray()
 	g := config.GetG()
 	N := config.GetN()
+
 	a1, _ := new(big.Int).SetString(A1, 10)
 	a2, _ := new(big.Int).SetString(A2, 10)
 	a3, _ := new(big.Int).SetString(A3, 10)
@@ -37,26 +42,35 @@ func VerifyTC(A1 string, A2 string, A3 string, Z string, H string, RKSubOne stri
 	e.Xor(e, a2Hash)
 	e.Xor(e, a3Hash)
 
+	start1 := time.Now()
 	result1 := new(big.Int).Set(g)
 	result1.Exp(result1, z, N)
 	result2 := new(big.Int).Set(h)
 	result2.Exp(result2, e, N)
 	result1.Mul(result1, result2)
 	result1.Mod(result1, N)
+	end1 := time.Now()
+	fmt.Println("passed time1", end1.Sub(start1).Seconds())
 
+	start2 := time.Now()
 	result3 := new(big.Int).Set(mArray[len(mArray)-3])
 	result3.Exp(result3, z, N)
 	result4 := new(big.Int).Set(rKSubOne)
 	result4.Exp(result4, e, N)
 	result3.Mul(result3, result4)
 	result3.Mod(result3, N)
+	end2 := time.Now()
+	fmt.Println("passed time2", end2.Sub(start2).Seconds())
 
+	start3 := time.Now()
 	result5 := new(big.Int).Set(mArray[len(mArray)-2])
 	result5.Exp(result5, z, N)
 	result6 := new(big.Int).Set(rK)
 	result6.Exp(result6, e, N)
 	result5.Mul(result5, result6)
 	result5.Mod(result5, N)
+	end3 := time.Now()
+	fmt.Println("passed time3", end3.Sub(start3).Seconds())
 
 	if a1.Cmp(result1) != 0 {
 		fmt.Println("===>[VerifyTC]test1 error")

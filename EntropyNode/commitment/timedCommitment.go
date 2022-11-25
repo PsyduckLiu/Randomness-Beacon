@@ -27,10 +27,11 @@ func GenerateTimedCommitment(bits int) (*big.Int, *big.Int, *big.Int, *big.Int, 
 	fmt.Println("\n===>[Timed Commitment]Upper bound of alpha is", upperBound)
 
 	// get random alpha
-	alpha, err := rand.Int(rand.Reader, upperBound)
-	if err != nil {
-		panic(fmt.Errorf("===>[ERROR from GenerateTimedCommitment]Generate alpha failed:%s", err))
-	}
+	// alpha, err := rand.Int(rand.Reader, upperBound)
+	alpha := new(big.Int).Set(upperBound)
+	// if err != nil {
+	// 	panic(fmt.Errorf("===>[ERROR from GenerateTimedCommitment]Generate alpha failed:%s", err))
+	// }
 	fmt.Println("===>[Timed Commitment]alpha is", alpha)
 
 	// calculate (h, rKSubOne, rK, r) used in Timed Commitment
@@ -48,7 +49,11 @@ func GenerateTimedCommitment(bits int) (*big.Int, *big.Int, *big.Int, *big.Int, 
 	c := new(big.Int)
 	upper, e := big.NewInt(2), big.NewInt(int64(bits))
 	upper.Exp(upper, e, nil)
-	msg, err := rand.Int(rand.Reader, upper)
+	// msg, err := rand.Int(rand.Reader, upper)
+	msg := new(big.Int).Set(upper)
+	sub, err := rand.Int(rand.Reader, big.NewInt(100))
+	msg.Sub(msg, sub)
+
 	if err != nil {
 		panic(fmt.Errorf("===>[ERROR from GenerateTimedCommitment]Generate random message failed:%s", err))
 	}
@@ -68,7 +73,9 @@ func GenerateTimedCommitment(bits int) (*big.Int, *big.Int, *big.Int, *big.Int, 
 	}
 	fmt.Println("===>[Timed Commitment]Phi N is", phiN)
 
-	w, _ := rand.Int(rand.Reader, phiN)
+	// w, _ := rand.Int(rand.Reader, phiN)
+	w := new(big.Int).Set(phiN)
+	w.Sub(w, bigOne)
 	a1 := new(big.Int)
 	a1.Exp(g, w, N)
 	a2 := new(big.Int)

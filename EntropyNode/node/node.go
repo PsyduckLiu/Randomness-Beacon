@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"runtime"
 	"strconv"
 	"syscall"
 	"time"
@@ -229,4 +230,5 @@ func WriteTCP(id int, conn *net.TCPConn, v []byte) {
 	}
 
 	fmt.Printf("===>[Sending]Send request to Node[%d], Address[%s] success\n", id, conn.RemoteAddr().String())
+	runtime.Goexit()
 }

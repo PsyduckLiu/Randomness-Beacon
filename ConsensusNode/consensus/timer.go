@@ -8,6 +8,7 @@ const StateTimerOut = 5 * time.Second
 var timeArray []float64
 var lastTime time.Time
 var outputNum int = 0
+var startTime time.Time
 
 type RequestTimer struct {
 	*time.Ticker

@@ -63,7 +63,8 @@ func (s *StateEngine) confirmTC(msg *message.ConMessage) (err error) {
 	if s.ConfirmNum == 2*util.MaxFaultyNode+1 {
 		fmt.Println("===>[Confirm]Confirm success")
 		s.stage = Output
-		go s.handleTC()
+		// go s.handleTC()
+		s.handleTC()
 	}
 
 	return
@@ -102,8 +103,8 @@ func (s *StateEngine) handleTC() (err error) {
 		oMsg := message.CreateConMsg(message.MTOutput, s.Result.String(), sk, s.NodeID)
 		conn := s.P2pWire.GetPrimaryConn(s.PrimaryID)
 
-		// time.Sleep(500 * time.Millisecond)
-		time.Sleep(1 * time.Second)
+		time.Sleep(500 * time.Millisecond)
+		// time.Sleep(1 * time.Second)
 		if err := s.P2pWire.SendUniqueNode(conn, oMsg); err != nil {
 			panic(fmt.Errorf("===>[ERROR from handleTC]send message error:%s", err))
 		}

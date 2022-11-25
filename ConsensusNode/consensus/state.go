@@ -41,6 +41,7 @@ type StateEngine struct {
 	P2pWire    p2pnetwork.P2pNetwork
 	MsgChan    <-chan *message.ConMessage
 	nodeStatus EngineStatus
+	quit       chan bool
 
 	GlobalTimer  *RequestTimer
 	CollectTimer *RequestTimer
@@ -73,6 +74,7 @@ func InitConsensus(id int64) *StateEngine {
 		Mutex:   sync.Mutex{},
 		P2pWire: p2p,
 		MsgChan: ch,
+		quit:    make(chan bool),
 
 		GlobalTimer:  newRequestTimer(),
 		CollectTimer: newRequestTimer(),
@@ -95,7 +97,7 @@ func InitConsensus(id int64) *StateEngine {
 
 // To start randomness beacon, primary writes a random output into output.yml
 func (s *StateEngine) WriteRandomOutput() {
-	time.Sleep(30 * time.Second)
+	time.Sleep(35 * time.Second)
 	fmt.Println("\n===>[WriteRandomOutput]start wirte config")
 
 	// generate random init input
@@ -150,13 +152,16 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 		case <-s.SubmitTimer.C:
 			fmt.Println("\n===>[Union]submit timer out,submit number is", s.SubmitNum)
 			if s.SubmitNum >= 2*util.MaxFaultyNode+1 {
+				currentTime := time.Now()
+				fmt.Println("From start to submit finished,passed time is", currentTime.Sub(lastTime).Seconds())
+
 				s.SubmitTimer.tack()
 				s.stage = Submit
 
 				// new approve message
 				// send approve message to backup nodes
 				approve := &message.Approve{}
-				result, _ := rand.Int(rand.Reader, big.NewInt(1000))
+				result, _ := rand.Int(rand.Reader, big.NewInt(10000))
 				if result.Cmp(big.NewInt(0)) == 0 {
 					// send wrong approve message
 					fmt.Println("===>[Union]I'm crazy!!!!!")
@@ -244,6 +249,8 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 		// when new output comes, entropy node starts calculating VRF and sending TC
 		newOutput := string(config.GetPreviousOutput())
 		if previousOutput != newOutput && newOutput != "" && s.stage == Collect {
+			startTime = time.Now()
+			fmt.Println("\n===>[Watching]Start time is", startTime)
 			fmt.Println("\n===>[Watching]Output changed,new output is", newOutput)
 			previousOutput = newOutput
 
@@ -253,9 +260,12 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 			s.ConfirmNum = 0
 			s.SubmitNum = 0
 			s.ApproveNum = 0
+			s.quit = make(chan bool)
+			s.entropyNode = make(map[int64]bool)
 			s.TimeCommitment = make(map[string][4]string)
 			s.TimeCommitmentSubmit = make(map[int64]int)
 			s.TimeCommitmentApprove = make(map[string]bool)
+			s.TimeCommitmentProof = make(map[string][4]string)
 
 			// listen the srvHub and set a deadline
 			if s.SrvHub == nil {
@@ -271,7 +281,7 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 			s.SrvHub.SetDeadline(time.Now().Add(5 * time.Second))
 
 			// wait for TC messages from entropy nodes
-			go s.WaitTC(sig)
+			go s.WaitTC(sig, s.quit)
 
 			// start 3 timers for a new round
 			s.GlobalTimer.tick(180 * time.Second)
@@ -289,7 +299,7 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 }
 
 // wait for TC messages from entropy nodes
-func (s *StateEngine) WaitTC(sig chan interface{}) {
+func (s *StateEngine) WaitTC(sig chan interface{}, quit chan bool) {
 	defer func() {
 		if r := recover(); r != nil {
 			sig <- r
@@ -298,106 +308,115 @@ func (s *StateEngine) WaitTC(sig chan interface{}) {
 
 	buf := make([]byte, 8192)
 	for {
-		conn, err := s.SrvHub.AcceptTCP()
-		if err != nil {
-			// fmt.Printf("===>[ERROR]TCP:%s\n", err)
-			continue
-		}
-		n, err := conn.Read(buf)
-		if err != nil {
-			panic(fmt.Errorf("===>[ERROR from WaitTC]Service received failed:%s", err))
-		}
+		select {
+		case <-quit:
+			fmt.Println("Quit WaitTC")
+			return
 
-		// get message from entropy node
-		msgFromEntropyNode := &message.ConMessage{}
-		if err := json.Unmarshal(buf[:n], msgFromEntropyNode); err != nil {
-			fmt.Printf("===>[ERROR from WaitTC]Message parse failed:%s", err)
-			continue
-		}
-		if msgFromEntropyNode.Typ != message.MTCollect && msgFromEntropyNode.Typ != message.MTVRFVerify {
-			fmt.Printf("===>[ERROR from WaitTC]Not vrf Verify message or collect message:\n")
-			continue
-		}
-
-		// handle vrf verify message
-		if msgFromEntropyNode.Typ == message.MTVRFVerify {
-			fmt.Printf("===>[WaitTC]new vrf verify message from Node[%d]\n", msgFromEntropyNode.From)
-
-			entropyVRFMsg := &message.EntropyVRFMessage{}
-			if err := json.Unmarshal(msgFromEntropyNode.Payload, entropyVRFMsg); err != nil {
-				fmt.Printf("===>[ERROR from WaitTC]Invalid[%s] Entropy VRF message[%s]", err, msgFromEntropyNode)
-				continue
-			}
-
-			// verify the VRF result
-			msg := MessageHashable{
-				Data: entropyVRFMsg.Msg,
-			}
-			var pk crypto.VrfPubkey = entropyVRFMsg.PublicKey
-			verify, _ := pk.Verify(entropyVRFMsg.VRFResult, msg)
-			if !verify {
-				fmt.Printf("===>[ERROR from WaitTC]Verify new VRF result failed, From Entropy Node[%d]\n", entropyVRFMsg.ClientID)
-				continue
-			}
-			// fmt.Println("===>[WaitTC]VRF Output is", output)
-			fmt.Println("===>[WaitTC]VRF Verify success!!!")
-
-			// verify the VRF and difficuly
-			difficulty := config.GetDifficulty()
-			vrfResultBinary := util.BytesToBinaryString(entropyVRFMsg.VRFResult)
-			vrfResultTail, err := strconv.Atoi(vrfResultBinary[len(vrfResultBinary)-1:])
+		default:
+			conn, err := s.SrvHub.AcceptTCP()
 			if err != nil {
-				fmt.Printf("===>[ERROR from WaitTC]Failed to get VRF result's last bit, From Entropy Node[%d]\n", entropyVRFMsg.ClientID)
+				// fmt.Printf("===>[ERROR]TCP:%s\n", err)
 				continue
 			}
-			if vrfResultTail != difficulty {
-				fmt.Println("===>[WaitTC]Not pass but who cares!!!!")
-				// fmt.Println("===>[WaitTC]Cheater!!!!")
-				// fmt.Printf("===>[ERROR from WaitTC]Verify difficulty failed, From Entropy Node[%d]\n", entropyVRFMsg.ClientID)
-				// continue
+			n, err := conn.Read(buf)
+			if err != nil {
+				panic(fmt.Errorf("===>[ERROR from WaitTC]Service received failed:%s", err))
 			}
 
-			// register a new entropy node
-			s.Mutex.Lock()
-			s.entropyNode[entropyVRFMsg.ClientID] = false
-			s.Mutex.Unlock()
-		}
-
-		// handle collect message
-		if msgFromEntropyNode.Typ == message.MTCollect {
-			fmt.Printf("===>[WaitTC]new collect message from Node[%d]\n", msgFromEntropyNode.From)
-
-			entropyTCMsg := &message.EntropyTCMessage{}
-			if err := json.Unmarshal(msgFromEntropyNode.Payload, entropyTCMsg); err != nil {
-				fmt.Printf("===>[ERROR from WaitTC]Invalid[%s] Entropy TC message[%s]", err, msgFromEntropyNode)
+			// get message from entropy node
+			msgFromEntropyNode := &message.ConMessage{}
+			if err := json.Unmarshal(buf[:n], msgFromEntropyNode); err != nil {
+				fmt.Printf("===>[ERROR from WaitTC]Message parse failed:%s", err)
+				continue
+			}
+			if msgFromEntropyNode.Typ != message.MTCollect && msgFromEntropyNode.Typ != message.MTVRFVerify {
+				fmt.Printf("===>[ERROR from WaitTC]Not vrf Verify message or collect message:\n")
 				continue
 			}
 
-			verifyResult := tc.VerifyTC(entropyTCMsg.TimeCommitmentA1, entropyTCMsg.TimeCommitmentA2, entropyTCMsg.TimeCommitmentA3,
-				entropyTCMsg.TimeCommitmentZ, entropyTCMsg.TimeCommitmentH, entropyTCMsg.TimeCommitmentrKSubOne, entropyTCMsg.TimeCommitmentrK)
-			if verifyResult {
-				fmt.Println("===>[WaitTC]pass all tests!")
-			} else {
-				fmt.Println("===>[WaitTC]Failed to pass all tests!")
-				continue
+			// handle vrf verify message
+			if msgFromEntropyNode.Typ == message.MTVRFVerify {
+				fmt.Printf("===>[WaitTC]new vrf verify message from Node[%d]\n", msgFromEntropyNode.From)
+
+				entropyVRFMsg := &message.EntropyVRFMessage{}
+				if err := json.Unmarshal(msgFromEntropyNode.Payload, entropyVRFMsg); err != nil {
+					fmt.Printf("===>[ERROR from WaitTC]Invalid[%s] Entropy VRF message[%s]", err, msgFromEntropyNode)
+					continue
+				}
+
+				// verify the VRF result
+				msg := MessageHashable{
+					Data: entropyVRFMsg.Msg,
+				}
+				var pk crypto.VrfPubkey = entropyVRFMsg.PublicKey
+				verify, _ := pk.Verify(entropyVRFMsg.VRFResult, msg)
+				if !verify {
+					fmt.Printf("===>[ERROR from WaitTC]Verify new VRF result failed, From Entropy Node[%d]\n", entropyVRFMsg.ClientID)
+					continue
+				}
+				// fmt.Println("===>[WaitTC]VRF Output is", output)
+				fmt.Println("===>[WaitTC]VRF Verify success!!!")
+
+				// verify the VRF and difficuly
+				difficulty := config.GetDifficulty()
+				vrfResultBinary := util.BytesToBinaryString(entropyVRFMsg.VRFResult)
+				vrfResultTail, err := strconv.Atoi(vrfResultBinary[len(vrfResultBinary)-1:])
+				if err != nil {
+					fmt.Printf("===>[ERROR from WaitTC]Failed to get VRF result's last bit, From Entropy Node[%d]\n", entropyVRFMsg.ClientID)
+					continue
+				}
+				if vrfResultTail != difficulty {
+					fmt.Println("===>[WaitTC]Not pass but who cares!!!!")
+					// fmt.Println("===>[WaitTC]Cheater!!!!")
+					// fmt.Printf("===>[ERROR from WaitTC]Verify difficulty failed, From Entropy Node[%d]\n", entropyVRFMsg.ClientID)
+					// continue
+				}
+
+				// register a new entropy node
+				s.Mutex.Lock()
+				s.entropyNode[entropyVRFMsg.ClientID] = false
+				s.Mutex.Unlock()
 			}
 
-			// add new TC element
-			s.Mutex.Lock()
-			_, ok := s.entropyNode[entropyTCMsg.ClientID]
-			if !ok {
-				fmt.Printf("===>[ERROR from WaitTC]Not registered")
-				continue
-			}
-			s.entropyNode[entropyTCMsg.ClientID] = true
-			timedCommitment := [4]string{entropyTCMsg.TimeCommitmentC, entropyTCMsg.TimeCommitmentH, entropyTCMsg.TimeCommitmentrKSubOne, entropyTCMsg.TimeCommitmentrK}
-			timedCommitmentProof := [4]string{entropyTCMsg.TimeCommitmentA1, entropyTCMsg.TimeCommitmentA2, entropyTCMsg.TimeCommitmentA3, entropyTCMsg.TimeCommitmentZ}
-			s.TimeCommitment[string(util.Digest(timedCommitment))] = timedCommitment
-			s.TimeCommitmentProof[string(util.Digest(timedCommitment))] = timedCommitmentProof
-			s.TimeCommitmentApprove[string(util.Digest(timedCommitment))] = false
-			s.Mutex.Unlock()
+			// handle collect message
+			if msgFromEntropyNode.Typ == message.MTCollect {
+				fmt.Printf("===>[WaitTC]new collect message from Node[%d]\n", msgFromEntropyNode.From)
 
-			fmt.Printf("===>[WaitTC]Legal Entropy message from Node[%d]\n", entropyTCMsg.ClientID)
+				entropyTCMsg := &message.EntropyTCMessage{}
+				if err := json.Unmarshal(msgFromEntropyNode.Payload, entropyTCMsg); err != nil {
+					fmt.Printf("===>[ERROR from WaitTC]Invalid[%s] Entropy TC message[%s]", err, msgFromEntropyNode)
+					continue
+				}
+
+				verifyResult := tc.VerifyTC(entropyTCMsg.TimeCommitmentA1, entropyTCMsg.TimeCommitmentA2, entropyTCMsg.TimeCommitmentA3,
+					entropyTCMsg.TimeCommitmentZ, entropyTCMsg.TimeCommitmentH, entropyTCMsg.TimeCommitmentrKSubOne, entropyTCMsg.TimeCommitmentrK)
+				if verifyResult {
+					fmt.Println("===>[WaitTC]pass all tests!")
+				} else {
+					fmt.Println("===>[WaitTC]Failed to pass all tests!")
+					continue
+				}
+
+				// add new TC element
+				_, ok := s.entropyNode[entropyTCMsg.ClientID]
+				if !ok {
+					fmt.Printf("===>[ERROR from WaitTC]Not registered")
+					continue
+				}
+
+				timedCommitment := [4]string{entropyTCMsg.TimeCommitmentC, entropyTCMsg.TimeCommitmentH, entropyTCMsg.TimeCommitmentrKSubOne, entropyTCMsg.TimeCommitmentrK}
+				timedCommitmentProof := [4]string{entropyTCMsg.TimeCommitmentA1, entropyTCMsg.TimeCommitmentA2, entropyTCMsg.TimeCommitmentA3, entropyTCMsg.TimeCommitmentZ}
+
+				s.Mutex.Lock()
+				s.entropyNode[entropyTCMsg.ClientID] = true
+				s.TimeCommitment[string(util.Digest(timedCommitment))] = timedCommitment
+				s.TimeCommitmentProof[string(util.Digest(timedCommitment))] = timedCommitmentProof
+				s.TimeCommitmentApprove[string(util.Digest(timedCommitment))] = false
+				s.Mutex.Unlock()
+
+				fmt.Printf("===>[WaitTC]Legal Entropy message from Node[%d]\n", entropyTCMsg.ClientID)
+			}
 		}
 	}
 }
@@ -412,19 +431,23 @@ func (s *StateEngine) procConsensusMsg(msg *message.ConMessage) (err error) {
 	switch msg.Typ {
 	case message.MTSubmit:
 		if s.stage == Submit {
-			go s.unionTC(msg)
+			// go s.unionTC(msg)
+			s.unionTC(msg)
 		}
 	case message.MTApprove:
 		if s.stage == Approve {
-			go s.approveTC(msg)
+			// go s.approveTC(msg)
+			s.approveTC(msg)
 		}
 	case message.MTConfirm:
 		if s.stage == Confirm {
-			go s.confirmTC(msg)
+			// go s.confirmTC(msg)
+			s.confirmTC(msg)
 		}
 	case message.MTOutput:
 		if s.stage == Output {
-			go s.outputTC(msg)
+			// go s.outputTC(msg)
+			s.outputTC(msg)
 		}
 
 	}
@@ -441,10 +464,12 @@ func (s *StateEngine) procManageMsg(msg *message.ConMessage) (err error) {
 
 	switch msg.Typ {
 	case message.MTViewChange:
-		go s.procViewChange(msg)
+		// go s.procViewChange(msg)
+		s.procViewChange(msg)
 
 	case message.MTNewView:
-		go s.didChangeView(msg)
+		// go s.didChangeView(msg)
+		s.didChangeView(msg)
 	}
 
 	return nil

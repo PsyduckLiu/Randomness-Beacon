@@ -212,7 +212,8 @@ func (s *StateEngine) didChangeView(msg *message.ConMessage) error {
 	fmt.Printf("===>[NewView]New primary is(%d).....\n", s.PrimaryID)
 
 	s.cleanLogandRequest()
-	go s.reSendSubmitMsg()
+	// go s.reSendSubmitMsg()
+	s.reSendSubmitMsg()
 	return nil
 }
 
@@ -227,6 +228,8 @@ func (s *StateEngine) reSendSubmitMsg() {
 	// send submit message to primary node
 	var tc [4]string
 	for _, value := range s.TimeCommitment {
+		time.Sleep(500 * time.Millisecond)
+
 		tc = value
 		submit := &message.Submit{
 			Length:    len(s.TimeCommitment),
@@ -238,7 +241,7 @@ func (s *StateEngine) reSendSubmitMsg() {
 		if err := s.P2pWire.SendUniqueNode(conn, sMsg); err != nil {
 			panic(fmt.Errorf("===>[ERROR from reSendSubmitMsg]Send message error:%s", err))
 		}
-		time.Sleep(150 * time.Millisecond)
+
 	}
 
 	s.stage = Approve
