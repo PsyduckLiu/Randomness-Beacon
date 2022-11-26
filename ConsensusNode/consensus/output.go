@@ -70,14 +70,15 @@ func (s *StateEngine) outputTC(msg *message.ConMessage) (err error) {
 
 			time.Sleep(5 * time.Second)
 			config.WriteOutput(s.Result.String())
+			fmt.Println("\n===>[Output]Output time is", time.Now())
 
 			outputNum++
-			if outputNum > 1 {
+			if outputNum >= 2 {
 				currentTime := time.Now()
 				timeArray = append(timeArray, float64(currentTime.Sub(lastTime).Seconds()))
 			}
 			lastTime = time.Now()
-			if outputNum == 11 {
+			if outputNum == 12 {
 				writeDataFile(timeArray)
 			}
 

@@ -81,7 +81,11 @@ func (s *StateEngine) approveTC(msg *message.ConMessage) (err error) {
 
 // backups broadcast confirm message
 func (s *StateEngine) sendConfirmMsg() {
+	// rand2.Seed(time.Now().UnixNano())
+	// delay := 400 + rand2.Intn(100)
+	// time.Sleep(time.Duration(delay) * time.Millisecond)
 	time.Sleep(500 * time.Millisecond)
+	// time.Sleep(1 * time.Second)
 
 	confirm := &message.Confirm{
 		Length: len(s.TimeCommitment),

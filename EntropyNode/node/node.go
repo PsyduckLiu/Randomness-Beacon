@@ -134,9 +134,9 @@ func WatchConfig(ecdsaSK *ecdsa.PrivateKey, vrfSK crypto.VrfPrivkey, id int, sig
 
 				// send VRF messages and TC messages
 				fmt.Println()
-				time.Sleep(100 * time.Millisecond)
+				time.Sleep(500 * time.Millisecond)
 				sendVRFMsg(ecdsaSK, vrfSK, vrfResult, msg.Data, int64(id), sig)
-				time.Sleep(100 * time.Millisecond)
+				time.Sleep(500 * time.Millisecond)
 				fmt.Println()
 				sendTCMsg(ecdsaSK, int64(id), cMarshal, hMarshal, rKSubOneMarshal, rKMarshal, a1Marshal, a2Marshal, a3Marshal, zMarshal, sig)
 			} else {
@@ -164,6 +164,7 @@ func sendVRFMsg(ecdsaSK *ecdsa.PrivateKey, vrfSK crypto.VrfPrivkey, vrfResult cr
 	// get Consensus nodes' information
 	nodeConfig := config.GetConsensusNode()
 	for i := 0; i < len(nodeConfig); i++ {
+		time.Sleep(100 * time.Millisecond)
 		// dial remote TCP port
 		conn, err := net.DialTCP("tcp", nil, &net.TCPAddr{Port: util.EntropyPortByID(i)})
 		if err != nil {
@@ -202,6 +203,8 @@ func sendTCMsg(ecdsaSK *ecdsa.PrivateKey, id int64, cMarshal []byte, hMarshal []
 	// get consensus nodes' information
 	nodeConfig := config.GetConsensusNode()
 	for i := 0; i < len(nodeConfig); i++ {
+		time.Sleep(100 * time.Millisecond)
+
 		// dial remote TCP port
 		conn, err := net.DialTCP("tcp", nil, &net.TCPAddr{Port: util.EntropyPortByID(i)})
 		if err != nil {

@@ -4,9 +4,7 @@ import (
 	"consensusNode/config"
 	"consensusNode/message"
 	"consensusNode/p2pnetwork"
-	tc "consensusNode/timedCommitment"
 	"consensusNode/util"
-	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -97,7 +95,7 @@ func InitConsensus(id int64) *StateEngine {
 
 // To start randomness beacon, primary writes a random output into output.yml
 func (s *StateEngine) WriteRandomOutput() {
-	time.Sleep(35 * time.Second)
+	time.Sleep(45 * time.Second)
 	fmt.Println("\n===>[WriteRandomOutput]start wirte config")
 
 	// generate random init input
@@ -141,62 +139,6 @@ func (s *StateEngine) StartConsensus(sig chan interface{}) {
 			for key, value := range s.TimeCommitment {
 				fmt.Println("===>[Collect]key is", key)
 				fmt.Println("===>[Collect]value is", value)
-			}
-
-			if s.NodeID == s.PrimaryID {
-				s.SubmitTimer.tick(1 * time.Second)
-			}
-
-		// Submit timer out
-		// primary checks [SubmitNum] and decides whether to send Approve message
-		case <-s.SubmitTimer.C:
-			fmt.Println("\n===>[Union]submit timer out,submit number is", s.SubmitNum)
-			if s.SubmitNum >= 2*util.MaxFaultyNode+1 {
-				currentTime := time.Now()
-				fmt.Println("From start to submit finished,passed time is", currentTime.Sub(lastTime).Seconds())
-
-				s.SubmitTimer.tack()
-				s.stage = Submit
-
-				// new approve message
-				// send approve message to backup nodes
-				approve := &message.Approve{}
-				result, _ := rand.Int(rand.Reader, big.NewInt(10000))
-				if result.Cmp(big.NewInt(0)) == 0 {
-					// send wrong approve message
-					fmt.Println("===>[Union]I'm crazy!!!!!")
-					sk := s.P2pWire.GetMySecretkey()
-					aMsg := message.CreateConMsg(message.MTApprove, approve, sk, s.NodeID)
-					if err := s.P2pWire.BroadCast(aMsg); err != nil {
-						panic(fmt.Errorf("===>[ERROR from StartConsensus]Broadcast failed:%s", err))
-					}
-				} else {
-					// time.Sleep(500 * time.Millisecond)
-
-					// send right approve message
-					var tc [4]string
-					for _, value := range s.TimeCommitment {
-						time.Sleep(500 * time.Millisecond)
-						tc = value
-						approve = &message.Approve{
-							Length:  len(s.TimeCommitment),
-							UnionTC: tc,
-						}
-						sk := s.P2pWire.GetMySecretkey()
-						aMsg := message.CreateConMsg(message.MTApprove, approve, sk, s.NodeID)
-						if err := s.P2pWire.BroadCast(aMsg); err != nil {
-							panic(fmt.Errorf("===>[ERROR from StartConsensus]Broadcast failed:%s", err))
-						}
-						// time.Sleep(150 * time.Millisecond)
-						// time.Sleep(300 * time.Millisecond)
-					}
-				}
-
-				s.stage = Confirm
-				s.ConfirmNum++
-				fmt.Printf("===>[Union]Send approve message success\n")
-			} else {
-				s.SubmitTimer.tick(1 * time.Second)
 			}
 
 		// handle consensus message received from other consensus nodes
@@ -278,14 +220,14 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 				}
 				s.SrvHub = srvHub
 			}
-			s.SrvHub.SetDeadline(time.Now().Add(5 * time.Second))
+			s.SrvHub.SetDeadline(time.Now().Add(10 * time.Second))
 
 			// wait for TC messages from entropy nodes
 			go s.WaitTC(sig, s.quit)
 
 			// start 3 timers for a new round
 			s.GlobalTimer.tick(180 * time.Second)
-			s.CollectTimer.tick(5 * time.Second)
+			s.CollectTimer.tick(10 * time.Second)
 			// if s.NodeID == s.PrimaryID {
 			// 	s.SubmitTimer.tick(1 * time.Second)
 			// }
@@ -389,15 +331,10 @@ func (s *StateEngine) WaitTC(sig chan interface{}, quit chan bool) {
 					continue
 				}
 
-				verifyResult := tc.VerifyTC(entropyTCMsg.TimeCommitmentA1, entropyTCMsg.TimeCommitmentA2, entropyTCMsg.TimeCommitmentA3,
-					entropyTCMsg.TimeCommitmentZ, entropyTCMsg.TimeCommitmentH, entropyTCMsg.TimeCommitmentrKSubOne, entropyTCMsg.TimeCommitmentrK)
-				if verifyResult {
-					fmt.Println("===>[WaitTC]pass all tests!")
-				} else {
-					fmt.Println("===>[WaitTC]Failed to pass all tests!")
-					continue
-				}
+				timedCommitment := [4]string{entropyTCMsg.TimeCommitmentC, entropyTCMsg.TimeCommitmentH, entropyTCMsg.TimeCommitmentrKSubOne, entropyTCMsg.TimeCommitmentrK}
+				timedCommitmentProof := [4]string{entropyTCMsg.TimeCommitmentA1, entropyTCMsg.TimeCommitmentA2, entropyTCMsg.TimeCommitmentA3, entropyTCMsg.TimeCommitmentZ}
 
+				s.Mutex.Lock()
 				// add new TC element
 				_, ok := s.entropyNode[entropyTCMsg.ClientID]
 				if !ok {
@@ -405,14 +342,11 @@ func (s *StateEngine) WaitTC(sig chan interface{}, quit chan bool) {
 					continue
 				}
 
-				timedCommitment := [4]string{entropyTCMsg.TimeCommitmentC, entropyTCMsg.TimeCommitmentH, entropyTCMsg.TimeCommitmentrKSubOne, entropyTCMsg.TimeCommitmentrK}
-				timedCommitmentProof := [4]string{entropyTCMsg.TimeCommitmentA1, entropyTCMsg.TimeCommitmentA2, entropyTCMsg.TimeCommitmentA3, entropyTCMsg.TimeCommitmentZ}
-
-				s.Mutex.Lock()
+				key := string(util.Digest(timedCommitment))
 				s.entropyNode[entropyTCMsg.ClientID] = true
-				s.TimeCommitment[string(util.Digest(timedCommitment))] = timedCommitment
-				s.TimeCommitmentProof[string(util.Digest(timedCommitment))] = timedCommitmentProof
-				s.TimeCommitmentApprove[string(util.Digest(timedCommitment))] = false
+				s.TimeCommitment[key] = timedCommitment
+				s.TimeCommitmentProof[key] = timedCommitmentProof
+				s.TimeCommitmentApprove[key] = false
 				s.Mutex.Unlock()
 
 				fmt.Printf("===>[WaitTC]Legal Entropy message from Node[%d]\n", entropyTCMsg.ClientID)
@@ -423,7 +357,7 @@ func (s *StateEngine) WaitTC(sig chan interface{}, quit chan bool) {
 
 // handle different kinds of consensus messages
 func (s *StateEngine) procConsensusMsg(msg *message.ConMessage) (err error) {
-	// time.Sleep(200 * time.Millisecond)
+	// time.Sleep(100 * time.Millisecond)
 
 	fmt.Printf("\n===>[procConsensusMsg]Consesus message type:[%s] from Node[%d]\n", msg.Typ, msg.From)
 	fmt.Println("===>[procConsensusMsg]Stage is", s.stage)
@@ -457,7 +391,7 @@ func (s *StateEngine) procConsensusMsg(msg *message.ConMessage) (err error) {
 
 // handle different kinds of manage messages
 func (s *StateEngine) procManageMsg(msg *message.ConMessage) (err error) {
-	// time.Sleep(200 * time.Millisecond)
+	// time.Sleep(100 * time.Millisecond)
 
 	fmt.Printf("\n===>[procConsensusMsg]Manage message type:[%s] from Node[%d]\n", msg.Typ, msg.From)
 	fmt.Println("===>[procConsensusMsg]Stage is", s.stage)

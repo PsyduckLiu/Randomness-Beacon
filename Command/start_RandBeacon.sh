@@ -12,7 +12,7 @@ done
 
 sleep 1
 
-for i in $(seq 10 15)
+for i in $(seq 10 27)
 do
 go run main.go $i > result/result$i.txt &
 sleep 1

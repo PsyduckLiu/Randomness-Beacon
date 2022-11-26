@@ -8,22 +8,26 @@ import (
 	"consensusNode/util"
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	"crypto/rand"
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"runtime"
 	"time"
 )
 
 // backups send union message
 func (s *StateEngine) sendUnionMsg() {
-	// time.Sleep(500 * time.Millisecond)
 
 	// new submit message
 	// send submit message to primary node
 	for key, value := range s.TimeCommitment {
+		// rand2.Seed(time.Now().UnixNano())
+		// delay := 400 + rand2.Intn(100)
+		// time.Sleep(time.Duration(delay) * time.Millisecond)
+		// time.Sleep(2 * time.Second)
 		time.Sleep(500 * time.Millisecond)
-
 		tc := value
 		tcProof := s.TimeCommitmentProof[key]
 		submit := &message.Submit{
@@ -50,6 +54,7 @@ func (s *StateEngine) sendUnionMsg() {
 func (s *StateEngine) unionTC(msg *message.ConMessage) (err error) {
 	start := time.Now()
 	fmt.Printf("\n===>[Union]Current Submit(Union) Message from Node[%d]\n", msg.From)
+
 	nodeConfig := config.GetConsensusNode()
 
 	// get specified curve
@@ -82,17 +87,8 @@ func (s *StateEngine) unionTC(msg *message.ConMessage) (err error) {
 	}
 	fmt.Printf("===>[Union]Submit(Union) Message from Node[%d],length is %d\n", msg.From, submit.Length)
 
-	// verify union TC
-	key := string(util.Digest(submit.CollectTC))
-	verifyResult := tc.VerifyTC(submit.TCProof[0], submit.TCProof[1], submit.TCProof[2], submit.TCProof[3], submit.CollectTC[1], submit.CollectTC[2], submit.CollectTC[3])
-	if verifyResult {
-		fmt.Println("===>[Union]pass all tests!")
-	} else {
-		fmt.Println("===>[Union]Failed to pass all tests!")
-		return
-	}
-
 	// Add new TC
+	key := string(util.Digest(submit.CollectTC))
 	if value, ok := s.TimeCommitment[key]; !ok {
 		fmt.Println("===>[Union]new key is", key)
 		fmt.Println("===>[Union]new TimeCommitmentC value is", value[0])
@@ -110,10 +106,79 @@ func (s *StateEngine) unionTC(msg *message.ConMessage) (err error) {
 	if s.TimeCommitmentSubmit[msg.From] == submit.Length {
 		s.SubmitNum++
 	}
-	// s.Mutex.Unlock()
+
+	fmt.Println(s.SubmitNum)
+	if s.SubmitNum == 2*util.MaxFaultyNode+1 {
+		currentTime1 := time.Now()
+		fmt.Println("===>[Union]SubmitNum is", s.SubmitNum)
+		fmt.Println("===>[Union]From start to submit finished,passed time1 is", currentTime1.Sub(startTime).Seconds())
+		// s.Mutex.Unlock()
+		for key := range s.TimeCommitment {
+			fmt.Println(len(s.TimeCommitment))
+			fmt.Println(len(s.TimeCommitmentProof))
+			verifyResult := tc.VerifyTC(s.TimeCommitmentProof[key][0], s.TimeCommitmentProof[key][1], s.TimeCommitmentProof[key][2], s.TimeCommitmentProof[key][3], s.TimeCommitment[key][1], s.TimeCommitment[key][2], s.TimeCommitment[key][3])
+			if verifyResult {
+				fmt.Println("===>[Union]pass all tests!")
+			} else {
+				fmt.Println("===>[Union]Failed to pass all tests!")
+				delete(s.TimeCommitment, key)
+				delete(s.TimeCommitmentProof, key)
+				delete(s.TimeCommitmentApprove, key)
+			}
+		}
+
+		currentTime := time.Now()
+		fmt.Println("===>[Union]From start to submit finished,passed time is", currentTime.Sub(startTime).Seconds())
+
+		// new approve message
+		// send approve message to backup nodes
+		approve := &message.Approve{}
+		result, _ := rand.Int(rand.Reader, big.NewInt(10000))
+		if result.Cmp(big.NewInt(0)) == 0 {
+			// send wrong approve message
+			fmt.Println("===>[Union]I'm crazy!!!!!")
+			sk := s.P2pWire.GetMySecretkey()
+			aMsg := message.CreateConMsg(message.MTApprove, approve, sk, s.NodeID)
+			if err := s.P2pWire.BroadCast(aMsg); err != nil {
+				panic(fmt.Errorf("===>[ERROR from StartConsensus]Broadcast failed:%s", err))
+			}
+		} else {
+			// time.Sleep(1 * time.Second)
+
+			// send right approve message
+			var tc [4]string
+			for _, value := range s.TimeCommitment {
+				// rand2.Seed(time.Now().UnixNano())
+				// delay := 400 + rand2.Intn(100)
+				// time.Sleep(time.Duration(delay) * time.Millisecond)
+				time.Sleep(500 * time.Millisecond)
+				// time.Sleep(1 * time.Second)
+				tc = value
+				approve = &message.Approve{
+					Length:  len(s.TimeCommitment),
+					UnionTC: tc,
+				}
+				sk := s.P2pWire.GetMySecretkey()
+				aMsg := message.CreateConMsg(message.MTApprove, approve, sk, s.NodeID)
+				if err := s.P2pWire.BroadCast(aMsg); err != nil {
+					panic(fmt.Errorf("===>[ERROR from StartConsensus]Broadcast failed:%s", err))
+				}
+				// time.Sleep(150 * time.Millisecond)
+				// time.Sleep(300 * time.Millisecond)
+			}
+		}
+
+		s.stage = Confirm
+		s.ConfirmNum++
+		fmt.Printf("===>[Union]Send approve message success\n")
+	}
+	// else {
+	// 	s.Mutex.Unlock()
+	// }
 
 	end := time.Now()
 	fmt.Println("===>[Union]passed time", end.Sub(start).Seconds())
 	fmt.Println("===>[Union]the number of goroutines: ", runtime.NumGoroutine())
+
 	return
 }

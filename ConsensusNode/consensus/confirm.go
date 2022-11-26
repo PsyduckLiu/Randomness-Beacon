@@ -103,6 +103,9 @@ func (s *StateEngine) handleTC() (err error) {
 		oMsg := message.CreateConMsg(message.MTOutput, s.Result.String(), sk, s.NodeID)
 		conn := s.P2pWire.GetPrimaryConn(s.PrimaryID)
 
+		// rand2.Seed(time.Now().UnixNano())
+		// delay := 400 + rand2.Intn(100)
+		// time.Sleep(time.Duration(delay) * time.Millisecond)
 		time.Sleep(500 * time.Millisecond)
 		// time.Sleep(1 * time.Second)
 		if err := s.P2pWire.SendUniqueNode(conn, oMsg); err != nil {

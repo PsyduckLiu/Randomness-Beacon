@@ -12,7 +12,7 @@ import (
 )
 
 // to be modified
-const MaxFaultyNode = 5
+const MaxFaultyNode = 9
 const TotalNodeNum = 3*MaxFaultyNode + 1
 
 // convert crypto.VrfProof([80]byte) to binary string

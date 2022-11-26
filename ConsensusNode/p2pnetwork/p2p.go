@@ -256,6 +256,7 @@ func (sp *SimpleP2p) BroadCast(v interface{}) error {
 	}
 
 	for name, conn := range sp.Peers {
+		time.Sleep(100 * time.Millisecond)
 		go WriteTCP(conn, data, name)
 	}
 

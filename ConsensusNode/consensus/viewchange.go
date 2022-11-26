@@ -161,8 +161,8 @@ func (s *StateEngine) createNewViewMsg(newVID int64) error {
 	s.SubmitNum = 0
 	s.TimeCommitmentSubmit = make(map[int64]int)
 	s.TimeCommitmentApprove = make(map[string]bool)
-	s.SubmitTimer.tick(1 * time.Second)
-	s.GlobalTimer.tick(60 * time.Second)
+	// s.SubmitTimer.tick(1 * time.Second)
+	s.GlobalTimer.tick(180 * time.Second)
 
 	return nil
 }
@@ -202,7 +202,7 @@ func (s *StateEngine) didChangeView(msg *message.ConMessage) error {
 		panic(fmt.Errorf("===>[ERROR from didChangeView]Invalid[%s] Approve message[%s]", err, msg))
 	}
 
-	s.GlobalTimer.tick(35 * time.Second)
+	s.GlobalTimer.tick(180 * time.Second)
 	s.CurViewID = nv.NewViewID
 	s.sCache.vcMsg = nv.VMsg
 	s.sCache.addNewView(nv)
