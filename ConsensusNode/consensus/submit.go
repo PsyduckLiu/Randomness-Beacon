@@ -116,9 +116,11 @@ func (s *StateEngine) unionTC(msg *message.ConMessage) (err error) {
 		for key := range s.TimeCommitment {
 			fmt.Println(len(s.TimeCommitment))
 			fmt.Println(len(s.TimeCommitmentProof))
-			verifyResult := tc.VerifyTC(s.TimeCommitmentProof[key][0], s.TimeCommitmentProof[key][1], s.TimeCommitmentProof[key][2], s.TimeCommitmentProof[key][3], s.TimeCommitment[key][1], s.TimeCommitment[key][2], s.TimeCommitment[key][3])
+			verifyResult, verifyTime := tc.VerifyTC(s.TimeCommitmentProof[key][0], s.TimeCommitmentProof[key][1], s.TimeCommitmentProof[key][2], s.TimeCommitmentProof[key][3], s.TimeCommitment[key][1], s.TimeCommitment[key][2], s.TimeCommitment[key][3])
 			if verifyResult {
+				s.VerifyTime += verifyTime
 				fmt.Println("===>[Union]pass all tests!")
+				fmt.Println("===>[Union]Current verify total time is", s.VerifyTime)
 			} else {
 				fmt.Println("===>[Union]Failed to pass all tests!")
 				delete(s.TimeCommitment, key)

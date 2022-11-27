@@ -73,6 +73,7 @@ func (s *StateEngine) approveTC(msg *message.ConMessage) (err error) {
 		}
 		s.ConfirmNum++
 		s.stage = Confirm
+		time.Sleep(1 * time.Second)
 		s.sendConfirmMsg()
 	}
 

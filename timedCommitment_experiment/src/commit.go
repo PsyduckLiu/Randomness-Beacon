@@ -7,7 +7,7 @@ import (
 	"tc/config"
 )
 
-func GenerateCommit(bits int, groupParameter *GroupParameter) (*big.Int, *big.Int, *big.Int, *big.Int) {
+func GenerateCommit(bits int, groupParameter *GroupParameter) (*big.Int, *big.Int, *big.Int, *big.Int, *big.Int, *big.Int, *big.Int, *big.Int) {
 	mArray := config.GetMArray()
 	// fmt.Println("[Commit]Length of m array is", len(mArray))
 	g := config.GetG()
@@ -127,5 +127,5 @@ func GenerateCommit(bits int, groupParameter *GroupParameter) (*big.Int, *big.In
 	}
 	fmt.Println("[Commit]pass all tests!")
 
-	return c, h, rKSubOne, rK
+	return c, h, rKSubOne, rK, a1, a2, a3, z
 }

@@ -63,6 +63,7 @@ func (s *StateEngine) confirmTC(msg *message.ConMessage) (err error) {
 	if s.ConfirmNum == 2*util.MaxFaultyNode+1 {
 		fmt.Println("===>[Confirm]Confirm success")
 		s.stage = Output
+		time.Sleep(1 * time.Second)
 		// go s.handleTC()
 		s.handleTC()
 	}

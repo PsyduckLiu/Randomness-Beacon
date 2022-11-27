@@ -10,7 +10,7 @@ import (
 )
 
 // verify TC
-func VerifyTC(A1 string, A2 string, A3 string, Z string, H string, RKSubOne string, RK string) bool {
+func VerifyTC(A1 string, A2 string, A3 string, Z string, H string, RKSubOne string, RK string) (bool, float64) {
 	fmt.Println("the number of goroutines: ", runtime.NumGoroutine())
 	start := time.Now()
 	mArray := config.GetMArray()
@@ -75,17 +75,18 @@ func VerifyTC(A1 string, A2 string, A3 string, Z string, H string, RKSubOne stri
 
 	if a1.Cmp(result1) != 0 {
 		fmt.Println("===>[VerifyTC]test1 error")
-		return false
+		return false, 0.0
 	}
 	if a2.Cmp(result3) != 0 {
 		fmt.Println("===>[VerifyTC]test2 error")
-		return false
+		return false, 0.0
 	}
 	if a3.Cmp(result5) != 0 {
 		fmt.Println("===>[VerifyTC]test3 error")
-		return false
+		return false, 0.0
 	}
+
 	end := time.Now()
 	fmt.Println("passed time", end.Sub(start).Seconds())
-	return true
+	return true, end.Sub(start).Seconds()
 }

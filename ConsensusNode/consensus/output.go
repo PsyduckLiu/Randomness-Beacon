@@ -68,20 +68,37 @@ func (s *StateEngine) outputTC(msg *message.ConMessage) (err error) {
 			s.stage = Collect
 			s.quit <- true
 
-			time.Sleep(5 * time.Second)
-			config.WriteOutput(s.Result.String())
-			fmt.Println("\n===>[Output]Output time is", time.Now())
-
 			outputNum++
 			if outputNum >= 2 {
 				currentTime := time.Now()
-				timeArray = append(timeArray, float64(currentTime.Sub(lastTime).Seconds()))
+				totalTimeArray = append(totalTimeArray, float64(currentTime.Sub(lastTime).Seconds()))
+				verifyTimeArray = append(verifyTimeArray, s.VerifyTime)
 			}
 			lastTime = time.Now()
 			if outputNum == 12 {
-				writeDataFile(timeArray)
+				writeTotalTimeFile(totalTimeArray)
+				writeVerifyTimeFile(verifyTimeArray)
+			}
+			if outputNum == 22 {
+				writeTotalTimeFile(totalTimeArray)
+				writeVerifyTimeFile(verifyTimeArray)
+			}
+			if outputNum == 32 {
+				writeTotalTimeFile(totalTimeArray)
+				writeVerifyTimeFile(verifyTimeArray)
+			}
+			if outputNum == 42 {
+				writeTotalTimeFile(totalTimeArray)
+				writeVerifyTimeFile(verifyTimeArray)
+			}
+			if outputNum == 52 {
+				writeTotalTimeFile(totalTimeArray)
+				writeVerifyTimeFile(verifyTimeArray)
 			}
 
+			time.Sleep(5 * time.Second)
+			config.WriteOutput(s.Result.String())
+			fmt.Println("\n===>[Output]Output time is", time.Now())
 			// fmt.Println("the number of goroutines: ", runtime.NumGoroutine())
 			// buf := make([]byte, 64*1024)
 			// runtime.Stack(buf, true)
@@ -92,7 +109,7 @@ func (s *StateEngine) outputTC(msg *message.ConMessage) (err error) {
 	return
 }
 
-func writeDataFile(timeArray []float64) {
+func writeTotalTimeFile(totalTimeArray []float64) {
 	// create a file
 	file, err := os.Create("time.csv")
 	if err != nil {
@@ -105,8 +122,29 @@ func writeDataFile(timeArray []float64) {
 	defer writer.Flush()
 
 	var data []string
-	for index, _ := range timeArray {
-		data = append(data, string(strconv.FormatFloat(timeArray[index], 'f', 5, 32)))
+	for index, _ := range totalTimeArray {
+		data = append(data, string(strconv.FormatFloat(totalTimeArray[index], 'f', 5, 32)))
+	}
+
+	// write all rows at once
+	writer.Write(data)
+}
+
+func writeVerifyTimeFile(verifyTimeArray []float64) {
+	// create a file
+	file, err := os.Create("verifyTime.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	// initialize csv writer
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	var data []string
+	for index, _ := range verifyTimeArray {
+		data = append(data, string(strconv.FormatFloat(verifyTimeArray[index], 'f', 5, 32)))
 	}
 
 	// write all rows at once

@@ -44,6 +44,7 @@ type StateEngine struct {
 	GlobalTimer  *RequestTimer
 	CollectTimer *RequestTimer
 	SubmitTimer  *RequestTimer
+	VerifyTime   float64
 
 	entropyNode           map[int64]bool
 	TimeCommitment        map[string][4]string
@@ -77,6 +78,7 @@ func InitConsensus(id int64) *StateEngine {
 		GlobalTimer:  newRequestTimer(),
 		CollectTimer: newRequestTimer(),
 		SubmitTimer:  newRequestTimer(),
+		VerifyTime:   0.0,
 
 		entropyNode:           make(map[int64]bool),
 		TimeCommitment:        make(map[string][4]string),
@@ -95,7 +97,7 @@ func InitConsensus(id int64) *StateEngine {
 
 // To start randomness beacon, primary writes a random output into output.yml
 func (s *StateEngine) WriteRandomOutput() {
-	time.Sleep(45 * time.Second)
+	time.Sleep(60 * time.Second)
 	fmt.Println("\n===>[WriteRandomOutput]start wirte config")
 
 	// generate random init input
@@ -202,6 +204,7 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 			s.ConfirmNum = 0
 			s.SubmitNum = 0
 			s.ApproveNum = 0
+			s.VerifyTime = 0.0
 			s.quit = make(chan bool)
 			s.entropyNode = make(map[int64]bool)
 			s.TimeCommitment = make(map[string][4]string)
@@ -226,7 +229,7 @@ func (s *StateEngine) WatchConfig(id int64, sig chan interface{}) {
 			go s.WaitTC(sig, s.quit)
 
 			// start 3 timers for a new round
-			s.GlobalTimer.tick(180 * time.Second)
+			s.GlobalTimer.tick(10 * time.Minute)
 			s.CollectTimer.tick(10 * time.Second)
 			// if s.NodeID == s.PrimaryID {
 			// 	s.SubmitTimer.tick(1 * time.Second)
