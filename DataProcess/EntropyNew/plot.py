@@ -19,7 +19,7 @@ data60 = np.loadtxt(open("60time.csv","rb"),delimiter=",")
 # data22 = data22[:-1]
 # data25 = data25[:-1]
 
-plt.figure(1)
+plt.figure(1,figsize=(3,3))
 plt.xlabel('Round')
 plt.ylabel('time(s)')
 # plt.xlim(1, 20)
@@ -37,8 +37,8 @@ plt.plot(xArray, data40)
 plt.plot(xArray, data50)
 plt.plot(xArray, data60)
 plt.title('title')
-plt.legend(('10','20','30','40','50','60'))
-plt.savefig("consensus.png")
+# plt.legend(('10','20','30','40','50','60'))
+plt.savefig("entropy.png")
 
 xArray = np.array([10, 20, 30, 40, 50, 60])
 data10Mean = np.mean(data10)
@@ -54,7 +54,7 @@ p1 = np.poly1d(z1)
 print(z1)
 print(p1)
 
-plt.figure(2)
+plt.figure(2,figsize=(3,3))
 plt.xlabel('Number of Entropy Nodes')
 plt.ylabel('Average Time(s)')
 # plt.xlim(0, 70)
